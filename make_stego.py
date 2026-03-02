@@ -1,5 +1,13 @@
 from PIL import Image, ImageDraw, ImageFont
-import struct
+import struct, os
+
+# Use relative path so it works on any platform (local, Render, etc.)
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, 'static', 'files')
+OUTPUT_FILE = os.path.join(OUTPUT_DIR, 'cat.jpg')
+
+# Create output directory if it doesn't exist
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Create a colorful cat-themed image
 img = Image.new('RGB', (600, 400), color=(30, 30, 50))
@@ -54,10 +62,10 @@ draw.arc([340, 260, 460, 340], 180, 360, fill=(80,80,90), width=12)
 # Text
 draw.text((10, 370), "Can you find what's hidden? 👀", fill=(150,150,180))
 
-img.save('/home/claude/ctf/static/files/cat.jpg', 'JPEG', quality=95)
+img.save(OUTPUT_FILE, 'JPEG', quality=95)
 
 # Append flag as plaintext bytes (detectable with `strings cat.jpg | grep FLAG`)
-with open('/home/claude/ctf/static/files/cat.jpg', 'ab') as f:
+with open(OUTPUT_FILE, 'ab') as f:
     f.write(b'\n<!-- FLAG{steg0_master_101} -->\n')
 
 print("Stego image created: cat.jpg")
