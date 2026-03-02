@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+solved.json
+.env
+*.egg-info/
+dist/
+build/
+.git/
+git_push_err.txt
+git_push_out.txt
+push_log.txt
+push_err.txt
