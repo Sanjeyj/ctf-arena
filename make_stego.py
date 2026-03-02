@@ -63,7 +63,6 @@ draw.arc([340, 260, 460, 340], 180, 360, fill=(80,80,90), width=12)
 draw.text((10, 370), "Can you find what's hidden? 👀", fill=(150,150,180))
 
 img.save(OUTPUT_FILE, 'JPEG', quality=95)
-
 # Append flag as plaintext bytes (detectable with `strings cat.jpg | grep FLAG`)
 with open(OUTPUT_FILE, 'ab') as f:
     f.write(b'\n<!-- FLAG{steg0_master_101} -->\n')
