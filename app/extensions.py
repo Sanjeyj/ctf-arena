@@ -1,12 +1,9 @@
-# Placeholders for future extensions
-# These will be initialized and configured in future milestones
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_login import LoginManager
+from flask_wtf.csrf import CSRFProtect
 
-class ExtensionPlaceholder:
-    def init_app(self, app):
-        pass
-
-db = ExtensionPlaceholder()
-migrate = ExtensionPlaceholder()
-login_manager = ExtensionPlaceholder()
-csrf = ExtensionPlaceholder()
-limiter = ExtensionPlaceholder()
+db = SQLAlchemy()
+migrate = Migrate()
+login_manager = LoginManager()
+csrf = CSRFProtect()

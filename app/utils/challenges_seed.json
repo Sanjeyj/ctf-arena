@@ -1,0 +1,158 @@
+{
+  "categories": [
+    "Cryptography",
+    "Web Exploitation",
+    "Steganography",
+    "Encoding",
+    "OSINT"
+  ],
+  "challenges": [
+    {
+      "legacy_id": "ch1",
+      "title": "Caesar's Secret",
+      "category": "Cryptography",
+      "points": 50,
+      "icon": "🔐",
+      "difficulty": "Easy",
+      "description": "Julius left you a message. Can you decode it?",
+      "flags": [
+        {
+          "content": "FLAG{caesar_salad_is_delicious}",
+          "flag_type": "exact"
+        }
+      ],
+      "hints": [
+        {
+          "content": "The ancient Romans shifted their alphabet to secure messages. Try shifting the letters backwards by 3 positions (ROT-3).",
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "legacy_id": "ch2",
+      "title": "Cookie Monster",
+      "category": "Web Exploitation",
+      "points": 75,
+      "icon": "🍪",
+      "difficulty": "Easy",
+      "description": "Only admins are allowed. You don't have credentials — but maybe you don't need them.",
+      "flags": [
+        {
+          "content": "FLAG{c00ki3s_are_delic10us}",
+          "flag_type": "exact"
+        }
+      ],
+      "hints": [
+        {
+          "content": "Check your browser cookies. The 'role' cookie might be holding you back.",
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "legacy_id": "ch3",
+      "title": "Hidden in Plain Sight",
+      "category": "Steganography",
+      "points": 75,
+      "icon": "🖼️",
+      "difficulty": "Easy",
+      "description": "Here's a cute cat image. Or is it just a cat? Download it and investigate.",
+      "flags": [
+        {
+          "content": "FLAG{steg0_master_101}",
+          "flag_type": "exact"
+        }
+      ],
+      "hints": [
+        {
+          "content": "Images can contain hidden zip folders or appended text data. Have you tried checking strings or running binwalk/exiftool?",
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "legacy_id": "ch4",
+      "title": "Base Jumping",
+      "category": "Encoding",
+      "points": 50,
+      "icon": "💻",
+      "difficulty": "Easy",
+      "description": "Sometimes secrets are just hiding in plain encoding.",
+      "flags": [
+        {
+          "content": "FLAG{base64_is_not_encryption}",
+          "flag_type": "exact"
+        }
+      ],
+      "hints": [
+        {
+          "content": "The string looks like it is encoded in Base64 (starts with FLAG in base64 equivalent, or has equal signs padding). Try decoding it.",
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "legacy_id": "ch5",
+      "title": "GitLeaks",
+      "category": "OSINT",
+      "points": 100,
+      "icon": "🔎",
+      "difficulty": "Easy",
+      "description": "A developer accidentally committed something they shouldn't have. Dig through the commit history.",
+      "flags": [
+        {
+          "content": "FLAG{git_gud_at_osint}",
+          "flag_type": "exact"
+        }
+      ],
+      "hints": [
+        {
+          "content": "Look at the commit log using git log -p to check deleted or modified lines.",
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "legacy_id": "ch6",
+      "title": "Broken Vault",
+      "category": "Web Exploitation",
+      "points": 200,
+      "icon": "🗄️",
+      "difficulty": "Hard",
+      "description": "An insecure document search vault is online at `/vault-search`. Find the hidden flag inside the vault by abusing the query logic.",
+      "flags": [
+        {
+          "content": "FLAG{sqli_is_still_alive_and_kicking}",
+          "flag_type": "exact"
+        }
+      ],
+      "hints": [
+        {
+          "content": "The SQL query is vulnerable to SQL injection. Try searching for `' OR 1=1 --` or using UNION queries to query from the 'secrets' table.",
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "legacy_id": "ch7",
+      "title": "Whisper Protocol",
+      "category": "Cryptography",
+      "points": 200,
+      "icon": "📡",
+      "difficulty": "Hard",
+      "description": "A secret transmission was intercepted. It is hex-encoded and encrypted with a repeating 3-character uppercase XOR key. Decrypt it to find the flag.",
+      "flags": [
+        {
+          "content": "FLAG{xor_ciphers_are_simple_but_effective}",
+          "flag_type": "exact"
+        }
+      ],
+      "hints": [
+        {
+          "content": "The ciphertext is hex-encoded. The key is 3 uppercase characters. You can brute-force it or analyze frequency of characters since XOR cipher is weak.",
+          "cost": 0
+        }
+      ]
+    }
+  ]
+}

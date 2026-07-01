@@ -249,6 +249,68 @@
 
         /* Chart container */
         .chart-wrap { position: relative; height: 240px; }
+
+        /* ── Freeze Banner ───────────────────────────────── */
+        .freeze-banner {
+            background: rgba(0,240,255,0.05);
+            border: 1px solid rgba(0,240,255,0.3);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: freeze-pulse 2s ease-in-out infinite;
+        }
+        @keyframes freeze-pulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(0,240,255,0); }
+            50% { box-shadow: 0 0 16px 2px rgba(0,240,255,0.15); }
+        }
+        .freeze-icon { font-size: 2rem; flex-shrink: 0; }
+        .freeze-text { font-size: 1rem; font-weight: 600; color: var(--neon-blue); }
+        .freeze-sub  { font-size: 0.85rem; color: var(--muted); margin-top: 0.2rem; }
+
+        /* ── Competition Timer ───────────────────────────── */
+        .timer-bar {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .timer-state { font-size: 0.8rem; text-transform: uppercase; font-weight: 700;
+            letter-spacing: 0.5px; padding: 0.2rem 0.8rem; border-radius: 20px; }
+        .timer-state.running { background: rgba(0,255,102,0.1); color: var(--neon-green); border: 1px solid rgba(0,255,102,0.3); }
+        .timer-state.frozen  { background: rgba(0,240,255,0.1); color: var(--neon-blue);  border: 1px solid rgba(0,240,255,0.3); }
+        .timer-state.ended   { background: rgba(255,51,102,0.1); color: var(--neon-red);  border: 1px solid rgba(255,51,102,0.3); }
+        .timer-state.practice{ background: rgba(255,215,0,0.1);  color: var(--neon-yellow); border: 1px solid rgba(255,215,0,0.3); }
+        .timer-state.scheduled { background: rgba(191,90,242,0.1); color: var(--neon-purple); border: 1px solid rgba(191,90,242,0.3); }
+        .timer-countdown { font-family: 'Fira Code', monospace; font-size: 1.4rem; font-weight: 700; color: var(--text); }
+        .timer-label { font-size: 0.82rem; color: var(--muted); }
+
+        /* ── Announcements ───────────────────────────────── */
+        .announcement-card {
+            background: rgba(0,240,255,0.03);
+            border: 1px solid rgba(0,240,255,0.15);
+            border-left: 3px solid var(--neon-blue);
+            border-radius: 0 12px 12px 0;
+            padding: 1rem 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+        .announcement-card.pinned {
+            border-left-color: var(--neon-yellow);
+            background: rgba(255,215,0,0.03);
+            border-color: rgba(255,215,0,0.2);
+        }
+        .ann-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.3rem; }
+        .ann-title .pin-icon { color: var(--neon-yellow); margin-right: 0.4rem; }
+        .ann-content { font-size: 0.9rem; color: var(--muted); line-height: 1.5; }
+        .ann-time { font-size: 0.78rem; color: var(--border); margin-top: 0.4rem; font-family: 'Fira Code', monospace; }
     </style>
 </head>
 <body>
@@ -277,7 +339,48 @@
 
 <div class="page">
     <div class="page-title">Arena <span>Scoreboard</span></div>
-    <div class="page-sub" id="scoreboard-subtitle">Live competition overview — auto-refreshes every 1 second</div>
+    <div class="page-sub" id="scoreboard-subtitle">Live competition overview — auto-refreshes every 5 seconds</div>
+
+    <!-- Competition Timer Bar -->
+    <div class="timer-bar" id="timer-bar" style="display:none;">
+        <div>
+            <span class="timer-state" id="timer-state-badge">Live</span>
+        </div>
+        <div style="text-align:center;">
+            <div class="timer-label" id="timer-label">Time Remaining</div>
+            <div class="timer-countdown" id="timer-countdown">––:––:––</div>
+        </div>
+        <div style="font-size:0.82rem;color:var(--muted);text-align:right;">
+            Auto-refreshes every 5s
+            <br><span id="last-refresh-time" style="font-family:'Fira Code',monospace;"></span>
+        </div>
+    </div>
+
+    <!-- Freeze Banner -->
+    <div class="freeze-banner" id="freeze-banner" style="display:none;">
+        <div class="freeze-icon">🧊</div>
+        <div>
+            <div class="freeze-text">Scoreboard is Frozen</div>
+            <div class="freeze-sub">Solves submitted after the freeze time are hidden from public view until the scoreboard unfreezes.</div>
+        </div>
+    </div>
+
+    <!-- Announcements -->
+    {% if announcements %}
+    <div class="card" style="margin-bottom:2rem;">
+        <div class="card-title">📢 Announcements</div>
+        {% for ann in announcements %}
+        <div class="announcement-card {% if ann.pinned %}pinned{% endif %}">
+            <div class="ann-title">
+                {% if ann.pinned %}<span class="pin-icon">📌</span>{% endif %}
+                {{ ann.title }}
+            </div>
+            <div class="ann-content">{{ ann.content }}</div>
+            <div class="ann-time">{{ ann.created_at.strftime('%Y-%m-%d %H:%M UTC') }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
     <!-- Stat cards -->
     <div class="stats-row" id="stats-row">
@@ -452,10 +555,10 @@ const scoreChart = new Chart(scoreCtx, {
     }
 });
 
-// ── Auto-refresh every 1 second ──────────────────────────────────
+// ── Auto-refresh every 5 seconds ──────────────────────────────────
 setInterval(async () => {
     await fetchAndUpdate();
-}, 1000);
+}, 5000);
 
 let lastDataSignature = '';
 
@@ -465,9 +568,47 @@ async function fetchAndUpdate() {
         const data = await res.json();
         if (data.error) return;
 
+        // Update timer bar
+        if (data.timer) {
+            const timerBar = document.getElementById('timer-bar');
+            const timerBadge = document.getElementById('timer-state-badge');
+            const timerLabel = document.getElementById('timer-label');
+            const timerCountdown = document.getElementById('timer-countdown');
+
+            timerBar.style.display = 'flex';
+            const state = data.timer.state || 'practice';
+            timerBadge.textContent = state.charAt(0).toUpperCase() + state.slice(1);
+            timerBadge.className = 'timer-state ' + (state === 'running' ? 'running' :
+                state === 'frozen' ? 'frozen' : state === 'ended' ? 'ended' :
+                state === 'scheduled' ? 'scheduled' : 'practice');
+
+            const secs = data.timer.remaining_seconds || 0;
+            if (secs > 0 && state !== 'ended' && state !== 'practice') {
+                const h = Math.floor(secs / 3600);
+                const m = Math.floor((secs % 3600) / 60);
+                const s = secs % 60;
+                timerCountdown.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                timerLabel.textContent = state === 'scheduled' ? 'Starts In' :
+                    state === 'registration_open' ? 'Registration Closes In' : 'Time Remaining';
+            } else {
+                timerCountdown.textContent = state === 'ended' ? 'ENDED' : '––:––:––';
+            }
+        }
+
+        // Freeze banner
+        const freezeBanner = document.getElementById('freeze-banner');
+        if (data.freeze_active) {
+            freezeBanner.style.display = 'flex';
+        } else {
+            freezeBanner.style.display = 'none';
+        }
+
         // Check if data actually changed before regenerating table to prevent flickering
         const sig = JSON.stringify(data.leaderboard);
-        if (sig === lastDataSignature) return;
+        if (sig === lastDataSignature) {
+            document.getElementById('last-refresh-time').textContent = new Date().toLocaleTimeString();
+            return;
+        }
         lastDataSignature = sig;
 
         // Update stat cards
@@ -500,6 +641,10 @@ async function fetchAndUpdate() {
             if (entry.name === currentUsername) {
                 nameHtml += ' <span style="color:var(--neon-blue); font-size:0.8rem; font-weight:700;">(YOU)</span>';
             }
+            // First blood indicator
+            if (entry.first_blood_count > 0) {
+                nameHtml += ` <span title="${entry.first_blood_count} First Blood(s)" style="font-size:0.9rem;">🩸×${entry.first_blood_count}</span>`;
+            }
 
             let badgesHtml = '';
             challengesList.forEach(ch_id => {
@@ -510,6 +655,7 @@ async function fetchAndUpdate() {
                 }
             });
 
+            const penalty = entry.penalty_time !== undefined ? `<br><small style="color:var(--muted);font-size:0.75rem;">⏱ ${entry.penalty_time}min</small>` : '';
             const lastSolveTime = (entry.last_solve && entry.solve_count > 0) 
                 ? entry.last_solve.substring(0, 19).replace('T', ' ') 
                 : '—';
@@ -518,7 +664,7 @@ async function fetchAndUpdate() {
             tr.innerHTML = `
                 <td>${rankHtml}</td>
                 <td class="participant-name">${nameHtml}</td>
-                <td><span class="score-val">${entry.score}</span> pts</td>
+                <td><span class="score-val">${entry.score}</span> pts${penalty}</td>
                 <td style="color:var(--muted);">${entry.solve_count} / ${challengesList.length}</td>
                 ${badgesHtml}
                 <td class="time-val">${lastSolveTime}</td>
@@ -526,6 +672,8 @@ async function fetchAndUpdate() {
             `;
             tbody.appendChild(tr);
         });
+
+        document.getElementById('last-refresh-time').textContent = new Date().toLocaleTimeString();
 
     } catch(e) { console.warn('Scoreboard update failed', e); }
 }

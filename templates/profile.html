@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Profile | {{ display_name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .profile-container {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 2.5rem;
+        margin-top: 1rem;
+    }
+    
+    @media (max-width: 900px) {
+        .profile-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .profile-card {
+        background: var(--container-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 2.5rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .avatar-placeholder {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: radial-gradient(circle, var(--neon-blue) 0%, rgba(0,0,0,0.5) 100%);
+        border: 2px solid var(--neon-blue);
+        box-shadow: 0 0 15px var(--glow-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-name {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+    }
+
+    .profile-username {
+        color: var(--neon-blue);
+        font-family: 'Fira Code', monospace;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+
+    .profile-role {
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        background: rgba(0, 240, 255, 0.08);
+        border: 1px solid var(--neon-blue);
+        color: var(--neon-blue);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-bio {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.5;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        padding-top: 1.5rem;
+        width: 100%;
+        text-align: left;
+    }
+
+    .profile-meta {
+        margin-top: 1.5rem;
+        width: 100%;
+        text-align: left;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+    
+    .profile-meta div {
+        margin-bottom: 0.5rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-box {
+        background: var(--container-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 2.2rem;
+        font-weight: 700;
+        font-family: 'Fira Code', monospace;
+    }
+
+    .solves-card {
+        background: var(--container-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .solves-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        padding-bottom: 0.8rem;
+    }
+
+    .solves-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .solves-table th, .solves-table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .solves-table th {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .solves-table td {
+        font-size: 0.95rem;
+    }
+
+    .ch-title-link {
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+    .ch-title-link:hover {
+        color: var(--neon-blue);
+    }
+
+    .badge-points {
+        font-family: 'Fira Code', monospace;
+        color: var(--neon-green);
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="avatar-placeholder">👤</div>
+        <h2 class="profile-name" id="profile-display-name">{{ display_name }}</h2>
+        <div class="profile-username" id="profile-username">@{{ username }}</div>
+        <div class="profile-role" id="profile-role-badge">{{ role }}</div>
+        
+        <div class="profile-bio">
+            <h4 style="color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.9rem;">Bio</h4>
+            <p>{{ bio }}</p>
+        </div>
+
+        <div class="profile-meta">
+            <div>📅 Joined: <strong>{{ registered_at.strftime('%Y-%m-%d %H:%M') if registered_at.strftime else registered_at }}</strong></div>
+            <div>🌍 Timezone: <strong>{{ timezone }}</strong></div>
+            <div>🎨 Theme: <strong>{{ preferred_theme }}</strong></div>
+        </div>
+    </div>
+
+    <div>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-label">Total Score</div>
+                <div class="stat-value" style="color: var(--neon-green);" id="profile-stat-score">{{ total_score }}</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Challenges Solved</div>
+                <div class="stat-value" style="color: var(--neon-blue);" id="profile-stat-solves">{{ solved_count }}</div>
+            </div>
+        </div>
+
+        <div class="solves-card">
+            <h3 class="solves-title">Solved Challenges Log</h3>
+            {% if solves %}
+                <table class="solves-table" id="table-user-solves">
+                    <thead>
+                        <tr>
+                            <th>Challenge</th>
+                            <th>Category</th>
+                            <th>Points</th>
+                            <th>Solve Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ch_id, solve in solves.items() %}
+                            <tr>
+                                <td>
+                                    <a href="/challenge/{{ ch_id }}" class="ch-title-link">{{ solve.title }}</a>
+                                </td>
+                                <td>
+                                    <span class="badge-category" style="font-size: 0.8rem; padding: 0.2rem 0.5rem;">{{ solve.category }}</span>
+                                </td>
+                                <td class="badge-points">+{{ solve.points }}</td>
+                                <td style="color: var(--text-secondary); font-size: 0.85rem;">{{ solve.time }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">No challenges solved yet. Go get some flags! 🚩</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

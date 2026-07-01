@@ -1,46 +1,19 @@
-# Placeholder initialization for models
-
-class User:
-    pass
-
-class Team:
-    pass
-
-class Challenge:
-    pass
-
-class Category:
-    pass
-
-class Flag:
-    pass
-
-class Hint:
-    pass
-
-class Submission:
-    pass
-
-class Competition:
-    pass
-
-class Announcement:
-    pass
-
-class Notification:
-    pass
-
-class Certificate:
-    pass
-
-class Theme:
-    pass
-
-class Plugin:
-    pass
-
-class AuditLog:
-    pass
-
-class Setting:
-    pass
+from app.models.user import User
+from app.models.team import Team
+from app.models.category import Category
+from app.models.challenge import Challenge
+from app.models.challenge_file import ChallengeFile
+from app.models.flag import Flag
+from app.models.hint import Hint, HintUnlock
+from app.models.submission import Submission
+from app.models.competition import Competition
+from app.models.announcement import Announcement
+from app.models.notification import Notification
+from app.models.certificate import Certificate
+from app.models.theme import Theme
+from app.models.plugin import Plugin
+from app.models.audit import AuditLog
+from app.models.setting import Setting
+from app.models.tag import Tag, ChallengeTag
+from app.models.role import Role, Permission, UserRole, RolePermission
+from app.models.login_history import LoginHistory

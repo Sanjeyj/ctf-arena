@@ -271,11 +271,14 @@
 
 <header>
     <div class="header-inner">
-        <div style="display:flex;align-items:center;gap:1rem;">
+        <div style="display:flex;align-items:center;gap:1.5rem;">
             <a href="/admin" class="brand" id="brand-admin-link">
                 🚩 CTF <span>Arena</span>
             </a>
             <span class="admin-badge">Admin</span>
+            <a href="/admin" class="header-nav-link active" style="margin-left:1.5rem;color:var(--neon-blue);text-decoration:none;font-weight:600;" id="nav-dashboard">Dashboard</a>
+            <a href="/admin/challenges" class="header-nav-link" style="margin-left:1rem;color:var(--muted);text-decoration:none;font-weight:600;transition:color 0.2s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'" id="nav-challenges">Challenges</a>
+            <a href="/admin/categories" class="header-nav-link" style="margin-left:1rem;color:var(--muted);text-decoration:none;font-weight:600;transition:color 0.2s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'" id="nav-categories">Categories</a>
         </div>
         <div class="header-actions">
             <a href="/scoreboard" class="btn-logout" style="border-color:var(--neon-blue);color:var(--neon-blue);" target="_blank" id="btn-public-scoreboard">📺 Present Scoreboard</a>
@@ -538,7 +541,12 @@ async function fetchAndUpdate() {
 // ── Admin reset ──────────────────────────────────────────────
 async function confirmReset() {
     if (!confirm('⚠️ This will permanently delete ALL participant data and scores.\n\nAre you sure?')) return;
-    const res  = await fetch('/admin/reset', { method: 'POST' });
+    const res  = await fetch('/admin/reset', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token() }}'
+        }
+    });
     const data = await res.json();
     if (data.success) {
         alert('All data has been reset.');

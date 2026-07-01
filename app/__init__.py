@@ -17,6 +17,25 @@ def create_app(config_name="default"):
     # Load config
     app.config.from_object(config_by_name.get(config_name, config_by_name["default"]))
     
+    # Initialize Extensions
+    from app.extensions import db, migrate, login_manager, csrf
+    db.init_app(app)
+    migrate.init_app(app, db)
+    
+    # Configure Flask-Login
+    login_manager.init_app(app)
+    login_manager.login_view = "auth.login"
+    login_manager.login_message = "Please log in to access this page."
+    login_manager.login_message_category = "error"
+    
+    @login_manager.user_loader
+    def load_user(user_id):
+        from app.models.user import User
+        # Return active, non-deleted user
+        return User.query.filter_by(id=int(user_id), is_deleted=False).first()
+        
+    csrf.init_app(app)
+    
     # Setup directories
     os.makedirs(os.path.join(app.root_path, "..", "logs"), exist_ok=True)
     os.makedirs(os.path.join(app.root_path, "..", "instance"), exist_ok=True)

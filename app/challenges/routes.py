@@ -1,12 +1,15 @@
-from flask import render_template, request, redirect, make_response, jsonify, session, url_for
+import os
+from flask import render_template, request, redirect, make_response, jsonify, url_for, send_from_directory, current_app
+from flask_login import current_user
 from app.challenges import challenges_bp
 from app.services.challenge_service import ChallengeService
+from app.services.hint_service import HintService
 from app.utils.decorators import require_login
 
 @challenges_bp.route("/")
 @require_login
 def index():
-    username = session["user"]
+    username = current_user.username
     challenges, solved, total_pts, registered_at = ChallengeService.get_dashboard_context(username)
     return render_template(
         "index.html",
@@ -20,21 +23,36 @@ def index():
 @challenges_bp.route("/challenge/<ch_id>")
 @require_login
 def challenge(ch_id):
-    username = session["user"]
+    username = current_user.username
     ch, solved = ChallengeService.get_challenge(ch_id, username)
     if not ch:
         return redirect(url_for("challenges.index"))
     
     # We load challenges list so that template namespace resolved checks work perfectly
     from app.repositories.challenge_repository import ChallengeRepository
-    challenges = ChallengeRepository.get_all()
+    challenges = ChallengeRepository.get_all(include_hidden=False)
     
-    return render_template(f"ch_{ch_id}.html", ch=ch, solved=solved, username=username, challenges=challenges)
+    # Fetch active hints mapped for active user
+    challenge_record = ChallengeService.get_challenge_by_any_id(ch_id)
+    hints = HintService.get_hints_for_challenge(challenge_record.id, current_user.id) if challenge_record else []
+    
+    # Fetch files list
+    files = challenge_record.files if challenge_record else []
+    
+    return render_template(
+        f"ch_{ch_id}.html",
+        ch=ch,
+        solved=solved,
+        username=username,
+        challenges=challenges,
+        hints=hints,
+        files=files
+    )
 
 @challenges_bp.route("/submit/<ch_id>", methods=["POST"])
 @require_login
 def submit(ch_id):
-    username = session["user"]
+    username = current_user.username
     flag = request.form.get("flag", "")
     success, msg, points = ChallengeService.submit_flag(ch_id, username, flag)
     return jsonify({"success": success, "msg": msg, "points": points})
@@ -53,7 +71,6 @@ def cookie_check():
 def vault_search():
     query = request.args.get("query", "")
     results = ChallengeService.search_vault(query)
-    # Match exact return JSON format
     if query.strip():
         return jsonify({"success": True, "results": results})
     return jsonify({"results": []})
@@ -61,7 +78,7 @@ def vault_search():
 @challenges_bp.route("/reset")
 @require_login
 def reset():
-    username = session["user"]
+    username = current_user.username
     ChallengeService.reset_progress(username)
     return redirect(url_for("challenges.index"))
 
@@ -71,3 +88,28 @@ def health():
         "status": "ok",
         "version": "v2"
     })
+
+# Secure download tracker route
+@challenges_bp.route("/uploads/<filename>")
+@require_login
+def download_file(filename):
+    from app.models.challenge_file import ChallengeFile
+    from app.services.file_service import FileService
+    
+    safe_name = os.path.basename(filename)
+    file_record = ChallengeFile.query.filter_by(stored_filename=safe_name).first()
+    if file_record:
+        FileService.track_download(file_record.id)
+        
+    upload_folder = os.path.join(current_app.root_path, "..", "instance", "uploads")
+    return send_from_directory(upload_folder, safe_name)
+
+# Hint unlock route
+@challenges_bp.route("/hints/<int:hint_id>/unlock", methods=["POST"])
+@require_login
+def unlock_hint(hint_id):
+    success, err = HintService.unlock_hint(hint_id, current_user.id)
+    if success:
+        h = HintService.get_hint_by_id(hint_id)
+        return jsonify({"success": True, "content": h.content})
+    return jsonify({"success": False, "msg": err})

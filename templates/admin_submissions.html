@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submission Manager | CTF Arena Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0c10; --surface: #11141a; --card: #1a1e26; --border: #2b313d;
+            --neon-blue: #00f0ff; --neon-green: #00ff66; --neon-red: #ff3366;
+            --neon-yellow: #ffd700; --neon-purple: #bf5af2;
+            --text: #f0f2f5; --muted: #8b949e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        body::before { content:''; position:fixed; top:-15%; left:-10%; width:50%; height:60%;
+            background: radial-gradient(circle, rgba(0,240,255,0.06) 0%, transparent 70%);
+            z-index:-1; pointer-events:none; }
+        header { background: rgba(17,20,26,0.9); backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border); padding: 0.9rem 2rem; position: sticky; top: 0; z-index: 100; }
+        .header-inner { max-width: 1400px; margin: 0 auto; display:flex; justify-content:space-between; align-items:center; }
+        .brand { display:flex; align-items:center; gap:0.6rem; font-size:1.3rem; font-weight:700; text-decoration:none; color:var(--text); }
+        .brand span { color:var(--neon-blue); }
+        .admin-badge { background:rgba(191,90,242,0.12); border:1px solid rgba(191,90,242,0.3); color:var(--neon-purple);
+            padding:0.2rem 0.7rem; border-radius:20px; font-size:0.75rem; font-weight:700; text-transform:uppercase; }
+        .nav-links { display:flex; gap:1rem; align-items:center; }
+        .nav-links a { color:var(--muted); text-decoration:none; font-size:0.88rem; font-weight:600; transition:color 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color:var(--neon-blue); }
+        .page { max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .page-title { font-size:1.8rem; font-weight:700; margin-bottom:0.3rem; }
+        .page-title span { color:var(--neon-blue); }
+        .page-sub { color:var(--muted); margin-bottom:2rem; font-size:0.95rem; }
+        .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.5rem; margin-bottom:1.5rem; }
+        .card-title { font-size:1rem; font-weight:700; margin-bottom:1.2rem; display:flex; align-items:center; gap:0.5rem; justify-content:space-between; }
+        .filter-form { display:flex; gap:0.8rem; flex-wrap:wrap; align-items:flex-end; }
+        select, input[type="number"] {
+            background:var(--surface); border:1px solid var(--border); color:var(--text);
+            padding:0.55rem 0.9rem; border-radius:10px; font-family:'Outfit',sans-serif;
+            font-size:0.88rem; transition:border-color 0.2s; }
+        select:focus, input:focus { outline:none; border-color:var(--neon-blue); }
+        .btn { padding:0.5rem 1rem; border-radius:10px; border:none;
+            font-family:'Outfit',sans-serif; font-size:0.85rem; font-weight:700;
+            cursor:pointer; transition:all 0.2s; text-decoration:none; display:inline-block; }
+        .btn-primary { background:var(--neon-blue); color:#000; }
+        .btn-primary:hover { box-shadow:0 0 12px rgba(0,240,255,0.4); }
+        .btn-sm { padding:0.25rem 0.6rem; font-size:0.78rem; border-radius:7px; }
+        .btn-danger  { background:transparent; border:1px solid rgba(255,51,102,0.4); color:var(--neon-red); }
+        .btn-danger:hover  { background:rgba(255,51,102,0.1); }
+        .btn-success { background:transparent; border:1px solid rgba(0,255,102,0.4); color:var(--neon-green); }
+        .btn-success:hover { background:rgba(0,255,102,0.08); }
+        .btn-warning { background:transparent; border:1px solid rgba(255,215,0,0.4); color:var(--neon-yellow); }
+        .btn-warning:hover { background:rgba(255,215,0,0.08); }
+        .btn-muted   { background:transparent; border:1px solid var(--border); color:var(--muted); }
+        .btn-muted:hover { border-color:var(--text); color:var(--text); }
+        .flash-msg { padding:0.75rem 1rem; border-radius:10px; margin-bottom:1.2rem; font-size:0.9rem; font-weight:600; }
+        .flash-success { background:rgba(0,255,102,0.08); border:1px solid rgba(0,255,102,0.25); color:var(--neon-green); }
+        .flash-warning { background:rgba(255,215,0,0.08); border:1px solid rgba(255,215,0,0.25); color:var(--neon-yellow); }
+        .flash-danger  { background:rgba(255,51,102,0.08); border:1px solid rgba(255,51,102,0.25); color:var(--neon-red); }
+        .flash-info    { background:rgba(0,240,255,0.08); border:1px solid rgba(0,240,255,0.25); color:var(--neon-blue); }
+        table { width:100%; border-collapse:collapse; font-size:0.88rem; }
+        th { text-align:left; padding:0.6rem 0.8rem; color:var(--muted); font-weight:600;
+            font-size:0.78rem; text-transform:uppercase; letter-spacing:0.4px;
+            border-bottom:1px solid var(--border); }
+        td { padding:0.75rem 0.8rem; border-bottom:1px solid rgba(43,49,61,0.5); vertical-align:middle; }
+        tr:last-child td { border-bottom:none; }
+        tr:hover td { background:rgba(255,255,255,0.02); }
+        .badge-correct  { background:rgba(0,255,102,0.1); color:var(--neon-green); border:1px solid rgba(0,255,102,0.2);
+            padding:0.15rem 0.55rem; border-radius:6px; font-size:0.77rem; font-weight:700; }
+        .badge-wrong    { background:rgba(255,51,102,0.1); color:var(--neon-red);  border:1px solid rgba(255,51,102,0.2);
+            padding:0.15rem 0.55rem; border-radius:6px; font-size:0.77rem; font-weight:700; }
+        .mono { font-family:'Fira Code',monospace; font-size:0.82rem; color:var(--muted); }
+        .flag-preview { max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+            font-family:'Fira Code',monospace; font-size:0.8rem; color:var(--muted); }
+        .action-row { display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap; }
+        .pagination { display:flex; gap:0.5rem; align-items:center; margin-top:1.2rem; flex-wrap:wrap; }
+        .page-link { padding:0.35rem 0.75rem; border-radius:8px; border:1px solid var(--border);
+            color:var(--muted); text-decoration:none; font-size:0.85rem; transition:all 0.2s; }
+        .page-link:hover { border-color:var(--neon-blue); color:var(--neon-blue); }
+        .page-link.active { background:var(--neon-blue); color:#000; border-color:var(--neon-blue); font-weight:700; }
+        .empty-state { text-align:center; padding:2.5rem; color:var(--muted); }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div style="display:flex;align-items:center;gap:1rem;">
+            <a href="/admin" class="brand">🚩 CTF <span>Arena</span></a>
+            <span class="admin-badge">Admin</span>
+        </div>
+        <div class="nav-links">
+            <a href="/admin">Dashboard</a>
+            <a href="/admin/challenges">Challenges</a>
+            <a href="/admin/announcements">Announcements</a>
+            <a href="/admin/submissions" class="active">Submissions</a>
+            <a href="/admin/competition">Competition</a>
+            <a href="/admin/logout" style="color:var(--neon-red);">Logout</a>
+        </div>
+    </div>
+</header>
+
+<div class="page">
+    <div class="page-title">📋 Submission <span>Manager</span></div>
+    <div class="page-sub">View, filter, rejudge, or export all flag submissions.</div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+            <div class="flash-msg flash-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <!-- Filters -->
+    <div class="card" style="padding:1.2rem 1.5rem;">
+        <form method="GET" action="/admin/submissions" class="filter-form">
+            <div>
+                <label style="display:block;font-size:0.78rem;color:var(--muted);margin-bottom:0.3rem;text-transform:uppercase;">User</label>
+                <select name="user_id" id="filter-user">
+                    <option value="">All Users</option>
+                    {% for u in all_users %}
+                    <option value="{{ u.id }}" {{ 'selected' if request.args.get('user_id') == u.id|string }}>{{ u.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label style="display:block;font-size:0.78rem;color:var(--muted);margin-bottom:0.3rem;text-transform:uppercase;">Challenge</label>
+                <select name="challenge_id" id="filter-challenge">
+                    <option value="">All Challenges</option>
+                    {% for ch in all_challenges %}
+                    <option value="{{ ch.id }}" {{ 'selected' if request.args.get('challenge_id') == ch.id|string }}>{{ ch.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label style="display:block;font-size:0.78rem;color:var(--muted);margin-bottom:0.3rem;text-transform:uppercase;">Result</label>
+                <select name="correct" id="filter-correct">
+                    <option value="">All</option>
+                    <option value="true" {{ 'selected' if request.args.get('correct') == 'true' }}>Correct Only</option>
+                    <option value="false" {{ 'selected' if request.args.get('correct') == 'false' }}>Wrong Only</option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block;font-size:0.78rem;color:var(--muted);margin-bottom:0.3rem;text-transform:uppercase;">Per Page</label>
+                <select name="per_page" id="filter-per-page">
+                    <option value="25" {{ 'selected' if request.args.get('per_page') == '25' }}>25</option>
+                    <option value="50" {{ 'selected' if not request.args.get('per_page') or request.args.get('per_page') == '50' }}>50</option>
+                    <option value="100" {{ 'selected' if request.args.get('per_page') == '100' }}>100</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" id="btn-apply-filter">🔍 Filter</button>
+            <a href="/admin/submissions" class="btn btn-muted" id="btn-clear-filter">Clear</a>
+            <a href="/admin/submissions/export" class="btn btn-muted" id="btn-export-csv"
+               style="border-color:rgba(0,255,102,0.3);color:var(--neon-green);">⬇ Export CSV</a>
+        </form>
+    </div>
+
+    <!-- Submissions Table -->
+    <div class="card">
+        <div class="card-title">
+            <span>Submissions ({{ result.total }} total)</span>
+            <span style="font-size:0.82rem;color:var(--muted);font-weight:500;">
+                Page {{ result.page }} / {{ result.pages }}
+            </span>
+        </div>
+
+        {% if result.items %}
+        <div style="overflow-x:auto;">
+        <table id="submissions-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>User</th>
+                    <th>Challenge</th>
+                    <th>Submitted Flag</th>
+                    <th>Result</th>
+                    <th>Points</th>
+                    <th>Time</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sub in result.items %}
+                {% set user = all_users | selectattr('id', 'equalto', sub.user_id) | first %}
+                {% set ch = all_challenges | selectattr('id', 'equalto', sub.challenge_id) | first %}
+                <tr id="sub-row-{{ sub.id }}">
+                    <td><span class="mono">{{ sub.id }}</span></td>
+                    <td>{{ user.username if user else '—' }}</td>
+                    <td>{{ ch.title if ch else '—' }}</td>
+                    <td>
+                        <div class="flag-preview" title="{{ sub.submitted_flag or '' }}">
+                            {{ sub.submitted_flag or '(not recorded)' }}
+                        </div>
+                    </td>
+                    <td>
+                        {% if sub.correct %}
+                            <span class="badge-correct">✓ Correct</span>
+                        {% else %}
+                            <span class="badge-wrong">✗ Wrong</span>
+                        {% endif %}
+                    </td>
+                    <td><span class="mono" style="color:var(--neon-blue);">{{ sub.points }}</span></td>
+                    <td><span class="mono">{{ sub.time.strftime('%m-%d %H:%M') if sub.time else '—' }}</span></td>
+                    <td>
+                        <div class="action-row">
+                            <a href="/admin/submissions/{{ sub.id }}/rejudge" class="btn btn-muted btn-sm"
+                               title="Rejudge against current flags" id="btn-rejudge-{{ sub.id }}">⚖</a>
+                            {% if not sub.correct %}
+                            <a href="/admin/submissions/{{ sub.id }}/mark_correct" class="btn btn-success btn-sm"
+                               title="Mark as correct" id="btn-correct-{{ sub.id }}">✓</a>
+                            {% else %}
+                            <a href="/admin/submissions/{{ sub.id }}/mark_incorrect" class="btn btn-warning btn-sm"
+                               title="Mark as incorrect" id="btn-wrong-{{ sub.id }}">✗</a>
+                            {% endif %}
+                            <a href="/admin/submissions/{{ sub.id }}/delete" class="btn btn-danger btn-sm"
+                               onclick="return confirm('Delete submission #{{ sub.id }}?')" id="btn-del-sub-{{ sub.id }}">🗑</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            {% set args = request.args.to_dict() %}
+            {% if result.page > 1 %}
+                {% set _ = args.update({'page': result.page - 1}) %}
+                <a href="/admin/submissions?{{ args | urlencode }}" class="page-link" id="page-prev">← Prev</a>
+            {% endif %}
+            {% for p in range(1, result.pages + 1) %}
+                {% set _ = args.update({'page': p}) %}
+                <a href="/admin/submissions?{{ args | urlencode }}"
+                   class="page-link {{ 'active' if p == result.page }}" id="page-{{ p }}">{{ p }}</a>
+            {% endfor %}
+            {% if result.page < result.pages %}
+                {% set _ = args.update({'page': result.page + 1}) %}
+                <a href="/admin/submissions?{{ args | urlencode }}" class="page-link" id="page-next">Next →</a>
+            {% endif %}
+        </div>
+
+        {% else %}
+        <div class="empty-state">No submissions match the current filters.</div>
+        {% endif %}
+    </div>
+</div>
+
+</body>
+</html>
