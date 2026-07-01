@@ -124,6 +124,7 @@
         <div class="card">
             <div class="card-title">➕ Create Announcement</div>
             <form method="POST" action="/admin/announcements">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group">
                     <label>Title *</label>
                     <input type="text" name="title" placeholder="Announcement title..." required id="ann-title">

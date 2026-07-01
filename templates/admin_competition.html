@@ -141,16 +141,19 @@
         <div class="quick-actions">
             {% if state not in ['frozen', 'ended'] %}
             <form method="POST" action="/admin/competition/freeze">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="btn btn-warning" id="btn-freeze-scoreboard">🧊 Freeze Scoreboard</button>
             </form>
             {% endif %}
             {% if state == 'frozen' %}
             <form method="POST" action="/admin/competition/unfreeze">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="btn btn-primary" id="btn-unfreeze-scoreboard">▶ Unfreeze Scoreboard</button>
             </form>
             {% endif %}
             {% if state != 'ended' %}
             <form method="POST" action="/admin/competition/end" onsubmit="return confirm('End the competition now?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="btn btn-danger" id="btn-end-competition">🏁 End Competition</button>
             </form>
             {% endif %}
@@ -190,6 +193,7 @@
     <div class="card">
         <div class="card-title">✏️ Edit Competition</div>
         <form method="POST" action="/admin/competition/update">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="grid-2">
                 <div class="form-group">
                     <label>Competition Name *</label>

@@ -138,6 +138,7 @@
         {% endif %}
 
         <form method="POST" action="/admin/login" id="admin-login-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="field">
                 <label for="admin-username">Username</label>
                 <input type="text" name="username" id="admin-username" placeholder="admin" required autocomplete="off">
