@@ -1,4 +1,4 @@
-from app.extensions import db
+from app.extensions import db, safe_commit
 from app.models.category import Category
 
 class CategoryRepository:
@@ -28,7 +28,7 @@ class CategoryRepository:
             visible=visible
         )
         db.session.add(cat)
-        db.session.commit()
+        safe_commit()
         return cat
 
     @staticmethod
@@ -36,10 +36,10 @@ class CategoryRepository:
         for k, v in kwargs.items():
             if hasattr(cat, k):
                 setattr(cat, k, v)
-        db.session.commit()
+        safe_commit()
         return cat
 
     @staticmethod
     def delete(cat):
         db.session.delete(cat)
-        db.session.commit()
+        safe_commit()

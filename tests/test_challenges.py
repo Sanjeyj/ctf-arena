@@ -216,3 +216,95 @@ def test_file_upload_sanitization_and_hashing(app, tmp_path):
         
         # Verify file deleted from disk
         assert not os.path.exists(os.path.join(upload_folder, cf.stored_filename))
+# Hello
+
+def test_file_upload_validation(app, tmp_path):
+    """Verify that script files are rejected and only safe files are allowed."""
+    with app.app_context():
+        ch = ChallengeService.create_challenge("ch_file_val_test", "File Val Test", "Desc", 50, "Easy")
+        from werkzeug.datastructures import FileStorage
+        import io
+        
+        # 1. Attempt to upload a forbidden script extension (.py)
+        bad_file_py = FileStorage(
+            stream=io.BytesIO(b"print('danger')"),
+            filename="exploit.py",
+            content_type="text/x-python"
+        )
+        upload_folder = str(tmp_path / "uploads")
+        cf, err = FileService.upload_file(ch.id, bad_file_py, upload_folder)
+        assert cf is None
+        assert err is not None
+        assert "rejected" in err.lower() or "not allowed" in err.lower()
+
+        # 2. Attempt to upload a forbidden double extension (.php.png)
+        bad_file_double = FileStorage(
+            stream=io.BytesIO(b"<?php echo 1; ?>"),
+            filename="backdoor.php.png",
+            content_type="image/png"
+        )
+        cf, err = FileService.upload_file(ch.id, bad_file_double, upload_folder)
+        assert cf is None
+        assert err is not None
+        assert "rejected" in err.lower() or "not allowed" in err.lower()
+
+        # 3. Attempt to upload an extension not in whitelist (.xyz)
+        bad_file_ext = FileStorage(
+            stream=io.BytesIO(b"some unknown format"),
+            filename="unknown.xyz",
+            content_type="application/octet-stream"
+        )
+        cf, err = FileService.upload_file(ch.id, bad_file_ext, upload_folder)
+        assert cf is None
+        assert err is not None
+        assert "not allowed" in err.lower()
+
+        # 4. Upload a valid whitelisted extension (.zip)
+        good_file = FileStorage(
+            stream=io.BytesIO(b"safe zip content"),
+            filename="assets.zip",
+            content_type="application/zip"
+        )
+        cf, err = FileService.upload_file(ch.id, good_file, upload_folder)
+        assert err is None
+        assert cf is not None
+        assert cf.original_filename == "assets.zip"
+
+def test_file_download_security_headers(app, client):
+    """Verify that downloading challenge files sets secure Content-Disposition and security headers."""
+    # Register and login user
+    with app.app_context():
+        AuthService.register_user("downloader", "Password123!", "Password123!")
+        
+        ch = ChallengeService.create_challenge("ch_dl_test", "DL Test", "Desc", 50, "Easy")
+        
+        # Create a mock file record
+        from app.repositories.challenge_file_repository import ChallengeFileRepository
+        cf = ChallengeFileRepository.create(
+            challenge_id=ch.id,
+            location="uploads/test_file.zip",
+            original_filename="original_name.zip",
+            stored_filename="test_file.zip",
+            size=15,
+            checksum="fakehash",
+            mime_type="application/zip"
+        )
+        
+        # Write dummy file to uploads folder inside app.instance_path
+        upload_folder = os.path.join(app.instance_path, "uploads")
+        os.makedirs(upload_folder, exist_ok=True)
+        with open(os.path.join(upload_folder, "test_file.zip"), "wb") as f:
+            f.write(b"dummy zip content")
+
+    # Login
+    client.post("/login", data={"username": "downloader", "password": "Password123!"})
+    
+    # Download file
+    resp = client.get("/uploads/test_file.zip")
+    assert resp.status_code == 200
+    
+    # Assert security headers
+    assert "attachment" in resp.headers.get("Content-Disposition", "")
+    assert "original_name.zip" in resp.headers.get("Content-Disposition", "")
+    assert resp.headers.get("Content-Security-Policy") == "default-src 'none'"
+    assert resp.headers.get("X-Content-Type-Options") == "nosniff"

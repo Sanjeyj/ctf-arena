@@ -1,4 +1,4 @@
-from app.extensions import db
+from app.extensions import db, safe_commit
 from app.models.flag import Flag
 
 class FlagRepository:
@@ -22,7 +22,7 @@ class FlagRepository:
             enabled=enabled
         )
         db.session.add(flag)
-        db.session.commit()
+        safe_commit()
         return flag
 
     @staticmethod
@@ -32,10 +32,10 @@ class FlagRepository:
                 if k == "content" and v is not None:
                     v = v.strip()
                 setattr(flag, k, v)
-        db.session.commit()
+        safe_commit()
         return flag
 
     @staticmethod
     def delete(flag):
         db.session.delete(flag)
-        db.session.commit()
+        safe_commit()

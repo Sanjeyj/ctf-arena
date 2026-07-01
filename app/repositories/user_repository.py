@@ -1,4 +1,4 @@
-from app.extensions import db
+from app.extensions import db, safe_commit
 from app.models.user import User
 from app.models.role import Role
 
@@ -29,7 +29,7 @@ class UserRepository:
         if role:
             user.roles.append(role)
         db.session.add(user)
-        db.session.commit()
+        safe_commit()
         return user
 
     @staticmethod

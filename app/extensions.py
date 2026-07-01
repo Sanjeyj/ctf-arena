@@ -10,3 +10,17 @@ migrate = Migrate()
 login_manager = LoginManager()
 csrf = CSRFProtect()
 limiter = Limiter(key_func=get_remote_address)
+
+
+def safe_commit():
+    """Commit the current DB session; rollback and re-raise on any error.
+    
+    Use this in place of db.session.commit() for all write operations so that
+    a failed flush never leaves the session in a broken transaction state.
+    """
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        raise
+

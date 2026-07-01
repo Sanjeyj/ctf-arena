@@ -1,4 +1,4 @@
-from app.extensions import db
+from app.extensions import db, safe_commit
 from app.models.challenge_file import ChallengeFile
 
 class ChallengeFileRepository:
@@ -22,17 +22,17 @@ class ChallengeFileRepository:
             mime_type=mime_type
         )
         db.session.add(cf)
-        db.session.commit()
+        safe_commit()
         return cf
 
     @staticmethod
     def delete(file):
         db.session.delete(file)
-        db.session.commit()
+        safe_commit()
 
     @staticmethod
     def increment_download(file):
         file.download_count += 1
         db.session.add(file)
-        db.session.commit()
+        safe_commit()
         return file

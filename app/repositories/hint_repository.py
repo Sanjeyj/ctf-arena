@@ -1,4 +1,4 @@
-from app.extensions import db
+from app.extensions import db, safe_commit
 from app.models.hint import Hint, HintUnlock
 
 class HintRepository:
@@ -22,7 +22,7 @@ class HintRepository:
             display_order=display_order
         )
         db.session.add(hint)
-        db.session.commit()
+        safe_commit()
         return hint
 
     @staticmethod
@@ -34,13 +34,13 @@ class HintRepository:
                 elif k == "title" and v is not None:
                     v = v.strip()
                 setattr(hint, k, v)
-        db.session.commit()
+        safe_commit()
         return hint
 
     @staticmethod
     def delete(hint):
         db.session.delete(hint)
-        db.session.commit()
+        safe_commit()
 
     @staticmethod
     def is_unlocked(hint_id, user_id):
@@ -56,6 +56,6 @@ class HintRepository:
         if not unlock:
             unlock = HintUnlock(user_id=user_id, hint_id=hint_id)
             db.session.add(unlock)
-            db.session.commit()
+            safe_commit()
             return True
         return False

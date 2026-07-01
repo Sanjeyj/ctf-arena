@@ -1,4 +1,4 @@
-from app.extensions import db
+from app.extensions import db, safe_commit
 from app.models.challenge import Challenge
 
 class ChallengeRepository:
@@ -44,7 +44,7 @@ class ChallengeRepository:
             if hasattr(ch, k) and k not in ["initial_points", "minimum_points", "current_points", "decay_type", "decay_rate", "max_attempts", "requires_connection_info", "connection_info", "visible", "state", "display_order", "featured", "archived"]:
                 setattr(ch, k, v)
         db.session.add(ch)
-        db.session.commit()
+        safe_commit()
         return ch
 
     @staticmethod
@@ -54,14 +54,14 @@ class ChallengeRepository:
                 if isinstance(v, str):
                     v = v.strip()
                 setattr(challenge, k, v)
-        db.session.commit()
+        safe_commit()
         return challenge
 
     @staticmethod
     def delete(challenge):
         # Perform soft delete using the mixin property
         challenge.is_deleted = True
-        db.session.commit()
+        safe_commit()
 
     @staticmethod
     def list_challenges(search=None, category_id=None, difficulty=None, visibility=None, state=None, author_id=None, sort_by=None, page=None, per_page=None):

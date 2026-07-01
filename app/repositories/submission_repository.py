@@ -1,4 +1,4 @@
-from app.extensions import db
+from app.extensions import db, safe_commit
 from app.models.submission import Submission
 from app.models.user import User
 from app.models.challenge import Challenge
@@ -84,7 +84,7 @@ class SubmissionRepository:
             status="correct"
         )
         db.session.add(sub)
-        db.session.commit()
+        safe_commit()
         return sub
 
     @staticmethod
@@ -101,7 +101,7 @@ class SubmissionRepository:
             status="wrong"
         )
         db.session.add(sub)
-        db.session.commit()
+        safe_commit()
         return sub
 
     @staticmethod
@@ -109,7 +109,7 @@ class SubmissionRepository:
         sub = Submission.query.get(sub_id)
         if sub:
             db.session.delete(sub)
-            db.session.commit()
+            safe_commit()
             return True
         return False
 
@@ -121,7 +121,7 @@ class SubmissionRepository:
             sub.status = status
             if points is not None:
                 sub.points = points
-            db.session.commit()
+            safe_commit()
         return sub
 
     @staticmethod
@@ -130,7 +130,7 @@ class SubmissionRepository:
         if user:
             Submission.query.filter_by(user_id=user.id).delete()
             user.registered_at = datetime.datetime.utcnow()
-            db.session.commit()
+            safe_commit()
             return True
         return False
 
@@ -138,7 +138,7 @@ class SubmissionRepository:
     def reset_all_solves():
         Submission.query.delete()
         User.query.delete()
-        db.session.commit()
+        safe_commit()
         return True
 
     @staticmethod

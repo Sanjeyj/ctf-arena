@@ -99,13 +99,6 @@ def reset():
     ChallengeService.reset_progress(username)
     return redirect(url_for("challenges.index"))
 
-@challenges_bp.route("/health")
-def health():
-    return jsonify({
-        "status": "ok",
-        "version": "v2"
-    })
-
 # Secure download tracker route
 @challenges_bp.route("/uploads/<filename>")
 @require_login
@@ -119,7 +112,15 @@ def download_file(filename):
         FileService.track_download(file_record.id)
         
     upload_folder = os.path.join(current_app.root_path, "..", "instance", "uploads")
-    return send_from_directory(upload_folder, safe_name)
+    response = send_from_directory(
+        upload_folder,
+        safe_name,
+        as_attachment=True,
+        download_name=file_record.original_filename if file_record else safe_name
+    )
+    response.headers["Content-Security-Policy"] = "default-src 'none'"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    return response
 
 # Hint unlock route
 @challenges_bp.route("/hints/<int:hint_id>/unlock", methods=["POST"])

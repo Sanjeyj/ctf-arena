@@ -89,16 +89,17 @@ def create_app(config_name="default"):
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         
         # Content-Security-Policy (CSP)
-        csp_config = (
-            "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; "
-            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
-            "font-src 'self' https://fonts.gstatic.com; "
-            "img-src 'self' data:; "
-            "frame-src 'none'; "
-            "connect-src 'self'"
-        )
-        response.headers["Content-Security-Policy"] = csp_config
+        if "Content-Security-Policy" not in response.headers:
+            csp_config = (
+                "default-src 'self'; "
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; "
+                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
+                "font-src 'self' https://fonts.gstatic.com; "
+                "img-src 'self' data:; "
+                "frame-src 'none'; "
+                "connect-src 'self'"
+            )
+            response.headers["Content-Security-Policy"] = csp_config
         
         # Permissions-Policy
         response.headers["Permissions-Policy"] = "geolocation=(), camera=(), microphone=()"
@@ -187,6 +188,16 @@ def create_app(config_name="default"):
         if not app.config.get("METRICS_ENABLED", True):
             return "Metrics disabled", 403
         return MetricsService.get_prometheus_metrics(), 200, {"Content-Type": "text/plain; version=0.0.4"}
+
+    # --- Database Transaction Safety ---
+    @app.teardown_request
+    def rollback_on_exception(exc):
+        """Ensure DB session is rolled back if an exception occurred during the request."""
+        if exc is not None:
+            try:
+                db.session.rollback()
+            except Exception:
+                pass
 
     # Register error handlers
     register_error_handlers(app)
