@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ch.title }} | CTF Arena{% endblock %}
+
+{% block content %}
+<div class="back-nav">
+    <a href="/" class="btn-secondary" id="btn-back-dashboard">
+        &larr; Back to Dashboard
+    </a>
+</div>
+
+<div class="glass-card" id="challenge-card-ch1">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+        <div>
+            <span class="badge-category">{{ ch.category }}</span>
+            <h1 style="font-size: 2.2rem; font-weight: 700; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>{{ ch.icon }}</span> {{ ch.title }}
+            </h1>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-family: 'Fira Code', monospace; font-size: 1.2rem; font-weight: 600; color: var(--neon-blue);">
+                {{ ch.points }} Points
+            </div>
+            <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                Difficulty: <span style="color: var(--neon-yellow); font-weight: 600;">{{ ch.difficulty }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 2.5rem; font-size: 1.1rem;">
+        <p>{{ ch.description }}</p>
+    </div>
+
+    <div class="challenge-body" style="margin-bottom: 2.5rem;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 0.8rem; color: var(--text-primary); font-weight: 600;">
+            Intercepted Transmission:
+        </h3>
+        <div class="code-box" style="font-size: 1.2rem; letter-spacing: 1px; text-align: center; font-weight: 600;">
+            IODJ{fdhvdu_vdodg_lv_gholflrxv}
+        </div>
+        
+        <div style="margin-top: 2rem; background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.15); padding: 1rem; border-radius: 8px;">
+            <span style="color: var(--neon-yellow); font-weight: bold;">💡 Hint:</span>
+            <span style="color: var(--text-secondary); font-size: 0.95rem;">
+                The ancient Romans shifted their alphabet to secure messages. Try shifting the letters backwards by 3 positions (ROT-3).
+            </span>
+        </div>
+    </div>
+
+    {% if 'ch1' in solved %}
+        <div class="solved-banner" id="ch1-solved-banner">
+            <span>🎉 You have successfully solved this challenge!</span>
+        </div>
+    {% endif %}
+
+    <div class="submit-section">
+        <h3>🔑 Submit Flag</h3>
+        <form onsubmit="submitFlag('ch1', event)">
+            <div class="form-group">
+                <input type="text" name="flag" class="flag-input" placeholder="FLAG{...}" required autocomplete="off" id="input-flag-ch1">
+                <button type="submit" class="submit-btn" id="btn-submit-ch1">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

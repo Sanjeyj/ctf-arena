@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ch.title }} | CTF Arena{% endblock %}
+
+{% block content %}
+<div class="back-nav">
+    <a href="/" class="btn-secondary" id="btn-back-dashboard">
+        &larr; Back to Dashboard
+    </a>
+</div>
+
+<div class="glass-card" id="challenge-card-ch7">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+        <div>
+            <span class="badge-category" style="background: rgba(255, 51, 102, 0.1); border-color: rgba(255, 51, 102, 0.3); color: var(--neon-red);">{{ ch.category }}</span>
+            <h1 style="font-size: 2.2rem; font-weight: 700; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>{{ ch.icon }}</span> {{ ch.title }}
+            </h1>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-family: 'Fira Code', monospace; font-size: 1.2rem; font-weight: 600; color: var(--neon-red);">
+                {{ ch.points }} Points
+            </div>
+            <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                Difficulty: <span style="color: var(--neon-red); font-weight: 600;">{{ ch.difficulty }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 2.5rem; font-size: 1.1rem; line-height: 1.6;">
+        <p>A high-frequency military communication transmission was intercepted. The transmission was encrypted using a repeating-key XOR cipher. Analysis indicates:</p>
+        <ul style="margin: 1rem 0; padding-left: 2rem; color: var(--text-secondary);">
+            <li>The key is exactly <strong>3 uppercase letters</strong> (A-Z).</li>
+            <li>The message starts with standard flag format header <code>FLAG{</code>.</li>
+        </ul>
+        <p>Decrypt the hex-encoded transmission payload to discover the flag.</p>
+    </div>
+
+    <div class="challenge-body" style="margin-bottom: 2.5rem;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 0.8rem; color: var(--text-primary); font-weight: 600;">
+            Intercepted Hex Stream:
+        </h3>
+        <div class="code-box" style="font-size: 1rem; word-break: break-all; font-family: 'Fira Code', monospace; letter-spacing: 0.5px; line-height: 1.5;" id="hex-transmission">
+            051807042f3e2c2619203d362b3134300b27313119303d2b3338231c3633370b2325322320202f35313b
+        </div>
+        
+        <!-- Live trial decoding utility -->
+        <div style="margin-top: 2rem; background: rgba(0,240,255,0.03); border: 1px solid rgba(0,240,255,0.15); padding: 1.5rem; border-radius: 10px;">
+            <h4 style="font-size: 1rem; color: var(--neon-blue); margin-bottom: 0.8rem; font-weight: 600;">⚡ Signal Decryption Bench</h4>
+            <div style="display: flex; gap: 0.8rem; margin-bottom: 1.2rem; align-items: center;">
+                <label for="xor-key" style="font-weight: 600; color: var(--text-secondary); font-size: 0.9rem; text-transform: none;">XOR KEY (3 chars):</label>
+                <input type="text" id="xor-key" maxlength="3" style="width: 100px; background: #0a0c10; border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.5rem; border-radius: 6px; font-family: 'Fira Code', monospace; font-size: 1rem; text-transform: uppercase; text-align: center;" placeholder="KEY" oninput="decryptLive()">
+            </div>
+            
+            <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Decoded output string:</div>
+            <div id="decoded-output" style="background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; font-family: 'Fira Code', monospace; min-height: 48px; word-break: break-all; color: var(--neon-green);">
+                (Enter a key above to attempt decryption)
+            </div>
+        </div>
+    </div>
+
+    {% if 'ch7' in solved %}
+        <div class="solved-banner" id="ch7-solved-banner" style="background: rgba(0, 255, 102, 0.08); border-color: rgba(0, 255, 102, 0.2); color: var(--neon-green);">
+            <span>🎉 You have successfully solved this challenge!</span>
+        </div>
+    {% endif %}
+
+    <div class="submit-section">
+        <h3>🔑 Submit Flag</h3>
+        <form onsubmit="submitFlag('ch7', event)">
+            <div class="form-group">
+                <input type="text" name="flag" class="flag-input" placeholder="FLAG{...}" required autocomplete="off" id="input-flag-ch7">
+                <button type="submit" class="submit-btn" style="background: var(--neon-red); color: #fff;" id="btn-submit-ch7">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const hexCiphertext = "051807042f3e2c2619203d362b3134300b27313119303d2b3338231c3633370b2325322320202f35313b";
+
+    function decryptLive() {
+        const keyInput = document.getElementById('xor-key').value.toUpperCase();
+        const outDiv = document.getElementById('decoded-output');
+        
+        if (!keyInput) {
+            outDiv.textContent = "(Enter a key above to attempt decryption)";
+            outDiv.style.color = 'var(--text-secondary)';
+            return;
+        }
+
+        // Convert hex to bytes
+        const bytes = [];
+        for (let i = 0; i < hexCiphertext.length; i += 2) {
+            bytes.push(parseInt(hexCiphertext.substr(i, 2), 16));
+        }
+
+        // Decrypt using key with repeating loop
+        let plaintext = '';
+        for (let i = 0; i < bytes.length; i++) {
+            const keyChar = keyInput[i % keyInput.length];
+            const keyByte = keyChar ? keyChar.charCodeAt(0) : 0;
+            const decryptedByte = bytes[i] ^ keyByte;
+            
+            // Print printable ASCII, or a dot if unprintable
+            if (decryptedByte >= 32 && decryptedByte <= 126) {
+                plaintext += String.fromCharCode(decryptedByte);
+            } else {
+                plaintext += '';
+            }
+        }
+
+        outDiv.textContent = plaintext;
+        if (plaintext.startsWith("FLAG{") && plaintext.endsWith("}")) {
+            outDiv.style.color = 'var(--neon-green)';
+        } else {
+            outDiv.style.color = 'var(--neon-blue)';
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ch.title }} | CTF Arena{% endblock %}
+
+{% block content %}
+<div class="back-nav">
+    <a href="/" class="btn-secondary" id="btn-back-dashboard">
+        &larr; Back to Dashboard
+    </a>
+</div>
+
+<div class="glass-card" id="challenge-card-ch4">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+        <div>
+            <span class="badge-category">{{ ch.category }}</span>
+            <h1 style="font-size: 2.2rem; font-weight: 700; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>{{ ch.icon }}</span> {{ ch.title }}
+            </h1>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-family: 'Fira Code', monospace; font-size: 1.2rem; font-weight: 600; color: var(--neon-blue);">
+                {{ ch.points }} Points
+            </div>
+            <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                Difficulty: <span style="color: var(--neon-yellow); font-weight: 600;">{{ ch.difficulty }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 2.5rem; font-size: 1.1rem;">
+        <p>{{ ch.description }}</p>
+    </div>
+
+    <div class="challenge-body" style="margin-bottom: 2.5rem;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 0.8rem; color: var(--text-primary); font-weight: 600;">
+            Encoded Data:
+        </h3>
+        <div class="code-box" style="font-size: 1.15rem; word-break: break-all; text-align: center; font-weight: 600;">
+            RkxBR3tiYXNlNjRfaXNfbm90X2VuY3J5cHRpb259
+        </div>
+        
+        <div style="margin-top: 2rem; background: rgba(0, 240, 255, 0.03); border: 1px solid rgba(0, 240, 255, 0.15); padding: 1.2rem; border-radius: 8px;">
+            <h4 style="color: var(--neon-blue); font-size: 1rem; margin-bottom: 0.5rem; font-weight: 600;">💡 Encoding vs. Encryption:</h4>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 0.8rem;">
+                Encoding converts data into a public, easily decodable format (e.g. Base64) to ensure safe transmission. It does <strong>not</strong> use secret keys and offers <strong>no security</strong>.
+            </p>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 0.5rem;">How to decode Base64:</p>
+            <ul style="margin-left: 1.2rem; color: var(--text-secondary); font-size: 0.95rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                <li><strong>Linux / macOS Terminal:</strong> 
+                    <code style="background: #000; padding: 0.1rem 0.4rem; border-radius: 4px; color: var(--neon-blue);">echo "RkxBR3..." | base64 -d</code>
+                </li>
+                <li><strong>Windows PowerShell:</strong> 
+                    <code style="background: #000; padding: 0.1rem 0.4rem; border-radius: 4px; color: var(--neon-blue); font-size: 0.85rem;">[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("RkxBR3..."))</code>
+                </li>
+                <li><strong>Python Interpreter:</strong>
+                    <code style="background: #000; padding: 0.1rem 0.4rem; border-radius: 4px; color: var(--neon-blue); font-size: 0.85rem;">import base64; print(base64.b64decode("RkxBR3...").decode())</code>
+                </li>
+                <li>Or visit a web service like <a href="https://gchq.github.io/CyberChef" target="_blank" style="color: var(--neon-blue); text-decoration: underline;">CyberChef</a> and use the "From Base64" recipe!</li>
+            </ul>
+        </div>
+    </div>
+
+    {% if 'ch4' in solved %}
+        <div class="solved-banner" id="ch4-solved-banner">
+            <span>🎉 You have successfully solved this challenge!</span>
+        </div>
+    {% endif %}
+
+    <div class="submit-section">
+        <h3>🔑 Submit Flag</h3>
+        <form onsubmit="submitFlag('ch4', event)">
+            <div class="form-group">
+                <input type="text" name="flag" class="flag-input" placeholder="FLAG{...}" required autocomplete="off" id="input-flag-ch4">
+                <button type="submit" class="submit-btn" id="btn-submit-ch4">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

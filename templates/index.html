@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | CTF Arena{% endblock %}
+
+{% block extra_head %}
+<style>
+    .hero {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 2.5rem 1rem;
+        background: radial-gradient(circle at center, rgba(0, 240, 255, 0.05) 0%, rgba(0,0,0,0) 80%);
+    }
+
+    .hero h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.5px;
+        background: linear-gradient(135deg, var(--neon-blue) 30%, #fff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 30px rgba(0, 240, 255, 0.15);
+    }
+
+    .hero p {
+        color: var(--text-secondary);
+        font-size: 1.2rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .challenges-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .ch-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.8rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 280px;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .ch-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), 0 0 15px var(--card-glow);
+        border-color: var(--card-border-hover);
+    }
+
+    /* Solved State Card Variables */
+    .ch-card.unsolved {
+        --card-glow: rgba(0, 240, 255, 0.1);
+        --card-border-hover: var(--neon-blue);
+    }
+
+    .ch-card.solved {
+        --card-glow: rgba(0, 255, 102, 0.1);
+        --card-border-hover: var(--neon-green);
+        border-color: rgba(0, 255, 102, 0.25);
+    }
+
+    .ch-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.2rem;
+    }
+
+    .ch-icon-wrapper {
+        font-size: 2rem;
+        background: rgba(255, 255, 255, 0.03);
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .solved-status {
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 0.3rem 0.7rem;
+        border-radius: 50px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .solved-status.unsolved-tag {
+        background: rgba(255, 51, 102, 0.08);
+        color: var(--neon-red);
+        border: 1px solid rgba(255, 51, 102, 0.2);
+    }
+
+    .solved-status.solved-tag {
+        background: rgba(0, 255, 102, 0.08);
+        color: var(--neon-green);
+        border: 1px solid rgba(0, 255, 102, 0.2);
+    }
+
+    .ch-title {
+        font-size: 1.35rem;
+        font-weight: 700;
+        margin-bottom: 0.6rem;
+        color: var(--text-primary);
+    }
+
+    .ch-desc {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
+    }
+
+    .ch-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding-top: 1.2rem;
+        margin-top: auto;
+    }
+
+    .difficulty-tag {
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--neon-yellow);
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .points-tag {
+        font-family: 'Fira Code', monospace;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--neon-blue);
+    }
+
+    .ch-card.solved .points-tag {
+        color: var(--neon-green);
+    }
+
+    .status-badge {
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Capture The Flag Arena</h1>
+    <p>Test your cybersecurity and hacking skills with these {{ challenges | length }} challenges. Work your way up the scoreboard!</p>
+</section>
+
+<div class="challenges-grid">
+    {% for ch_id, ch in challenges.items() %}
+        {% set is_solved = ch_id in solved %}
+        <a href="/challenge/{{ ch_id }}" class="ch-card {% if is_solved %}solved{% else %}unsolved{% endif %}" id="card-{{ ch_id }}">
+            <div>
+                <div class="ch-header">
+                    <div class="ch-icon-wrapper">
+                        {{ ch.icon }}
+                    </div>
+                    <div>
+                        {% if is_solved %}
+                            <span class="solved-status solved-tag" id="status-tag-{{ ch_id }}">✓ Solved</span>
+                        {% else %}
+                            <span class="solved-status unsolved-tag" id="status-tag-{{ ch_id }}">● Unsolved</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <span class="badge-category">{{ ch.category }}</span>
+                <h2 class="ch-title" style="margin-top: 0.6rem;">{{ ch.title }}</h2>
+                <p class="ch-desc">{{ ch.description }}</p>
+            </div>
+
+            <div class="ch-footer">
+                <span class="difficulty-tag">⚡ {{ ch.difficulty }}</span>
+                {% if is_solved %}
+                    <span class="points-tag" id="points-{{ ch_id }}" style="color: var(--neon-green);">{{ solved[ch_id].points }} pts</span>
+                {% else %}
+                    <span class="points-tag" id="points-{{ ch_id }}" data-base="{{ ch.points }}">{{ ch.points }} pts max</span>
+                {% endif %}
+            </div>
+        </a>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const registeredAt = new Date("{{ registered_at }}");
+    
+    function updateDecayingPoints() {
+        const now = new Date();
+        const elapsed = Math.floor((now - registeredAt) / 1000);
+        
+        document.querySelectorAll('.points-tag[data-base]').forEach(el => {
+            const basePoints = parseInt(el.getAttribute('data-base'), 10);
+            const currentPoints = Math.max(10, basePoints - Math.floor(elapsed / 10));
+            el.textContent = `${currentPoints} pts (Ticking...)`;
+        });
+    }
+
+    updateDecayingPoints();
+    setInterval(updateDecayingPoints, 1000);
+</script>
+{% endblock %}

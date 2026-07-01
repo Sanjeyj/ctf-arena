@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ch.title }} | CTF Arena{% endblock %}
+
+{% block content %}
+<div class="back-nav">
+    <a href="/" class="btn-secondary" id="btn-back-dashboard">
+        &larr; Back to Dashboard
+    </a>
+</div>
+
+<div class="glass-card" id="challenge-card-ch6">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+        <div>
+            <span class="badge-category" style="background: rgba(255, 51, 102, 0.1); border-color: rgba(255, 51, 102, 0.3); color: var(--neon-red);">{{ ch.category }}</span>
+            <h1 style="font-size: 2.2rem; font-weight: 700; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>{{ ch.icon }}</span> {{ ch.title }}
+            </h1>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-family: 'Fira Code', monospace; font-size: 1.2rem; font-weight: 600; color: var(--neon-red);">
+                {{ ch.points }} Points
+            </div>
+            <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                Difficulty: <span style="color: var(--neon-red); font-weight: 600;">{{ ch.difficulty }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 2.5rem; font-size: 1.1rem; line-height: 1.6;">
+        <p>A secret military warehouse document index is exposed via the search interface below. The backend search query uses string formatting directly into SQLite:</p>
+        <code style="background: rgba(0,0,0,0.3); padding: 0.2rem 0.5rem; border-radius: 4px; font-family: 'Fira Code', monospace; color: var(--neon-blue); display: block; margin: 1rem 0;">
+            SELECT name, description FROM products WHERE name LIKE '%{query}%'
+        </code>
+        <p>Exploit this raw SQL search parameter to retrieve the hidden flag stored inside another database table called <strong>secrets</strong>.</p>
+    </div>
+
+    <div class="challenge-body" style="margin-bottom: 2.5rem; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color);">
+        <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+            <span>🔍</span> Warehouse Search Vault
+        </h3>
+        
+        <div style="display: flex; gap: 0.8rem; margin-bottom: 1.5rem;">
+            <input type="text" id="vault-query" style="flex: 1; background: #0a0c10; border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.8rem 1rem; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 1rem;" placeholder="e.g. EMP or Jammer" autocomplete="off">
+            <button onclick="performSearch()" class="submit-btn" style="width: auto; padding: 0 1.5rem;" id="btn-search-vault">Search</button>
+        </div>
+
+        <div id="search-error" style="color: var(--neon-red); margin-bottom: 1rem; display: none; font-size: 0.95rem; font-family: 'Fira Code', monospace;"></div>
+
+        <table style="width: 100%; border-collapse: collapse; display: none;" id="search-results-table">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    <th style="text-align: left; padding: 0.6rem 0.8rem; color: var(--text-secondary); font-size: 0.85rem;">Product Name</th>
+                    <th style="text-align: left; padding: 0.6rem 0.8rem; color: var(--text-secondary); font-size: 0.85rem;">Description</th>
+                </tr>
+            </thead>
+            <tbody id="search-results-body">
+            </tbody>
+        </table>
+        
+        <div id="search-empty" style="text-align: center; color: var(--text-secondary); padding: 1rem 0; font-size: 0.95rem;">
+            Enter a search keyword to search warehouse inventory database.
+        </div>
+    </div>
+
+    {% if 'ch6' in solved %}
+        <div class="solved-banner" id="ch6-solved-banner" style="background: rgba(0, 255, 102, 0.08); border-color: rgba(0, 255, 102, 0.2); color: var(--neon-green);">
+            <span>🎉 You have successfully solved this challenge!</span>
+        </div>
+    {% endif %}
+
+    <div class="submit-section">
+        <h3>🔑 Submit Flag</h3>
+        <form onsubmit="submitFlag('ch6', event)">
+            <div class="form-group">
+                <input type="text" name="flag" class="flag-input" placeholder="FLAG{...}" required autocomplete="off" id="input-flag-ch6">
+                <button type="submit" class="submit-btn" style="background: var(--neon-red); color: #fff;" id="btn-submit-ch6">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    async function performSearch() {
+        const query = document.getElementById('vault-query').value;
+        const errDiv = document.getElementById('search-error');
+        const table = document.getElementById('search-results-table');
+        const tbody = document.getElementById('search-results-body');
+        const emptyDiv = document.getElementById('search-empty');
+
+        errDiv.style.display = 'none';
+        table.style.display = 'none';
+        emptyDiv.style.display = 'none';
+        tbody.innerHTML = '';
+
+        if (!query.trim()) {
+            emptyDiv.style.display = 'block';
+            emptyDiv.textContent = 'Enter a search keyword to search warehouse inventory database.';
+            return;
+        }
+
+        try {
+            const res = await fetch(`/vault-search?query=${encodeURIComponent(query)}`);
+            const data = await res.json();
+            
+            if (data.success) {
+                if (data.results.length === 0) {
+                    emptyDiv.style.display = 'block';
+                    emptyDiv.textContent = 'No matching documents found.';
+                } else {
+                    data.results.forEach(row => {
+                        const tr = document.createElement('tr');
+                        tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+                        tr.innerHTML = `
+                            <td style="padding: 0.8rem; font-weight: 600; color: var(--text-primary);">${row.name || ''}</td>
+                            <td style="padding: 0.8rem; color: var(--text-secondary);">${row.description || ''}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    table.style.display = 'table';
+                }
+            } else {
+                errDiv.style.display = 'block';
+                errDiv.textContent = `Error: ${data.error}`;
+            }
+        } catch(e) {
+            errDiv.style.display = 'block';
+            errDiv.textContent = 'Failed to execute query search on vault server.';
+        }
+    }
+</script>
+{% endblock %}

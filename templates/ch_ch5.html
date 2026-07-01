@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ch.title }} | CTF Arena{% endblock %}
+
+{% block content %}
+<div class="back-nav">
+    <a href="/" class="btn-secondary" id="btn-back-dashboard">
+        &larr; Back to Dashboard
+    </a>
+</div>
+
+<div class="glass-card" id="challenge-card-ch5">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+        <div>
+            <span class="badge-category">{{ ch.category }}</span>
+            <h1 style="font-size: 2.2rem; font-weight: 700; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>{{ ch.icon }}</span> {{ ch.title }}
+            </h1>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-family: 'Fira Code', monospace; font-size: 1.2rem; font-weight: 600; color: var(--neon-blue);">
+                {{ ch.points }} Points
+            </div>
+            <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                Difficulty: <span style="color: var(--neon-yellow); font-weight: 600;">{{ ch.difficulty }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 2.5rem; font-size: 1.1rem;">
+        <p>{{ ch.description }}</p>
+    </div>
+
+    <div class="challenge-body" style="margin-bottom: 2.5rem;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 0.8rem; color: var(--text-primary); font-weight: 600;">
+            Investigation Guide:
+        </h3>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+            When files are tracked in Git, deleting them or modifying them doesn't erase their history. Every commit ever made contains a snapshot of the files at that point in time. 
+        </p>
+
+        <div style="background: rgba(255, 51, 102, 0.05); border: 1px solid rgba(255, 51, 102, 0.15); padding: 1.2rem; border-radius: 8px; margin-bottom: 2rem;">
+            <h4 style="color: var(--neon-red); font-size: 1rem; margin-bottom: 0.5rem; font-weight: 600;">🔍 Repository Auditing Commands:</h4>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 0.8rem;">
+                Open your terminal in the <code>ctf-arena</code> project directory and use Git commands to query historical snapshots:
+            </p>
+            <ul style="margin-left: 1.2rem; color: var(--text-secondary); font-size: 0.95rem; display: flex; flex-direction: column; gap: 0.6rem;">
+                <li><strong>List commits with brief change log:</strong>
+                    <code style="background: #000; padding: 0.15rem 0.4rem; border-radius: 4px; color: var(--neon-blue); display: block; margin-top: 0.2rem;">git log --oneline</code>
+                </li>
+                <li><strong>Inspect changes/diffs introduced by commits:</strong>
+                    <code style="background: #000; padding: 0.15rem 0.4rem; border-radius: 4px; color: var(--neon-blue); display: block; margin-top: 0.2rem;">git log -p</code>
+                </li>
+                <li><strong>Search git history for occurrences of a specific string (like "FLAG" or "git_gud"):</strong>
+                    <code style="background: #000; padding: 0.15rem 0.4rem; border-radius: 4px; color: var(--neon-blue); display: block; margin-top: 0.2rem;">git log -S "FLAG" -p</code>
+                </li>
+                <li><strong>Show details of a specific commit:</strong>
+                    <code style="background: #000; padding: 0.15rem 0.4rem; border-radius: 4px; color: var(--neon-blue); display: block; margin-top: 0.2rem;">git show &lt;commit-hash&gt;</code>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    {% if 'ch5' in solved %}
+        <div class="solved-banner" id="ch5-solved-banner">
+            <span>🎉 You have successfully solved this challenge!</span>
+        </div>
+    {% endif %}
+
+    <div class="submit-section">
+        <h3>🔑 Submit Flag</h3>
+        <form onsubmit="submitFlag('ch5', event)">
+            <div class="form-group">
+                <input type="text" name="flag" class="flag-input" placeholder="FLAG{...}" required autocomplete="off" id="input-flag-ch5">
+                <button type="submit" class="submit-btn" id="btn-submit-ch5">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

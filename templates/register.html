@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join the Arena | CTF Arena</title>
+    <meta name="description" content="Register your display name to enter the CTF Arena.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0c10;
+            --card: #13161e;
+            --border: #2b313d;
+            --neon-blue: #00f0ff;
+            --neon-green: #00ff66;
+            --neon-red: #ff3366;
+            --text: #f0f2f5;
+            --muted: #8b949e;
+            --glow-blue: rgba(0,240,255,0.2);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        /* Ambient glow blobs */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -15%;  left: -10%;
+            width: 55%; height: 65%;
+            background: radial-gradient(circle, rgba(0,240,255,0.07) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -15%; right: -10%;
+            width: 55%; height: 65%;
+            background: radial-gradient(circle, rgba(0,255,102,0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .register-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 3rem 2.5rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .logo .flag { font-size: 3.5rem; display: block; margin-bottom: 0.5rem; filter: drop-shadow(0 0 10px var(--neon-blue)); }
+        .logo h1 { font-size: 2rem; font-weight: 700; }
+        .logo h1 span { color: var(--neon-blue); text-shadow: 0 0 12px var(--glow-blue); }
+        .logo p { color: var(--muted); margin-top: 0.4rem; font-size: 0.95rem; }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .name-input {
+            width: 100%;
+            background: #0a0c10;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.9rem 1.1rem;
+            border-radius: 10px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            margin-bottom: 0.6rem;
+        }
+        .name-input:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 12px var(--glow-blue);
+        }
+
+        .hint {
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .error-msg {
+            background: rgba(255,51,102,0.1);
+            border: 1px solid rgba(255,51,102,0.3);
+            color: var(--neon-red);
+            padding: 0.7rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .join-btn {
+            width: 100%;
+            background: var(--neon-blue);
+            color: #0b0c10;
+            border: none;
+            padding: 1rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+        }
+        .join-btn:hover {
+            box-shadow: 0 0 20px var(--glow-blue);
+            transform: translateY(-1px);
+        }
+        .join-btn:active { transform: translateY(0); }
+
+        .admin-link {
+            text-align: center;
+            margin-top: 1.8rem;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+        .admin-link a { color: var(--neon-blue); text-decoration: none; font-weight: 600; }
+        .admin-link a:hover { text-shadow: 0 0 6px var(--glow-blue); }
+
+        /* Blinking cursor animation on title */
+        .cursor { display: inline-block; animation: blink 1s step-end infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    </style>
+</head>
+<body>
+    <div class="register-box">
+        <div class="logo">
+            <span class="flag">🚩</span>
+            <h1>CTF <span>Arena<span class="cursor">_</span></span></h1>
+            <p>Enter your display name to begin the challenges</p>
+        </div>
+
+        {% if error %}
+            <div class="error-msg">⚠️ {{ error }}</div>
+        {% endif %}
+
+        <form method="POST" action="/register" id="register-form">
+            <label for="name-input">Your Display Name</label>
+            <input
+                type="text"
+                name="name"
+                id="name-input"
+                class="name-input"
+                placeholder="e.g. HackerAce42"
+                maxlength="32"
+                required
+                autocomplete="off"
+                autofocus
+            >
+            <p class="hint">This name will appear on the leaderboard. Max 32 characters.</p>
+            <button type="submit" class="join-btn" id="btn-join">Enter the Arena →</button>
+        </form>
+
+        <div class="admin-link">
+            Organiser? <a href="/admin/login" id="link-admin-login">Admin Login →</a>
+        </div>
+    </div>
+</body>
+</html>

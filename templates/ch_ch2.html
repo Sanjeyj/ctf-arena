@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ch.title }} | CTF Arena{% endblock %}
+
+{% block content %}
+<div class="back-nav">
+    <a href="/" class="btn-secondary" id="btn-back-dashboard">
+        &larr; Back to Dashboard
+    </a>
+</div>
+
+<div class="glass-card" id="challenge-card-ch2">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+        <div>
+            <span class="badge-category">{{ ch.category }}</span>
+            <h1 style="font-size: 2.2rem; font-weight: 700; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>{{ ch.icon }}</span> {{ ch.title }}
+            </h1>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-family: 'Fira Code', monospace; font-size: 1.2rem; font-weight: 600; color: var(--neon-blue);">
+                {{ ch.points }} Points
+            </div>
+            <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                Difficulty: <span style="color: var(--neon-yellow); font-weight: 600;">{{ ch.difficulty }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 2.5rem; font-size: 1.1rem;">
+        <p>{{ ch.description }}</p>
+    </div>
+
+    <div class="challenge-body" style="margin-bottom: 2.5rem;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 0.8rem; color: var(--text-primary); font-weight: 600;">
+            Target Endpoint:
+        </h3>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+            The server checks authentication using browser cookies. Access the path 
+            <a href="/cookie-check" target="_blank" style="color: var(--neon-blue); text-decoration: underline;" id="link-cookie-check">/cookie-check</a>.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+            <div>
+                <button type="button" class="submit-btn" style="background: rgba(0, 240, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue);" onclick="checkCookie()" id="btn-check-cookie">
+                    Test Cookie Authentication
+                </button>
+            </div>
+            
+            <div id="cookie-test-result" class="code-box" style="display: none; min-height: 80px; margin: 0.5rem 0;">
+                <pre style="white-space: pre-wrap; font-size: 0.9rem; color: var(--neon-blue);" id="cookie-test-output"></pre>
+            </div>
+        </div>
+
+        <div style="background: rgba(0, 255, 102, 0.05); border: 1px solid rgba(0, 255, 102, 0.15); padding: 1.2rem; border-radius: 8px;">
+            <h4 style="color: var(--neon-green); font-size: 1rem; margin-bottom: 0.5rem; font-weight: 600;">🛠️ Hacking Instructions:</h4>
+            <ol style="margin-left: 1.2rem; color: var(--text-secondary); font-size: 0.95rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                <li>Open your browser's Developer Tools (Press <strong>F12</strong> or right-click and choose <strong>Inspect</strong>).</li>
+                <li>Go to the <strong>Application</strong> (Chrome/Edge) or <strong>Storage</strong> (Firefox) tab.</li>
+                <li>Expand the <strong>Cookies</strong> section on the left and select this site's URL.</li>
+                <li>Click <strong>Test Cookie Authentication</strong> above to set the initial cookie.</li>
+                <li>Look for a cookie named <code>role</code> with value <code>guest</code>. Double-click it to change the value to <code>admin</code>!</li>
+                <li>Click <strong>Test Cookie Authentication</strong> again or refresh the endpoint page to retrieve the flag!</li>
+            </ol>
+        </div>
+    </div>
+
+    {% if 'ch2' in solved %}
+        <div class="solved-banner" id="ch2-solved-banner">
+            <span>🎉 You have successfully solved this challenge!</span>
+        </div>
+    {% endif %}
+
+    <div class="submit-section">
+        <h3>🔑 Submit Flag</h3>
+        <form onsubmit="submitFlag('ch2', event)">
+            <div class="form-group">
+                <input type="text" name="flag" class="flag-input" placeholder="FLAG{...}" required autocomplete="off" id="input-flag-ch2">
+                <button type="submit" class="submit-btn" id="btn-submit-ch2">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    async function checkCookie() {
+        const outDiv = document.getElementById('cookie-test-result');
+        const outPre = document.getElementById('cookie-test-output');
+        outDiv.style.display = 'block';
+        outPre.textContent = 'Contacting security module...';
+
+        try {
+            const response = await fetch('/cookie-check');
+            const data = await response.json();
+            outPre.textContent = JSON.stringify(data, null, 4);
+        } catch (err) {
+            outPre.textContent = 'Error: ' + err.message;
+        }
+    }
+</script>
+{% endblock %}
