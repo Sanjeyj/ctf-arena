@@ -1,3 +1,4 @@
+from sqlalchemy.orm import joinedload
 from app.extensions import db, safe_commit
 from app.models.challenge import Challenge
 
@@ -12,7 +13,7 @@ class ChallengeRepository:
 
     @staticmethod
     def get_all(include_hidden=True):
-        q = Challenge.query.filter_by(is_deleted=False)
+        q = Challenge.query.options(joinedload(Challenge.category)).filter_by(is_deleted=False)
         if not include_hidden:
             q = q.filter_by(visible=True, state="visible")
         return q.order_by(Challenge.display_order.asc(), Challenge.id.asc()).all()

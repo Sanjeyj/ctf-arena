@@ -1,3 +1,4 @@
+from sqlalchemy.orm import joinedload
 from app.extensions import db, safe_commit
 from app.models.user import User
 from app.models.role import Role
@@ -34,10 +35,20 @@ class UserRepository:
 
     @staticmethod
     def get_all_participants():
-        return User.query.join(User.roles).filter(
-            Role.name == "Participant",
-            User.is_deleted == False
-        ).all()
+        """Return all participants with submissions and hint_unlocks eager-loaded.
+        
+        Uses joinedload to reduce scoreboard queries from 1+2N to a single query.
+        """
+        return (
+            User.query
+            .join(User.roles)
+            .filter(Role.name == "Participant", User.is_deleted == False)
+            .options(
+                joinedload(User.submissions),
+                joinedload(User.hint_unlocks)
+            )
+            .all()
+        )
 
     @staticmethod
     def list_all_users():

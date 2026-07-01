@@ -1,5 +1,5 @@
 import datetime
-from app.extensions import db
+from app.extensions import db, safe_commit
 from app.models.challenge_instance import ChallengeInstance
 from app.models.container_log import ContainerLog
 from app.models.instance_snapshot import InstanceSnapshot
@@ -84,7 +84,7 @@ class ChallengeInstanceRepository:
             expires_at=expires_at,
         )
         db.session.add(instance)
-        db.session.commit()
+        safe_commit()
         return instance
 
     @staticmethod
@@ -94,7 +94,7 @@ class ChallengeInstanceRepository:
             return None
         for k, v in kwargs.items():
             setattr(instance, k, v)
-        db.session.commit()
+        safe_commit()
         return instance
 
     @staticmethod
@@ -103,7 +103,7 @@ class ChallengeInstanceRepository:
         if instance:
             instance.status = 'stopped'
             instance.stopped_at = datetime.datetime.utcnow()
-            db.session.commit()
+            safe_commit()
         return instance
 
     @staticmethod
@@ -112,7 +112,7 @@ class ChallengeInstanceRepository:
         if instance:
             instance.status = 'destroyed'
             instance.stopped_at = datetime.datetime.utcnow()
-            db.session.commit()
+            safe_commit()
         return instance
 
     # ------------------------------------------------------------------ #
@@ -123,7 +123,7 @@ class ChallengeInstanceRepository:
     def add_log(instance_id, message, level='info'):
         log = ContainerLog(instance_id=instance_id, message=message, level=level)
         db.session.add(log)
-        db.session.commit()
+        safe_commit()
         return log
 
     @staticmethod
@@ -148,7 +148,7 @@ class ChallengeInstanceRepository:
             image_ref=image_ref,
         )
         db.session.add(snap)
-        db.session.commit()
+        safe_commit()
         return snap
 
     @staticmethod

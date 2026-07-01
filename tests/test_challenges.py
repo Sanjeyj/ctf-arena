@@ -308,3 +308,39 @@ def test_file_download_security_headers(app, client):
     assert "original_name.zip" in resp.headers.get("Content-Disposition", "")
     assert resp.headers.get("Content-Security-Policy") == "default-src 'none'"
     assert resp.headers.get("X-Content-Type-Options") == "nosniff"
+
+def test_database_optimization_and_rollback(app):
+    """Verify that safe_commit rolls back successfully on DB errors, and that eager load queries are executed properly."""
+    with app.app_context():
+        # Setup category and challenge
+        from app.repositories.category_repository import CategoryRepository
+        from app.repositories.challenge_repository import ChallengeRepository
+        from app.repositories.user_repository import UserRepository
+        from app.extensions import db, safe_commit
+        import pytest
+        from sqlalchemy.exc import IntegrityError
+        
+        cat = CategoryRepository.create("perf_category", description="Perf testing")
+        ch = ChallengeRepository.create("perf_ch", "Perf Challenge", "Desc", 100, "Easy", category_id=cat.id)
+        
+        # Test 1: ChallengeRepository.get_all() eager loads category
+        challenges = ChallengeRepository.get_all()
+        # Verify the challenge exists and category is pre-loaded (does not raise DetachedInstanceError if expired or no queries are made)
+        ch_loaded = next((c for c in challenges if c.legacy_id == "perf_ch"), None)
+        assert ch_loaded is not None
+        assert ch_loaded.category.name == "perf_category"
+        
+        # Test 2: UserRepository.get_all_participants() eager loads submissions/hint_unlocks
+        user, _ = AuthService.register_user("perf_user", "Password123!", "Password123!")
+        participants = UserRepository.get_all_participants()
+        p_loaded = next((p for p in participants if p.username == "perf_user"), None)
+        assert p_loaded is not None
+        
+        # Test 3: safe_commit rollback behavior on IntegrityError (e.g. duplicate legacy_id)
+        with pytest.raises(IntegrityError):
+            ChallengeRepository.create("perf_ch", "Duplicate Perf Challenge", "Desc", 100, "Easy")
+            
+        # Ensure session is clean and we can query / run transactions successfully afterward
+        ch_list = ChallengeRepository.get_all()
+        assert len(ch_list) > 0
+

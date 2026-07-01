@@ -1,4 +1,4 @@
-from app.extensions import db
+from app.extensions import db, safe_commit
 from app.models.announcement import Announcement
 import datetime
 
@@ -26,7 +26,7 @@ class AnnouncementRepository:
             visibility=visibility
         )
         db.session.add(ann)
-        db.session.commit()
+        safe_commit()
         return ann
 
     @staticmethod
@@ -36,7 +36,7 @@ class AnnouncementRepository:
             for k, v in kwargs.items():
                 if hasattr(ann, k):
                     setattr(ann, k, v)
-            db.session.commit()
+            safe_commit()
         return ann
 
     @staticmethod
@@ -44,6 +44,6 @@ class AnnouncementRepository:
         ann = Announcement.query.get(ann_id)
         if ann:
             db.session.delete(ann)
-            db.session.commit()
+            safe_commit()
             return True
         return False

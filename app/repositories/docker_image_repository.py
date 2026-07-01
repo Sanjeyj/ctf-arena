@@ -1,4 +1,4 @@
-from app.extensions import db
+from app.extensions import db, safe_commit
 from app.models.docker_image import DockerImage
 
 
@@ -27,7 +27,7 @@ class DockerImageRepository:
             size_bytes=size_bytes,
         )
         db.session.add(img)
-        db.session.commit()
+        safe_commit()
         return img
 
     @staticmethod
@@ -37,7 +37,7 @@ class DockerImageRepository:
             return None
         for k, v in kwargs.items():
             setattr(img, k, v)
-        db.session.commit()
+        safe_commit()
         return img
 
     @staticmethod
@@ -45,5 +45,5 @@ class DockerImageRepository:
         img = DockerImage.query.get(image_id)
         if img:
             db.session.delete(img)
-            db.session.commit()
+            safe_commit()
         return img

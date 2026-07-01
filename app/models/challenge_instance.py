@@ -19,7 +19,7 @@ class ChallengeInstance(db.Model):
     # statuses: creating, running, stopped, expired, error, destroyed
 
     started_at = db.Column(db.DateTime, nullable=True)
-    expires_at = db.Column(db.DateTime, nullable=True)
+    expires_at = db.Column(db.DateTime, nullable=True, index=True)
     stopped_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
 

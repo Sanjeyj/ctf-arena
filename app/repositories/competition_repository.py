@@ -1,4 +1,4 @@
-from app.extensions import db
+from app.extensions import db, safe_commit
 from app.models.competition import Competition
 import datetime
 
@@ -46,7 +46,7 @@ class CompetitionRepository:
             created_by=created_by
         )
         db.session.add(comp)
-        db.session.commit()
+        safe_commit()
         return comp
 
     @staticmethod
@@ -56,7 +56,7 @@ class CompetitionRepository:
             for k, v in kwargs.items():
                 if hasattr(comp, k):
                     setattr(comp, k, v)
-            db.session.commit()
+            safe_commit()
         return comp
 
     @staticmethod
@@ -64,6 +64,6 @@ class CompetitionRepository:
         comp = Competition.query.get(comp_id)
         if comp:
             db.session.delete(comp)
-            db.session.commit()
+            safe_commit()
             return True
         return False

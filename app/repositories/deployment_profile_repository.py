@@ -1,4 +1,4 @@
-from app.extensions import db
+from app.extensions import db, safe_commit
 from app.models.deployment_profile import DeploymentProfile
 
 
@@ -21,7 +21,7 @@ class DeploymentProfileRepository:
     def create(**kwargs):
         profile = DeploymentProfile(**kwargs)
         db.session.add(profile)
-        db.session.commit()
+        safe_commit()
         return profile
 
     @staticmethod
@@ -31,7 +31,7 @@ class DeploymentProfileRepository:
             return None
         for k, v in kwargs.items():
             setattr(profile, k, v)
-        db.session.commit()
+        safe_commit()
         return profile
 
     @staticmethod
@@ -39,5 +39,5 @@ class DeploymentProfileRepository:
         profile = DeploymentProfile.query.get(profile_id)
         if profile:
             db.session.delete(profile)
-            db.session.commit()
+            safe_commit()
         return profile
