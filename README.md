@@ -1,41 +1,58 @@
-# 🚩 CTF Arena — Easy Level
+# 🚩 CTF Arena
 
-A self-hosted CTF (Capture The Flag) platform for college competitions.
-All 5 easy-level challenges are included with a scoring dashboard.
+A self-hosted **Capture The Flag (CTF)** platform built with Flask for college cybersecurity competitions. Features **7 challenges** spanning Cryptography, Web Exploitation, Steganography, Encoding, and OSINT — with a live scoreboard, admin dashboard, and time-based dynamic scoring.
+
+---
+
+## 🌐 Live Demo
+
+> Run locally and share your LAN IP with participants — no internet required (except Google Fonts).
 
 ---
 
 ## ⚡ Quick Start
 
 ```bash
-# 1. Extract / navigate into folder
-cd ctf_challenges
+# 1. Clone the repo
+git clone https://github.com/Sanjeyj/ctf-arena.git
+cd ctf-arena
 
-# 2. Run the start script
-bash start.sh
+# 2. Install dependencies
+pip install -r requirements.txt
 
-# 3. Open your browser
+# 3. (One-time) Generate the steganography image
+python make_stego.py
+
+# 4. Start the server
+python app.py
+
+# 5. Open in browser
 #    http://localhost:5000
 ```
 
-That's it! The server handles everything.
+> Or use the bundled start script on Linux/Mac:
+> ```bash
+> bash start.sh
+> ```
 
 ---
 
 ## 📋 Challenges Overview
 
-| # | Challenge | Category | Points | Solve Method |
-|---|-----------|----------|--------|--------------|
-| 01 | 🔐 Caesar's Secret | Cryptography | 50 | Decode ROT-3 cipher |
-| 02 | 🍪 Cookie Monster | Web Exploitation | 75 | Edit browser cookie |
-| 03 | 🖼️ Hidden in Plain Sight | Steganography | 75 | `strings cat.jpg \| grep FLAG` |
-| 04 | 💻 Base Jumping | Encoding | 50 | Base64 decode |
-| 05 | 🔎 GitLeaks | OSINT | 100 | Read commit history |
-| | **TOTAL** | | **350 pts** | |
+| # | Challenge | Category | Points | Difficulty | Solve Method |
+|---|-----------|----------|--------|------------|--------------|
+| 01 | 🔐 Caesar's Secret | Cryptography | 50 | Easy | Decode ROT-3 cipher |
+| 02 | 🍪 Cookie Monster | Web Exploitation | 75 | Easy | Edit browser cookie `role=admin` |
+| 03 | 🖼️ Hidden in Plain Sight | Steganography | 75 | Easy | `strings cat.jpg \| grep FLAG` |
+| 04 | 💻 Base Jumping | Encoding | 50 | Easy | Base64 decode the payload |
+| 05 | 🔎 GitLeaks | OSINT | 100 | Easy | Dig through Git commit history |
+| 06 | 🗄️ Broken Vault | Web Exploitation | 200 | Hard | SQL Injection via `/vault-search` |
+| 07 | 📡 Whisper Protocol | Cryptography | 200 | Hard | Repeating-key XOR brute-force |
+| | **TOTAL** | | **750 pts** | | |
 
 ---
 
-## 🏁 Answer Keys (For Organizers Only)
+## 🏁 Answer Keys *(Organizers Only)*
 
 ```
 CH-01: FLAG{caesar_salad_is_delicious}
@@ -43,30 +60,53 @@ CH-02: FLAG{c00ki3s_are_delic10us}
 CH-03: FLAG{steg0_master_101}
 CH-04: FLAG{base64_is_not_encryption}
 CH-05: FLAG{git_gud_at_osint}
+CH-06: FLAG{sqli_is_still_alive_and_kicking}
+CH-07: FLAG{xor_ciphers_are_simple_but_effective}
 ```
+
+---
+
+## ✨ Features
+
+- 🏠 **Dashboard** — All challenges in a responsive card grid with live solved/unsolved status
+- 📡 **Live Scoreboard** — Auto-refreshes every second with Chart.js score distribution
+- ⏱️ **Dynamic Scoring** — Points decay over time (1 pt per 10 seconds), rewarding fast solvers
+- 🔑 **Admin Panel** — Password-protected dashboard at `/admin/login` with participant management & stats
+- 🧑‍🤝‍🧑 **Multi-User** — Multiple participants can register and compete simultaneously
+- 💉 **Intentional Vulnerability** — CH-06 uses a real SQLite SQL injection for teaching purposes
+- 🔐 **Session-based Auth** — Secure Flask sessions with configurable secret key
+- 🐳 **Docker Ready** — Includes `Dockerfile` and `render.yaml` for cloud deployment
 
 ---
 
 ## 📂 Project Structure
 
 ```
-ctf_challenges/
-├── app.py                  # Main Flask server
-├── start.sh                # Quick-start script
-├── requirements.txt        # Python dependencies
-├── make_stego.py           # Image generator (run once)
-├── solved.json             # Auto-created: tracks scores
+ctf-arena/
+├── app.py                  # Main Flask server (all routes & logic)
+├── requirements.txt        # Python dependencies (Flask, Pillow, Gunicorn)
+├── make_stego.py           # One-time script to generate the stego image
+├── start.sh                # Convenience start script
+├── scores.json             # Auto-created: tracks all participant scores
+├── render.yaml             # Render.com deployment config
+├── Docker                  # Dockerfile for containerized deployment
 ├── templates/
-│   ├── base.html           # Shared layout
-│   ├── index.html          # Dashboard
+│   ├── base.html           # Shared layout (nav, toast, flag submit)
+│   ├── index.html          # Challenge dashboard
+│   ├── register.html       # Participant registration
+│   ├── scoreboard.html     # Public live scoreboard
+│   ├── admin.html          # Admin dashboard
+│   ├── admin_login.html    # Admin login
 │   ├── ch_ch1.html         # Caesar cipher
 │   ├── ch_ch2.html         # Cookie Monster
 │   ├── ch_ch3.html         # Steganography
-│   ├── ch_ch4.html         # Base64
-│   └── ch_ch5.html         # OSINT/GitLeaks
+│   ├── ch_ch4.html         # Base64 Encoding
+│   ├── ch_ch5.html         # OSINT / GitLeaks
+│   ├── ch_ch6.html         # SQL Injection (Broken Vault)
+│   └── ch_ch7.html         # XOR Cipher (Whisper Protocol)
 └── static/
     └── files/
-        └── cat.jpg         # Stego challenge image
+        └── cat.jpg         # Stego challenge image (generated by make_stego.py)
 ```
 
 ---
@@ -74,53 +114,110 @@ ctf_challenges/
 ## 🔧 Requirements
 
 - Python 3.8+
-- pip (auto-installs Flask, Pillow)
-- Modern browser (Chrome/Firefox)
-- Internet for Google Fonts (optional — works offline too)
+- pip packages: `flask`, `pillow`, `gunicorn`
+- Modern browser (Chrome / Firefox)
+- Internet for Google Fonts *(works offline with system fonts as fallback)*
+
+---
+
+## 🛡️ Admin Panel
+
+Access the admin dashboard at `http://localhost:5000/admin/login`.
+
+Default credentials (override via environment variables in production):
+
+| Setting | Default | Env Variable |
+|---------|---------|--------------|
+| Username | `admin` | `ADMIN_USER` |
+| Password | `ctf_admin_2024` | `ADMIN_PASSWORD` |
+
+The admin panel shows:
+- Live leaderboard with per-challenge solve badges
+- Total participants, solves, and most-popular challenge stats
+- Score distribution chart
+- One-click scoreboard reset
 
 ---
 
 ## 🎓 Competitor Instructions
 
-Give participants this info:
+Share the server URL with participants:
 
-1. Open `http://localhost:5000` in your browser
-2. Click any challenge to view it
-3. Solve the challenge using the hints provided
-4. Submit the flag in format `FLAG{...}`
-5. Earn points on the scoreboard!
+1. Open `http://<your-ip>:5000` in your browser
+2. Enter a display name to register (appears on leaderboard)
+3. Click any challenge card to open it
+4. Solve the challenge using the hints provided
+5. Submit the flag in format `FLAG{...}`
+6. Earn points — solve faster for more points! ⏱️
 
-### Tools that may help:
-- **Linux terminal** — strings, xxd, base64
-- **CyberChef** — https://gchq.github.io/CyberChef
-- **Browser DevTools** — F12
-- **Python** — built-in libraries
+### 🛠️ Useful Tools
+
+| Tool | Purpose |
+|------|---------|
+| **Linux terminal** | `strings`, `xxd`, `base64`, `git log` |
+| **CyberChef** | https://gchq.github.io/CyberChef |
+| **Browser DevTools** | F12 → Application → Cookies |
+| **Python** | `base64`, `codecs` modules |
+| **Burp Suite / curl** | HTTP manipulation for web challenges |
 
 ---
 
 ## 🔄 Reset Progress
 
-- Click **RESET** in the top-right navigation, OR
-- Delete the `solved.json` file, OR
-- Visit `http://localhost:5000/reset`
+- Click **RESET** in the top navigation bar (resets your own progress only), OR
+- Visit `http://localhost:5000/reset`, OR
+- Admin panel → Reset All (clears all participant data)
 
 ---
 
-## 🚀 Hosting for Multiple Users
+## 🚀 Hosting for Multiple Users (LAN)
 
-To let multiple participants on the same network connect:
+The server already binds to `0.0.0.0:5000`. To let participants on the same network connect:
 
 ```bash
 # Find your local IP
-ip addr show | grep "inet "   # Linux
+ip addr show | grep "inet "   # Linux/Mac
 ipconfig                       # Windows
 
-# The server already binds to 0.0.0.0:5000
-# Share your IP: http://192.168.x.x:5000
+# Share with participants:
+# http://192.168.x.x:5000
 ```
-
-> ⚠️ Note: Scores are shared in this setup. For individual scoring, run a separate instance per team or integrate a database per user.
 
 ---
 
-Made for college CTF competitions 🏆
+## 🐳 Docker Deployment
+
+```bash
+docker build -t ctf-arena .
+docker run -p 5000:5000 \
+  -e SECRET_KEY=your_secret \
+  -e ADMIN_PASSWORD=your_password \
+  ctf-arena
+```
+
+---
+
+## ☁️ Cloud Deployment (Render.com)
+
+A `render.yaml` is included for one-click deployment to [Render](https://render.com):
+
+1. Fork this repo
+2. Connect to Render → New Web Service → select repo
+3. Set environment variables: `SECRET_KEY`, `ADMIN_USER`, `ADMIN_PASSWORD`
+4. Deploy!
+
+---
+
+## ⚙️ Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SECRET_KEY` | `ctf_super_secret_2024` | Flask session secret key |
+| `ADMIN_USER` | `admin` | Admin panel username |
+| `ADMIN_PASSWORD` | `ctf_admin_2024` | Admin panel password |
+
+> ⚠️ Always override defaults in production!
+
+---
+
+Made with ❤️ for college cybersecurity competitions 🏆
