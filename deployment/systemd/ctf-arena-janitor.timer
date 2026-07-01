@@ -1,0 +1,10 @@
+[Unit]
+Description=CTF Arena Container Janitor Timer
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=5min
+Unit=ctf-arena-janitor.service
+
+[Install]
+WantedBy=timers.target

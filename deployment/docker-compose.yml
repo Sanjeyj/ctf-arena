@@ -1,0 +1,71 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: ctf-arena:latest
+    container_name: ctf-arena-app
+    restart: unless-stopped
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY is required}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///instance/ctf.db}
+      - TRUSTED_PROXIES=1
+      - SESSION_COOKIE_SECURE=True
+      - METRICS_ENABLED=True
+      - RATE_LIMIT_LOGIN=5 per minute
+      - RATE_LIMIT_SUBMIT=10 per minute
+      - RATE_LIMIT_API=60 per minute
+    volumes:
+      - ../instance:/app/instance
+      - ../uploads:/app/uploads
+      - ../logs:/app/logs
+    expose:
+      - "8000"
+    depends_on:
+      - prometheus
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: ctf-arena-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/ctf-arena.conf:ro
+      - ../static:/opt/ctf-arena/static:ro
+      - ../uploads:/opt/ctf-arena/uploads:ro
+      - ./certs:/etc/ssl:ro
+    depends_on:
+      - app
+
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    container_name: ctf-arena-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: ctf-arena-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-ctf_grafana_2024}
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+volumes:
+  grafana_data:

@@ -1,0 +1,21 @@
+[Unit]
+Description=CTF Arena v2 Web Application
+After=network.target
+
+[Service]
+Type=notify
+User=ctfarena
+Group=ctfarena
+WorkingDirectory=/opt/ctf-arena
+Environment="FLASK_ENV=production"
+EnvironmentFile=/opt/ctf-arena/.env
+ExecStart=/opt/ctf-arena/venv/bin/gunicorn -c /opt/ctf-arena/deployment/gunicorn.conf.py "app:create_app('production')"
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

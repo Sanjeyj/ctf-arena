@@ -5,3 +5,10 @@ solved.json
 *.egg-info/
 dist/
 build/
+venv/
+instance/*.db
+instance/*.sqlite
+instance/*.zip
+instance/backups/
+logs/
+.pytest_cache/

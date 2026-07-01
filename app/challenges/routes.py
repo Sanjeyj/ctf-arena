@@ -49,8 +49,15 @@ def challenge(ch_id):
         files=files
     )
 
+from app.extensions import limiter
+
+def get_submit_limit():
+    from flask import current_app
+    return current_app.config.get("RATE_LIMIT_SUBMIT", "10 per minute")
+
 @challenges_bp.route("/submit/<ch_id>", methods=["POST"])
 @require_login
+@limiter.limit(get_submit_limit)
 def submit(ch_id):
     username = current_user.username
     flag = request.form.get("flag", "")

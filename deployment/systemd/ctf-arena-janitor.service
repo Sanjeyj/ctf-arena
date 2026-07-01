@@ -1,0 +1,10 @@
+[Unit]
+Description=CTF Arena Container Janitor (one-shot cleanup)
+After=ctf-arena.service
+
+[Service]
+Type=oneshot
+User=ctfarena
+WorkingDirectory=/opt/ctf-arena
+EnvironmentFile=/opt/ctf-arena/.env
+ExecStart=/opt/ctf-arena/venv/bin/flask docker-reap

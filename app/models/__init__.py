@@ -17,3 +17,8 @@ from app.models.setting import Setting
 from app.models.tag import Tag, ChallengeTag
 from app.models.role import Role, Permission, UserRole, RolePermission
 from app.models.login_history import LoginHistory
+from app.models.docker_image import DockerImage
+from app.models.deployment_profile import DeploymentProfile
+from app.models.challenge_instance import ChallengeInstance
+from app.models.container_log import ContainerLog
+from app.models.instance_snapshot import InstanceSnapshot

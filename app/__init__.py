@@ -1,11 +1,14 @@
 import os
 import logging
 from logging.handlers import RotatingFileHandler
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app.config import config_by_name
 from app.context_processors import utility_processors
 from app.cli import register_cli_commands
+from app.services.logging_service import LoggingService
+from app.services.metrics_service import MetricsService
 
 def create_app(config_name="default"):
     # Point templates and static folders back to root directories
@@ -17,8 +20,13 @@ def create_app(config_name="default"):
     # Load config
     app.config.from_object(config_by_name.get(config_name, config_by_name["default"]))
     
+    # Configure Flask-Limiter settings
+    app.config["RATELIMIT_DEFAULT"] = app.config.get("RATE_LIMIT_GLOBAL", "100 per minute")
+    if app.config.get("TESTING"):
+        app.config["RATELIMIT_ENABLED"] = False
+
     # Initialize Extensions
-    from app.extensions import db, migrate, login_manager, csrf
+    from app.extensions import db, migrate, login_manager, csrf, limiter
     db.init_app(app)
     migrate.init_app(app, db)
     
@@ -35,6 +43,7 @@ def create_app(config_name="default"):
         return User.query.filter_by(id=int(user_id), is_deleted=False).first()
         
     csrf.init_app(app)
+    limiter.init_app(app)
     
     # Setup directories
     os.makedirs(os.path.join(app.root_path, "..", "logs"), exist_ok=True)
@@ -43,15 +52,142 @@ def create_app(config_name="default"):
     os.makedirs(os.path.join(app.root_path, "..", "plugins"), exist_ok=True)
     os.makedirs(os.path.join(app.root_path, "..", "themes"), exist_ok=True)
     
-    # Setup logging
-    setup_logging(app)
+    # Setup structured JSON logging
+    LoggingService.init_app(app)
     
     # Context processors
     app.context_processor(utility_processors)
     
+    # Apply ProxyFix middleware if configured
+    proxies_count = app.config.get("TRUSTED_PROXIES", 0)
+    if proxies_count > 0:
+        app.wsgi_app = ProxyFix(
+            app.wsgi_app,
+            x_for=proxies_count,
+            x_proto=proxies_count,
+            x_host=proxies_count,
+            x_port=proxies_count,
+            x_prefix=proxies_count
+        )
+
     # Register blueprints
     register_blueprints(app)
     
+    # Exempt API from CSRF protection
+    from app.api import api_bp
+    csrf.exempt(api_bp)
+
+    # Hook up HTTP security headers after request
+    @app.after_request
+    def inject_security_headers(response):
+        # Strict-Transport-Security (HSTS)
+        if app.config.get("PREFERRED_URL_SCHEME") == "https":
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        
+        response.headers["X-Frame-Options"] = "SAMEORIGIN"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        
+        # Content-Security-Policy (CSP)
+        csp_config = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; "
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
+            "font-src 'self' https://fonts.gstatic.com; "
+            "img-src 'self' data:; "
+            "frame-src 'none'; "
+            "connect-src 'self'"
+        )
+        response.headers["Content-Security-Policy"] = csp_config
+        
+        # Permissions-Policy
+        response.headers["Permissions-Policy"] = "geolocation=(), camera=(), microphone=()"
+        
+        return response
+
+    # Metrics Hookups
+    app.before_request(MetricsService.before_request)
+    
+    @app.after_request
+    def log_and_metrics_after_request(response):
+        response = MetricsService.after_request(response)
+        LoggingService.log_access(response.status_code)
+        return response
+
+    # --- Health & Observability Routes ---
+    
+    @app.route("/live", methods=["GET"])
+    def liveness_probe():
+        """Liveness check endpoint."""
+        return jsonify({"status": "live", "ok": True}), 200
+
+    @app.route("/ready", methods=["GET"])
+    def readiness_probe():
+        """Readiness check verifying database and disk writes."""
+        # Check database connectivity
+        try:
+            db.session.execute(db.select(1)).first()
+        except Exception as e:
+            return jsonify({"status": "unready", "error": f"Database: {str(e)}", "ok": False}), 503
+        
+        # Check filesystem write access
+        try:
+            inst_dir = os.path.abspath(os.path.join(app.root_path, "..", "instance"))
+            os.makedirs(inst_dir, exist_ok=True)
+            test_file = os.path.join(inst_dir, ".write_probe")
+            with open(test_file, "w") as f:
+                f.write("probe")
+            os.remove(test_file)
+        except Exception as e:
+            return jsonify({"status": "unready", "error": f"Filesystem: {str(e)}", "ok": False}), 503
+
+        return jsonify({"status": "ready", "ok": True}), 200
+
+    @app.route("/health", methods=["GET"])
+    def health_check():
+        """Detailed health check endpoint."""
+        # 1. DB check
+        db_ok = True
+        db_err = None
+        try:
+            db.session.execute(db.select(1)).first()
+        except Exception as e:
+            db_ok = False
+            db_err = str(e)
+
+        # 2. Docker check
+        from app.services.docker_service import DockerService, _probe_docker
+        docker_mode = DockerService.mode()
+        docker_ok = True
+        if docker_mode == "real":
+            if not _probe_docker():
+                docker_ok = False
+
+        # 3. Uploads directory check
+        uploads_dir = os.path.abspath(os.path.join(app.root_path, "..", "uploads"))
+        uploads_ok = os.path.exists(uploads_dir) and os.access(uploads_dir, os.W_OK)
+
+        # 4. Configuration Check
+        config_ok = bool(app.config.get("SECRET_KEY") and app.config.get("SECRET_KEY") != "ctf_super_secret_2024")
+
+        overall_ok = db_ok and docker_ok and uploads_ok
+
+        return jsonify({
+            "status": "healthy" if overall_ok else "unhealthy",
+            "ok": overall_ok,
+            "database": {"ok": db_ok, "error": db_err},
+            "docker": {"ok": docker_ok, "mode": docker_mode},
+            "uploads": {"ok": uploads_ok},
+            "configuration": {"ok": config_ok}
+        }), (200 if overall_ok else 503)
+
+    @app.route("/metrics", methods=["GET"])
+    def prometheus_metrics():
+        """Prometheus compatible metrics endpoint."""
+        if not app.config.get("METRICS_ENABLED", True):
+            return "Metrics disabled", 403
+        return MetricsService.get_prometheus_metrics(), 200, {"Content-Type": "text/plain; version=0.0.4"}
+
     # Register error handlers
     register_error_handlers(app)
     
@@ -67,17 +203,19 @@ def register_blueprints(app):
     from app.scoreboard import scoreboard_bp
     from app.admin import admin_bp
     from app.api import api_bp
+    from app.docker import docker_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(challenges_bp)
     app.register_blueprint(scoreboard_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(api_bp)
+    app.register_blueprint(docker_bp)
     
     # Blueprint Skeletons for future milestones
     skeletons = [
         "analytics", "announcements", "audit", "categories", "certificates",
-        "competitions", "docker", "files", "flags", "hints", "notifications",
+        "competitions", "files", "flags", "hints", "notifications",
         "plugins", "scheduler", "submissions", "teams", "themes", "users"
     ]
     
@@ -103,37 +241,3 @@ def register_error_handlers(app):
     @app.errorhandler(500)
     def internal_server_error(e):
         return render_template("errors/500.html"), 500
-
-def setup_logging(app):
-    log_dir = os.path.abspath(os.path.join(app.root_path, "..", "logs"))
-    
-    formatter = logging.Formatter(
-        "[%(asctime)s] %(levelname)s in %(module)s: %(message)s"
-    )
-    
-    # General app log
-    app_handler = RotatingFileHandler(
-        os.path.join(log_dir, "app.log"), maxBytes=1024000, backupCount=10
-    )
-    app_handler.setFormatter(formatter)
-    app_handler.setLevel(logging.INFO)
-    app.logger.addHandler(app_handler)
-    
-    # Error log
-    err_handler = RotatingFileHandler(
-        os.path.join(log_dir, "error.log"), maxBytes=1024000, backupCount=10
-    )
-    err_handler.setFormatter(formatter)
-    err_handler.setLevel(logging.ERROR)
-    app.logger.addHandler(err_handler)
-    
-    # Access log
-    access_handler = RotatingFileHandler(
-        os.path.join(log_dir, "access.log"), maxBytes=1024000, backupCount=10
-    )
-    access_handler.setFormatter(formatter)
-    access_handler.setLevel(logging.INFO)
-    
-    # Set logger to INFO globally
-    app.logger.setLevel(logging.INFO)
-    app.logger.info("CTF Arena Enterprise startup initialized.")

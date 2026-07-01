@@ -2,6 +2,9 @@ import click
 import os
 import json
 import datetime
+import logging
+import time
+from logging.handlers import RotatingFileHandler
 from flask.cli import with_appcontext
 
 @click.command("init-db")
@@ -664,35 +667,279 @@ def db_health_command():
     except Exception as e:
         click.echo(f"[ERROR] Failed to check migration state: {e}", err=True)
 
-@click.command("backup")
+# ============================================================
+# Milestone 9 — Production CLI Commands (Backup, Observability)
+# ============================================================
+
+import shutil
+import zipfile
+import glob
+from flask import current_app
+
+@click.command("backup-db")
+@click.option("--file", default=None, help="Custom output backup file path")
 @with_appcontext
-def backup_command():
-    """Backup active database state."""
-    click.echo("Database backup generated (Milestone 1 skeleton).")
+def backup_db_command(file):
+    """Backup the active SQLite database."""
+    db_uri = current_app.config.get("SQLALCHEMY_DATABASE_URI", "")
+    if not db_uri.startswith("sqlite:///"):
+        click.echo("[ERROR] Automatic hot-backup only supported for SQLite databases.")
+        return
+
+    db_path = db_uri.replace("sqlite:///", "")
+    if not os.path.isabs(db_path):
+        db_path = os.path.abspath(os.path.join(current_app.root_path, "..", db_path))
+
+    if not os.path.exists(db_path):
+        click.echo(f"[ERROR] Database file not found at {db_path}.")
+        return
+
+    backup_dir = os.path.abspath(os.path.join(current_app.root_path, "..", "instance", "backups"))
+    os.makedirs(backup_dir, exist_ok=True)
+
+    if not file:
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        file = os.path.join(backup_dir, f"ctf_backup_{timestamp}.db")
+
+    try:
+        shutil.copy2(db_path, file)
+        click.echo(f"[OK] Database successfully backed up to '{file}'.")
+    except Exception as e:
+        click.echo(f"[ERROR] Failed to backup database: {e}", err=True)
+
+
+@click.command("restore-db")
+@click.argument("file_path")
+@click.option("--force", is_flag=True, help="Force overwrite without confirmation")
+@with_appcontext
+def restore_db_command(file_path, force):
+    """Restore database from a backup file."""
+    if not os.path.exists(file_path):
+        click.echo(f"[ERROR] Backup file not found: {file_path}", err=True)
+        return
+
+    db_uri = current_app.config.get("SQLALCHEMY_DATABASE_URI", "")
+    if not db_uri.startswith("sqlite:///"):
+        click.echo("[ERROR] Automatic restore only supported for SQLite.")
+        return
+
+    db_path = db_uri.replace("sqlite:///", "")
+    if not os.path.isabs(db_path):
+        db_path = os.path.abspath(os.path.join(current_app.root_path, "..", db_path))
+
+    if not force:
+        confirm = click.confirm(f"This will OVERWRITE the database at {db_path}. Continue?")
+        if not confirm:
+            click.echo("Aborted.")
+            return
+
+    try:
+        shutil.copy2(file_path, db_path)
+        click.echo(f"[OK] Database successfully restored from '{file_path}'.")
+    except Exception as e:
+        click.echo(f"[ERROR] Failed to restore database: {e}", err=True)
+
+
+@click.command("verify-config")
+@with_appcontext
+def verify_config_command():
+    """Perform pre-flight sanity checks on production configurations."""
+    click.echo("=== CONFIGURATION SANITY CHECK ===")
+    
+    # 1. Secret key
+    sec_key = current_app.config.get("SECRET_KEY")
+    if not sec_key or sec_key == "ctf_super_secret_2024":
+        click.echo("[WARNING] SECRET_KEY is missing or using insecure default default.")
+    else:
+        click.echo("[OK] SECRET_KEY is set and customized.")
+
+    # 2. Database URI
+    db_uri = current_app.config.get("SQLALCHEMY_DATABASE_URI")
+    click.echo(f"[INFO] Database configuration: {db_uri}")
+
+    # 3. Secure Cookies
+    sec_cookies = current_app.config.get("SESSION_COOKIE_SECURE")
+    if not sec_cookies:
+        click.echo("[WARNING] SESSION_COOKIE_SECURE is False. Enforce True in production.")
+    else:
+        click.echo("[OK] SESSION_COOKIE_SECURE is active.")
+
+    # 4. Upload directory permissions
+    uploads_dir = os.path.abspath(os.path.join(current_app.root_path, "..", "uploads"))
+    if os.path.exists(uploads_dir) and os.access(uploads_dir, os.W_OK):
+        click.echo("[OK] Uploads directory exists and is writable.")
+    else:
+        click.echo("[ERROR] Uploads directory is not writable or missing.")
+
+    click.echo("=== CONFIGURATION CHECK COMPLETE ===")
+
+
+@click.command("system-health")
+@with_appcontext
+def system_health_command():
+    """Detailed system health evaluation in stdout."""
+    from app.services.docker_service import DockerService
+    from app.extensions import db
+    
+    click.echo("=== SYSTEM HEALTH STATUS ===")
+    
+    # DB
+    try:
+        db.session.execute(db.select(1)).first()
+        click.echo("Database      : [HEALTHY]")
+    except Exception as e:
+        click.echo(f"Database      : [UNHEALTHY] ({e})")
+
+    # Docker
+    click.echo(f"Docker Mode   : [{DockerService.mode().upper()}]")
+
+    # Uploads dir
+    uploads_dir = os.path.abspath(os.path.join(current_app.root_path, "..", "uploads"))
+    if os.path.exists(uploads_dir) and os.access(uploads_dir, os.W_OK):
+        click.echo("Filesystem    : [HEALTHY]")
+    else:
+        click.echo("Filesystem    : [UNHEALTHY] (Uploads directory read/write failed)")
+
+
+@click.command("metrics-summary")
+@with_appcontext
+def metrics_summary_command():
+    """Display a text summary of key database model statistics."""
+    from app.models.challenge_instance import ChallengeInstance
+    from app.models.submission import Submission
+    from app.models.user import User
+
+    click.echo("=== METRICS SUMMARY ===")
+    try:
+        active_containers = ChallengeInstance.query.filter(
+            ChallengeInstance.status.in_(["creating", "running"])
+        ).count()
+        total_users = User.query.filter_by(is_deleted=False).count()
+        total_subs = Submission.query.count()
+        solves_count = Submission.query.filter_by(correct=True).count()
+
+        click.echo(f"Active Containers : {active_containers}")
+        click.echo(f"Total Users       : {total_users}")
+        click.echo(f"Total Submissions : {total_subs}")
+        click.echo(f"Correct Solves    : {solves_count}")
+    except Exception as e:
+        click.echo(f"[ERROR] Failed to query statistics: {e}")
+
+
+@click.command("rotate-logs")
+@with_appcontext
+def rotate_logs_command():
+    """Manually force rotation of all rotating logger handlers."""
+    click.echo("Rotating all system logs...")
+    logger = logging.getLogger()
+    rotated = 0
+    for handler in logger.handlers:
+        if isinstance(handler, RotatingFileHandler):
+            handler.doRollover()
+            rotated += 1
+    click.echo(f"[OK] Rotated {rotated} logger handler(s).")
+
+
+@click.command("cleanup-logs")
+@click.option("--days", default=30, help="Clean files older than this many days")
+@with_appcontext
+def cleanup_logs_command(days):
+    """Purge archived rotating log files older than a specified duration."""
+    log_dir = os.path.abspath(os.path.join(current_app.root_path, "..", "logs"))
+    if not os.path.exists(log_dir):
+        click.echo("[ERROR] Logs directory not found.")
+        return
+
+    now = time.time()
+    cutoff = now - (days * 86400)
+    purged = 0
+
+    # Search for rotated log segments, e.g. log.1, log.2, etc.
+    for filename in os.listdir(log_dir):
+        file_path = os.path.join(log_dir, filename)
+        if os.path.isfile(file_path):
+            # Check if it's an archive copy (e.g. ends with digit or contains .log.)
+            is_archive = any(char.isdigit() for char in filename) or ".log." in filename
+            if is_archive and os.path.getmtime(file_path) < cutoff:
+                os.remove(file_path)
+                purged += 1
+
+    click.echo(f"[OK] Purged {purged} archived log files older than {days} day(s).")
+
+
+@click.command("snapshot-system")
+@click.option("--output", default=None, help="Custom output ZIP filename")
+@with_appcontext
+def snapshot_system_command(output):
+    """Bundle config files, uploads, and database into a single archive."""
+    import time
+    
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    if not output:
+        output_dir = os.path.abspath(os.path.join(current_app.root_path, "..", "instance"))
+        output = os.path.join(output_dir, f"ctf_system_snapshot_{timestamp}.zip")
+
+    db_uri = current_app.config.get("SQLALCHEMY_DATABASE_URI", "")
+    db_path = None
+    if db_uri.startswith("sqlite:///"):
+        db_path = db_uri.replace("sqlite:///", "")
+        if not os.path.isabs(db_path):
+            db_path = os.path.abspath(os.path.join(current_app.root_path, "..", db_path))
+
+    uploads_dir = os.path.abspath(os.path.join(current_app.root_path, "..", "uploads"))
+
+    try:
+        with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            # 1. Backup DB if exists
+            if db_path and os.path.exists(db_path):
+                zipf.write(db_path, arcname="db/ctf.db")
+            
+            # 2. Backup Uploads
+            if os.path.exists(uploads_dir):
+                for root, _, files in os.walk(uploads_dir):
+                    for file in files:
+                        full_path = os.path.join(root, file)
+                        rel_path = os.path.relpath(full_path, uploads_dir)
+                        zipf.write(full_path, arcname=os.path.join("uploads", rel_path))
+
+        click.echo(f"[OK] Complete system snapshot saved to '{output}'.")
+    except Exception as e:
+        click.echo(f"[ERROR] Failed to generate snapshot: {e}", err=True)
+
+# Compatibility aliases
+@click.command("backup")
+@click.option("--file", default=None)
+@with_appcontext
+def backup_command(file):
+    """Alias for backup-db."""
+    ctx = click.get_current_context()
+    ctx.invoke(backup_db_command, file=file)
 
 @click.command("restore")
+@click.argument("file_path")
+@click.option("--force", is_flag=True)
 @with_appcontext
-def restore_command():
-    """Restore database from backup file."""
-    click.echo("Database restored (Milestone 1 skeleton).")
+def restore_command(file_path, force):
+    """Alias for restore-db."""
+    ctx = click.get_current_context()
+    ctx.invoke(restore_db_command, file_path=file_path, force=force)
 
 @click.command("import")
 @with_appcontext
 def import_command():
-    """Import CTF data from file."""
     click.echo("CTF data imported successfully (Milestone 1 skeleton).")
 
 @click.command("export")
 @with_appcontext
 def export_command():
-    """Export CTF data to file."""
     click.echo("CTF data exported successfully (Milestone 1 skeleton).")
 
 @click.command("health-check")
 @with_appcontext
 def health_check_command():
-    """Execute application health verification."""
-    click.echo("Application health check verified (Milestone 1 skeleton).")
+    """Alias for system-health."""
+    ctx = click.get_current_context()
+    ctx.invoke(system_health_command)
 
 def register_cli_commands(app):
     app.cli.add_command(init_db_command)
@@ -709,6 +956,14 @@ def register_cli_commands(app):
     app.cli.add_command(import_command)
     app.cli.add_command(export_command)
     app.cli.add_command(health_check_command)
+    app.cli.add_command(backup_db_command)
+    app.cli.add_command(restore_db_command)
+    app.cli.add_command(verify_config_command)
+    app.cli.add_command(system_health_command)
+    app.cli.add_command(metrics_summary_command)
+    app.cli.add_command(rotate_logs_command)
+    app.cli.add_command(cleanup_logs_command)
+    app.cli.add_command(snapshot_system_command)
     app.cli.add_command(import_challenges_command)
     app.cli.add_command(export_challenges_command)
     app.cli.add_command(rebuild_scoring_command)
@@ -722,6 +977,14 @@ def register_cli_commands(app):
     app.cli.add_command(list_announcements_command)
     app.cli.add_command(reset_submissions_command)
     app.cli.add_command(export_submissions_command)
+    # Milestone 8 - Docker Infrastructure
+    app.cli.add_command(docker_mode_command)
+    app.cli.add_command(docker_reap_command)
+    app.cli.add_command(docker_image_add_command)
+    app.cli.add_command(docker_image_pull_command)
+    app.cli.add_command(docker_image_list_command)
+    app.cli.add_command(docker_profile_add_command)
+    app.cli.add_command(docker_instances_command)
 
 # ═══════════════════════════════════════════════════════════════
 # MILESTONE 5 – COMPETITION OPERATIONS CLI
@@ -838,3 +1101,101 @@ def export_submissions_command(file):
         f.write(csv_data)
     click.echo(f"[OK] Submissions exported to '{file}'.")
 
+
+
+# ============================================================
+# Milestone 8 — Docker / Container CLI Commands
+# ============================================================
+
+@click.command("docker-mode")
+@with_appcontext
+def docker_mode_command():
+    """Report whether Docker is running in real or simulation mode."""
+    from app.services.docker_service import DockerService
+    mode = DockerService.mode()
+    click.echo(f"[DockerService] mode = {mode}")
+
+
+@click.command("docker-reap")
+@with_appcontext
+def docker_reap_command():
+    """Destroy all expired challenge container instances."""
+    from app.services.instance_service import InstanceService
+    count = InstanceService.reap_expired()
+    click.echo(f"[OK] Reaped {count} expired instance(s).")
+
+
+@click.command("docker-image-add")
+@click.argument("name")
+@click.option("--tag", default="latest", help="Image tag (default: latest)")
+@click.option("--registry", default=None, help="Registry prefix, e.g. ghcr.io/org")
+@click.option("--description", default=None, help="Optional description")
+@with_appcontext
+def docker_image_add_command(name, tag, registry, description):
+    """Register a Docker image in the database."""
+    from app.repositories.docker_image_repository import DockerImageRepository
+    img = DockerImageRepository.create(name=name, tag=tag, registry=registry, description=description)
+    click.echo(f"[OK] Registered image #{img.id}: {img.full_ref}")
+
+
+@click.command("docker-image-pull")
+@click.argument("image_id", type=int)
+@with_appcontext
+def docker_image_pull_command(image_id):
+    """Pull a registered Docker image by its DB ID."""
+    from app.repositories.docker_image_repository import DockerImageRepository
+    from app.services.docker_service import DockerService
+    img = DockerImageRepository.get_by_id(image_id)
+    if not img:
+        click.echo(f"[ERROR] Image #{image_id} not found.", err=True)
+        return
+    ok, message = DockerService.pull_image(img.full_ref)
+    prefix = "[OK]" if ok else "[ERROR]"
+    click.echo(f"{prefix} {message}")
+
+
+@click.command("docker-image-list")
+@with_appcontext
+def docker_image_list_command():
+    """List all registered Docker images."""
+    from app.repositories.docker_image_repository import DockerImageRepository
+    images = DockerImageRepository.get_all()
+    if not images:
+        click.echo("No Docker images registered.")
+        return
+    for img in images:
+        click.echo(f"  #{img.id:4d}  {img.full_ref:<50}  {img.description or ''}")
+
+
+@click.command("docker-profile-add")
+@click.argument("name")
+@click.option("--cpu", default=0.5, type=float, help="CPU limit (cores)")
+@click.option("--memory", default="128m", help="Memory limit (e.g. 128m, 1g)")
+@click.option("--ttl", default=30, type=int, help="Instance lifetime in minutes")
+@click.option("--max-per-user", default=1, type=int, help="Max instances per user")
+@with_appcontext
+def docker_profile_add_command(name, cpu, memory, ttl, max_per_user):
+    """Create a deployment profile."""
+    from app.repositories.deployment_profile_repository import DeploymentProfileRepository
+    profile = DeploymentProfileRepository.create(
+        name=name, cpu_limit=cpu, memory_limit=memory,
+        ttl_minutes=ttl, max_instances_per_user=max_per_user,
+    )
+    click.echo(f"[OK] Created profile #{profile.id}: {profile.name}")
+
+
+@click.command("docker-instances")
+@with_appcontext
+def docker_instances_command():
+    """List all currently active container instances."""
+    from app.repositories.challenge_instance_repository import ChallengeInstanceRepository
+    instances = ChallengeInstanceRepository.get_all_active()
+    if not instances:
+        click.echo("No active instances.")
+        return
+    for inst in instances:
+        click.echo(
+            f"  #{inst.id:4d}  chal={inst.challenge_id}  user={inst.user_id}  "
+            f"port={inst.mapped_port}  status={inst.status}  "
+            f"expires={inst.expires_at.isoformat() if inst.expires_at else 'N/A'}"
+        )

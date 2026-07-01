@@ -11,9 +11,15 @@ from app.services.category_service import CategoryService
 from app.services.flag_service import FlagService
 from app.services.hint_service import HintService
 from app.services.file_service import FileService
+from app.extensions import limiter
 from app.utils.decorators import require_admin
 
+def get_login_limit():
+    from flask import current_app
+    return current_app.config.get("RATE_LIMIT_LOGIN", "5 per minute")
+
 @admin_bp.route("/admin/login", methods=["GET", "POST"])
+@limiter.limit(get_login_limit)
 def login():
     if current_user.is_authenticated and PermissionService.has_permission(current_user, "manage_settings"):
         return redirect(url_for("admin.dashboard"))
@@ -601,3 +607,237 @@ def export_submissions():
         mimetype="text/csv",
         headers={"Content-Disposition": "attachment; filename=submissions.csv"}
     )
+
+
+# ============================================================
+# Milestone 8 — Admin: Docker Infrastructure Management
+# ============================================================
+
+from app.repositories.docker_image_repository import DockerImageRepository
+from app.repositories.deployment_profile_repository import DeploymentProfileRepository
+from app.repositories.challenge_instance_repository import ChallengeInstanceRepository
+from app.services.instance_service import InstanceService
+from app.services.docker_service import DockerService
+
+
+# ---- Docker Images -------------------------------------------------
+
+@admin_bp.route("/admin/docker/images", methods=["GET"])
+@require_admin
+def admin_docker_images():
+    images = DockerImageRepository.get_all()
+    return jsonify([
+        {"id": img.id, "name": img.name, "tag": img.tag, "registry": img.registry,
+         "full_ref": img.full_ref, "description": img.description,
+         "default_port": img.default_port, "size_bytes": img.size_bytes,
+         "created_at": img.created_at.isoformat()}
+        for img in images
+    ])
+
+
+@admin_bp.route("/admin/docker/images", methods=["POST"])
+@require_admin
+def admin_docker_images_create():
+    data = request.get_json(silent=True) or {}
+    name = data.get("name", "").strip()
+    if not name:
+        return jsonify({"ok": False, "message": "name is required."}), 400
+    img = DockerImageRepository.create(
+        name=name, tag=data.get("tag", "latest"),
+        registry=data.get("registry"), description=data.get("description"),
+        size_bytes=data.get("size_bytes"),
+    )
+    return jsonify({"ok": True, "id": img.id, "full_ref": img.full_ref}), 201
+
+
+@admin_bp.route("/admin/docker/images/<int:image_id>", methods=["GET"])
+@require_admin
+def admin_docker_image_get(image_id):
+    img = DockerImageRepository.get_by_id(image_id)
+    if not img:
+        return jsonify({"ok": False, "message": "Not found."}), 404
+    return jsonify({
+        "id": img.id, "name": img.name, "tag": img.tag, "registry": img.registry,
+        "full_ref": img.full_ref, "description": img.description,
+        "default_port": img.default_port, "size_bytes": img.size_bytes,
+        "dockerfile_path": img.dockerfile_path, "compose_path": img.compose_path,
+        "created_at": img.created_at.isoformat(),
+    })
+
+
+@admin_bp.route("/admin/docker/images/<int:image_id>", methods=["PUT", "PATCH"])
+@require_admin
+def admin_docker_image_update(image_id):
+    data = request.get_json(silent=True) or {}
+    allowed = {"name", "tag", "registry", "description", "default_port",
+               "size_bytes", "dockerfile_path", "compose_path"}
+    updates = {k: v for k, v in data.items() if k in allowed}
+    img = DockerImageRepository.update(image_id, **updates)
+    if not img:
+        return jsonify({"ok": False, "message": "Not found."}), 404
+    return jsonify({"ok": True, "full_ref": img.full_ref})
+
+
+@admin_bp.route("/admin/docker/images/<int:image_id>", methods=["DELETE"])
+@require_admin
+def admin_docker_image_delete(image_id):
+    img = DockerImageRepository.delete(image_id)
+    if not img:
+        return jsonify({"ok": False, "message": "Not found."}), 404
+    return jsonify({"ok": True, "message": "Image deleted."})
+
+
+@admin_bp.route("/admin/docker/images/<int:image_id>/pull", methods=["POST"])
+@require_admin
+def admin_docker_image_pull(image_id):
+    img = DockerImageRepository.get_by_id(image_id)
+    if not img:
+        return jsonify({"ok": False, "message": "Not found."}), 404
+    ok, message = DockerService.pull_image(img.full_ref)
+    return jsonify({"ok": ok, "message": message})
+
+
+# ---- Deployment Profiles -------------------------------------------
+
+@admin_bp.route("/admin/docker/profiles", methods=["GET"])
+@require_admin
+def admin_deployment_profiles():
+    profiles = DeploymentProfileRepository.get_all()
+    return jsonify([
+        {"id": p.id, "name": p.name, "description": p.description,
+         "cpu_limit": p.cpu_limit, "memory_limit": p.memory_limit,
+         "pids_limit": p.pids_limit, "network_disabled": p.network_disabled,
+         "ttl_minutes": p.ttl_minutes, "max_instances_per_user": p.max_instances_per_user,
+         "port_range_start": p.port_range_start, "port_range_end": p.port_range_end}
+        for p in profiles
+    ])
+
+
+@admin_bp.route("/admin/docker/profiles", methods=["POST"])
+@require_admin
+def admin_deployment_profiles_create():
+    data = request.get_json(silent=True) or {}
+    name = data.get("name", "").strip()
+    if not name:
+        return jsonify({"ok": False, "message": "name is required."}), 400
+    allowed = {"name", "description", "cpu_limit", "memory_limit", "pids_limit",
+               "network_disabled", "ttl_minutes", "max_instances_per_user",
+               "port_range_start", "port_range_end"}
+    kwargs = {k: v for k, v in data.items() if k in allowed}
+    profile = DeploymentProfileRepository.create(**kwargs)
+    return jsonify({"ok": True, "id": profile.id, "name": profile.name}), 201
+
+
+@admin_bp.route("/admin/docker/profiles/<int:profile_id>", methods=["PUT", "PATCH"])
+@require_admin
+def admin_deployment_profile_update(profile_id):
+    data = request.get_json(silent=True) or {}
+    allowed = {"name", "description", "cpu_limit", "memory_limit", "pids_limit",
+               "network_disabled", "ttl_minutes", "max_instances_per_user",
+               "port_range_start", "port_range_end"}
+    updates = {k: v for k, v in data.items() if k in allowed}
+    profile = DeploymentProfileRepository.update(profile_id, **updates)
+    if not profile:
+        return jsonify({"ok": False, "message": "Not found."}), 404
+    return jsonify({"ok": True, "name": profile.name})
+
+
+@admin_bp.route("/admin/docker/profiles/<int:profile_id>", methods=["DELETE"])
+@require_admin
+def admin_deployment_profile_delete(profile_id):
+    profile = DeploymentProfileRepository.delete(profile_id)
+    if not profile:
+        return jsonify({"ok": False, "message": "Not found."}), 404
+    return jsonify({"ok": True, "message": "Profile deleted."})
+
+
+
+# ============================================================
+# Milestone 9 — Admin System Observability Endpoints
+# ============================================================
+
+@admin_bp.route("/admin/system/health", methods=["GET"])
+@require_admin
+def admin_system_health():
+    """Return a full system health snapshot for admin dashboard."""
+    from app.services.docker_service import _probe_docker
+    from app.models.challenge_instance import ChallengeInstance
+    from app.models.submission import Submission
+    from app.models.user import User
+    from app.models.competition import Competition
+    from datetime import datetime
+    from app.extensions import db
+    import os
+
+    # DB check
+    db_ok = True
+    db_err = None
+    db_size_bytes = 0
+    try:
+        db.session.execute(db.select(1)).first()
+        db_uri = current_app.config.get("SQLALCHEMY_DATABASE_URI", "")
+        if db_uri.startswith("sqlite:///"):
+            db_file = db_uri.replace("sqlite:///", "")
+            if not os.path.isabs(db_file):
+                db_file = os.path.abspath(os.path.join(current_app.root_path, "..", db_file))
+            if os.path.exists(db_file):
+                db_size_bytes = os.path.getsize(db_file)
+    except Exception as e:
+        db_ok = False
+        db_err = str(e)
+
+    # Docker check
+    docker_mode = DockerService.mode()
+    docker_ok = docker_mode == "simulated" or _probe_docker()
+    active_containers = ChallengeInstance.query.filter(
+        ChallengeInstance.status.in_(["creating", "running"])
+    ).count()
+
+    # Competition check
+    active_comp = Competition.query.filter(Competition.is_active == True).first()
+    comp_state = None
+    if active_comp:
+        from app.services.competition_service import CompetitionService
+        comp_state = CompetitionService.get_competition_state(active_comp)
+
+    # Submissions & Users
+    total_subs = Submission.query.count()
+    correct_subs = Submission.query.filter_by(correct=True).count()
+    total_users = User.query.filter_by(is_deleted=False).count()
+
+    # Uploads
+    uploads_dir = os.path.abspath(os.path.join(current_app.root_path, "..", "uploads"))
+    uploads_ok = os.path.exists(uploads_dir) and os.access(uploads_dir, os.W_OK)
+    uploads_size = 0
+    if os.path.exists(uploads_dir):
+        for dp, _, files_list in os.walk(uploads_dir):
+            for f in files_list:
+                try:
+                    uploads_size += os.path.getsize(os.path.join(dp, f))
+                except Exception:
+                    pass
+
+    return jsonify({
+        "database": {"ok": db_ok, "error": db_err, "size_bytes": db_size_bytes},
+        "docker": {"ok": docker_ok, "mode": docker_mode, "active_containers": active_containers},
+        "uploads": {"ok": uploads_ok, "size_bytes": uploads_size},
+        "competition": {
+            "active": active_comp is not None,
+            "name": active_comp.name if active_comp else None,
+            "state": comp_state
+        },
+        "submissions": {"total": total_subs, "correct": correct_subs},
+        "users": {"total": total_users}
+    }), 200
+
+
+@admin_bp.route("/admin/system/metrics", methods=["GET"])
+@require_admin
+def admin_system_metrics():
+    """Return current in-memory HTTP request metrics."""
+    from app.services.metrics_service import _request_counts, _response_status_counts, _api_requests
+    return jsonify({
+        "request_counts": _request_counts,
+        "response_status_counts": _response_status_counts,
+        "api_requests": _api_requests
+    }), 200

@@ -1,11 +1,20 @@
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_user, logout_user, current_user
 from app.auth import auth_bp
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
 from app.utils.decorators import require_login
+from app.extensions import limiter
+
+def get_login_limit():
+    return current_app.config.get("RATE_LIMIT_LOGIN", "5 per minute")
+
+def get_register_limit():
+    # Enforce registering limit
+    return "3 per hour"
 
 @auth_bp.route("/register", methods=["GET", "POST"])
+@limiter.limit(get_register_limit)
 def register():
     if current_user.is_authenticated:
         return redirect(url_for("challenges.index"))
@@ -34,6 +43,7 @@ def register():
     return render_template("register.html", error=error)
 
 @auth_bp.route("/login", methods=["GET", "POST"])
+@limiter.limit(get_login_limit)
 def login():
     if current_user.is_authenticated:
         return redirect(url_for("challenges.index"))

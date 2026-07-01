@@ -31,9 +31,22 @@ class Config:
     SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", "False") == "True"
     SESSION_COOKIE_SAMESITE = 'Lax'
     PERMANENT_SESSION_LIFETIME = int(os.environ.get("SESSION_LIFETIME_SECONDS", 1800)) # 30 mins default
+    PREFERRED_URL_SCHEME = 'http'
+    TRUSTED_PROXIES = int(os.environ.get("TRUSTED_PROXIES", "0"))
+    ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "*").split(",") if h.strip()]
+
+    # Rate Limiting & Metrics
+    WTF_CSRF_ENABLED = True
+    METRICS_ENABLED = os.environ.get("METRICS_ENABLED", "True") == "True"
+    RATE_LIMIT_LOGIN = os.environ.get("RATE_LIMIT_LOGIN", "5 per minute")
+    RATE_LIMIT_SUBMIT = os.environ.get("RATE_LIMIT_SUBMIT", "10 per minute")
+    RATE_LIMIT_API = os.environ.get("RATE_LIMIT_API", "60 per minute")
+    RATE_LIMIT_GLOBAL = os.environ.get("RATE_LIMIT_GLOBAL", "100 per minute")
+
 
 class DevelopmentConfig(Config):
     DEBUG = True
+
 
 class TestingConfig(Config):
     TESTING = True
@@ -42,14 +55,31 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     WTF_CSRF_ENABLED = False # Disable CSRF for testing convenience in unittest client requests
 
+
+class StagingConfig(Config):
+    DEBUG = False
+    TESTING = False
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    PREFERRED_URL_SCHEME = 'https'
+    TRUSTED_PROXIES = int(os.environ.get("TRUSTED_PROXIES", "1"))
+
+
 class ProductionConfig(Config):
     DEBUG = False
     TESTING = False
     SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    PREFERRED_URL_SCHEME = 'https'
+    TRUSTED_PROXIES = int(os.environ.get("TRUSTED_PROXIES", "1"))
+
 
 config_by_name = {
     "development": DevelopmentConfig,
     "testing": TestingConfig,
+    "staging": StagingConfig,
     "production": ProductionConfig,
     "default": DevelopmentConfig
 }

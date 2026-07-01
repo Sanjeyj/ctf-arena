@@ -73,6 +73,17 @@
             letter-spacing: 0.5px;
             text-transform: uppercase;
         }
+        .header-nav-link {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-left: 1rem;
+            transition: color 0.2s;
+        }
+        .header-nav-link:hover, .header-nav-link.active {
+            color: var(--neon-blue);
+        }
         .header-actions { display: flex; align-items: center; gap: 1rem; }
         .refresh-indicator {
             font-size: 0.8rem;
@@ -276,9 +287,13 @@
                 🚩 CTF <span>Arena</span>
             </a>
             <span class="admin-badge">Admin</span>
-            <a href="/admin" class="header-nav-link active" style="margin-left:1.5rem;color:var(--neon-blue);text-decoration:none;font-weight:600;" id="nav-dashboard">Dashboard</a>
-            <a href="/admin/challenges" class="header-nav-link" style="margin-left:1rem;color:var(--muted);text-decoration:none;font-weight:600;transition:color 0.2s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'" id="nav-challenges">Challenges</a>
-            <a href="/admin/categories" class="header-nav-link" style="margin-left:1rem;color:var(--muted);text-decoration:none;font-weight:600;transition:color 0.2s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'" id="nav-categories">Categories</a>
+            <a href="/admin" class="header-nav-link active" style="margin-left:1.5rem;" id="nav-dashboard">Dashboard</a>
+            <a href="/admin/challenges" class="header-nav-link" id="nav-challenges">Challenges</a>
+            <a href="/admin/categories" class="header-nav-link" id="nav-categories">Categories</a>
+            <a href="/admin/announcements" class="header-nav-link" id="nav-announcements">Announcements</a>
+            <a href="/admin/submissions" class="header-nav-link" id="nav-submissions">Submissions</a>
+            <a href="/admin/competition" class="header-nav-link" id="nav-competition">Competition</a>
+            <a href="/admin/competition/stats" class="header-nav-link" id="nav-stats">Live Stats</a>
         </div>
         <div class="header-actions">
             <a href="/scoreboard" class="btn-logout" style="border-color:var(--neon-blue);color:var(--neon-blue);" target="_blank" id="btn-public-scoreboard">📺 Present Scoreboard</a>
