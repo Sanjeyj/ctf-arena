@@ -1,0 +1,1 @@
+# hints blueprint errors skeleton

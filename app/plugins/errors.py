@@ -1,0 +1,1 @@
+# plugins blueprint errors skeleton

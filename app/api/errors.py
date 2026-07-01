@@ -1,0 +1,1 @@
+# API blueprint errors skeleton

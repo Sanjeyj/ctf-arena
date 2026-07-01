@@ -1,0 +1,1 @@
+# announcements blueprint errors skeleton

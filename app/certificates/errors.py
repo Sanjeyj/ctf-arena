@@ -1,0 +1,1 @@
+# certificates blueprint errors skeleton

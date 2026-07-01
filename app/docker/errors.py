@@ -1,0 +1,1 @@
+# docker blueprint errors skeleton

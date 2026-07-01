@@ -1,0 +1,1 @@
+# Scoreboard blueprint errors skeleton

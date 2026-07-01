@@ -1,0 +1,1 @@
+# Challenges blueprint errors skeleton

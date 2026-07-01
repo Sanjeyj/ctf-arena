@@ -1,0 +1,1 @@
+# categories blueprint errors skeleton
