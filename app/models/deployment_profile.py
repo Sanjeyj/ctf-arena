@@ -1,5 +1,5 @@
 import datetime
-from app.extensions import db
+from app.extensions import db, utcnow
 
 class DeploymentProfile(db.Model):
     __tablename__ = 'deployment_profiles'
@@ -20,7 +20,7 @@ class DeploymentProfile(db.Model):
     port_range_start = db.Column(db.Integer, default=10000, nullable=False)
     port_range_end = db.Column(db.Integer, default=20000, nullable=False)
 
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=utcnow, onupdate=utcnow, nullable=False)
 
     instances = db.relationship('ChallengeInstance', backref='deployment_profile', lazy=True)

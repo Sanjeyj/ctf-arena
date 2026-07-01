@@ -1,7 +1,7 @@
 import datetime
 import json
 from flask_login import UserMixin
-from app.extensions import db
+from app.extensions import db, utcnow
 from app.models.mixins import TimestampMixin, UUIDMixin, SoftDeleteMixin
 
 class User(db.Model, UserMixin, TimestampMixin, UUIDMixin, SoftDeleteMixin):
@@ -9,7 +9,7 @@ class User(db.Model, UserMixin, TimestampMixin, UUIDMixin, SoftDeleteMixin):
     
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False, index=True)
-    registered_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
+    registered_at = db.Column(db.DateTime, default=utcnow, nullable=False)
     
     # Extended identity fields
     display_name = db.Column(db.String(80), nullable=True)

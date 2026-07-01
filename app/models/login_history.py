@@ -1,5 +1,5 @@
 import datetime
-from app.extensions import db
+from app.extensions import db, utcnow
 from app.models.mixins import TimestampMixin, UUIDMixin
 
 class LoginHistory(db.Model, TimestampMixin, UUIDMixin):
@@ -11,4 +11,4 @@ class LoginHistory(db.Model, TimestampMixin, UUIDMixin):
     ip_address = db.Column(db.String(45), nullable=True)
     user_agent = db.Column(db.String(255), nullable=True)
     success = db.Column(db.Boolean, default=False, nullable=False, index=True)
-    timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
+    timestamp = db.Column(db.DateTime, default=utcnow, nullable=False)

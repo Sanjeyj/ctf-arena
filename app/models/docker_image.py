@@ -1,5 +1,5 @@
 import datetime
-from app.extensions import db
+from app.extensions import db, utcnow
 
 class DockerImage(db.Model):
     __tablename__ = 'docker_images'
@@ -13,7 +13,7 @@ class DockerImage(db.Model):
     compose_path = db.Column(db.String(255), nullable=True)
     default_port = db.Column(db.Integer, default=80, nullable=False)
     size_bytes = db.Column(db.BigInteger, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
 
     instances = db.relationship('ChallengeInstance', backref='docker_image', lazy=True, cascade='all, delete-orphan')
 

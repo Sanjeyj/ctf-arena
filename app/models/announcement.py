@@ -1,4 +1,4 @@
-from app.extensions import db
+from app.extensions import db, utcnow
 from app.models.mixins import TimestampMixin, UUIDMixin
 import datetime
 
@@ -8,7 +8,7 @@ class Announcement(db.Model, TimestampMixin, UUIDMixin):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
     
     competition_id = db.Column(db.Integer, db.ForeignKey('competitions.id', ondelete='CASCADE'), nullable=True, index=True)
     

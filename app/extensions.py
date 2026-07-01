@@ -24,3 +24,14 @@ def safe_commit():
         db.session.rollback()
         raise
 
+
+def utcnow():
+    """Return the current UTC date and time as a timezone-naive object.
+    
+    This replaces deprecated datetime.utcnow() without causing offset-naive/aware
+    comparison errors with existing database records.
+    """
+    import datetime
+    return datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+
+

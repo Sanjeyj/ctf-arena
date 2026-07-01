@@ -1,5 +1,5 @@
 import datetime
-from app.extensions import db, safe_commit
+from app.extensions import db, safe_commit, utcnow
 from app.models.challenge_instance import ChallengeInstance
 from app.models.container_log import ContainerLog
 from app.models.instance_snapshot import InstanceSnapshot
@@ -53,7 +53,7 @@ class ChallengeInstanceRepository:
 
     @staticmethod
     def get_expired():
-        now = datetime.datetime.utcnow()
+        now = utcnow()
         return (
             ChallengeInstance.query
             .filter(ChallengeInstance.status.in_(['creating', 'running']))
@@ -73,7 +73,7 @@ class ChallengeInstanceRepository:
     @staticmethod
     def create(challenge_id, docker_image_id=None, user_id=None, team_id=None,
                 deployment_profile_id=None, ttl_minutes=30):
-        expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=ttl_minutes)
+        expires_at = utcnow() + datetime.timedelta(minutes=ttl_minutes)
         instance = ChallengeInstance(
             challenge_id=challenge_id,
             docker_image_id=docker_image_id,
@@ -102,7 +102,7 @@ class ChallengeInstanceRepository:
         instance = ChallengeInstance.query.get(instance_id)
         if instance:
             instance.status = 'stopped'
-            instance.stopped_at = datetime.datetime.utcnow()
+            instance.stopped_at = utcnow()
             safe_commit()
         return instance
 
@@ -111,7 +111,7 @@ class ChallengeInstanceRepository:
         instance = ChallengeInstance.query.get(instance_id)
         if instance:
             instance.status = 'destroyed'
-            instance.stopped_at = datetime.datetime.utcnow()
+            instance.stopped_at = utcnow()
             safe_commit()
         return instance
 

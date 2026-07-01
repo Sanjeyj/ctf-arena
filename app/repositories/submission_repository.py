@@ -1,4 +1,5 @@
-from app.extensions import db, safe_commit
+from sqlalchemy.orm import joinedload
+from app.extensions import db, safe_commit, utcnow
 from app.models.submission import Submission
 from app.models.user import User
 from app.models.challenge import Challenge
@@ -7,7 +8,7 @@ import datetime
 class SubmissionRepository:
     @staticmethod
     def get_solved_by_user(username):
-        return Submission.query.join(User).filter(
+        return Submission.query.options(joinedload(Submission.challenge)).join(User).filter(
             User.username == username,
             User.is_deleted == False,
             Submission.correct == True,
@@ -17,7 +18,7 @@ class SubmissionRepository:
     @staticmethod
     def get_all_by_user(username):
         """Get ALL submissions (correct + wrong) by a user."""
-        return Submission.query.join(User).filter(
+        return Submission.query.options(joinedload(Submission.challenge)).join(User).filter(
             User.username == username,
             User.is_deleted == False
         ).order_by(Submission.time.desc()).all()
@@ -129,7 +130,7 @@ class SubmissionRepository:
         user = User.query.filter_by(username=username, is_deleted=False).first()
         if user:
             Submission.query.filter_by(user_id=user.id).delete()
-            user.registered_at = datetime.datetime.utcnow()
+            user.registered_at = utcnow()
             safe_commit()
             return True
         return False

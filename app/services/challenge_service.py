@@ -1,5 +1,5 @@
 import datetime
-from app.extensions import db
+from app.extensions import db, utcnow
 from app.repositories.challenge_repository import ChallengeRepository
 from app.repositories.submission_repository import SubmissionRepository
 from app.repositories.user_repository import UserRepository
@@ -53,7 +53,7 @@ class ChallengeService:
                 }
                 total_pts += sub.points
 
-        registered_at = user.registered_at.isoformat() if user else datetime.datetime.utcnow().isoformat()
+        registered_at = user.registered_at.isoformat() if user else utcnow().isoformat()
         
         return challenges_dict, solved_dict, total_pts, registered_at
 
@@ -79,7 +79,7 @@ class ChallengeService:
         solved_list = SubmissionRepository.get_solved_by_user(username)
         solved_dict = {}
         for sub in solved_list:
-            sch = Challenge.query.get(sub.challenge_id)
+            sch = sub.challenge
             if sch:
                 solved_dict[sch.legacy_id] = {
                     "points": sub.points,
@@ -121,11 +121,12 @@ class ChallengeService:
         # Increment global attempts counter
         ch.attempt_count += 1
         db.session.add(ch)
-        db.session.commit()
+        from app.extensions import safe_commit
+        safe_commit()
 
         if correct:
-            reg_time = user.registered_at if user else datetime.datetime.utcnow()
-            elapsed = (datetime.datetime.utcnow() - reg_time).total_seconds()
+            reg_time = user.registered_at if user else utcnow()
+            elapsed = (utcnow() - reg_time).total_seconds()
             
             # Default point award value
             if ch.decay_type == "legacy_time":

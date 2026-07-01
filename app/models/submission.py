@@ -1,4 +1,4 @@
-from app.extensions import db
+from app.extensions import db, utcnow
 from app.models.mixins import TimestampMixin, UUIDMixin
 import datetime
 
@@ -10,7 +10,7 @@ class Submission(db.Model, TimestampMixin, UUIDMixin):
     challenge_id = db.Column(db.Integer, db.ForeignKey('challenges.id', ondelete='CASCADE'), nullable=False, index=True)
     
     points = db.Column(db.Integer, nullable=False)
-    time = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
+    time = db.Column(db.DateTime, default=utcnow, nullable=False)
     elapsed = db.Column(db.Integer, nullable=True) # time elapsed since registration
     
     submitted_flag = db.Column(db.String(255), nullable=True)

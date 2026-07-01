@@ -1,5 +1,5 @@
 import datetime
-from app.extensions import db
+from app.extensions import db, utcnow
 
 class ChallengeInstance(db.Model):
     __tablename__ = 'challenge_instances'
@@ -21,7 +21,7 @@ class ChallengeInstance(db.Model):
     started_at = db.Column(db.DateTime, nullable=True)
     expires_at = db.Column(db.DateTime, nullable=True, index=True)
     stopped_at = db.Column(db.DateTime, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
 
     logs = db.relationship('ContainerLog', backref='instance', lazy=True, cascade='all, delete-orphan')
     snapshots = db.relationship('InstanceSnapshot', backref='instance', lazy=True, cascade='all, delete-orphan')

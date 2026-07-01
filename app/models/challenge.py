@@ -1,4 +1,4 @@
-from app.extensions import db
+from app.extensions import db, utcnow
 from app.models.mixins import TimestampMixin, UUIDMixin, SoftDeleteMixin
 import datetime
 
@@ -42,7 +42,7 @@ class Challenge(db.Model, TimestampMixin, UUIDMixin, SoftDeleteMixin):
     display_order = db.Column(db.Integer, default=0, nullable=False)
     featured = db.Column(db.Boolean, default=False, nullable=False)
     archived = db.Column(db.Boolean, default=False, nullable=False)
-    published_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
+    published_at = db.Column(db.DateTime, default=utcnow, nullable=False)
     
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id', ondelete='SET NULL'), nullable=True, index=True)
     competition_id = db.Column(db.Integer, db.ForeignKey('competitions.id', ondelete='SET NULL'), nullable=True, index=True)

@@ -1,5 +1,6 @@
 from app.repositories.competition_repository import CompetitionRepository
 import datetime
+from app.extensions import utcnow
 
 class CompetitionService:
     @staticmethod
@@ -7,7 +8,7 @@ class CompetitionService:
         comp = CompetitionRepository.get_active()
         if not comp:
             # Self-healing fallback: Seed a default active competition
-            now = datetime.datetime.utcnow()
+            now = utcnow()
             comp = CompetitionRepository.create(
                 name="CTF Arena v2",
                 description="Welcome to CTF Arena v2!",
@@ -43,7 +44,7 @@ class CompetitionService:
         if not comp.is_active:
             return 'draft'
 
-        now = datetime.datetime.utcnow()
+        now = utcnow()
         
         # Check scheduling dates
         if comp.start_time and now < comp.start_time:

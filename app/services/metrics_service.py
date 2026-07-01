@@ -82,8 +82,8 @@ class MetricsService:
             lines.append(f"ctf_active_containers_total {active_containers}")
 
             # 7. Competitions running
-            from datetime import datetime
-            now = datetime.utcnow()
+            from app.extensions import utcnow
+            now = utcnow()
             active_competitions = Competition.query.filter(
                 Competition.is_active == True,
                 Competition.start_time <= now,

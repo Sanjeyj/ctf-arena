@@ -112,13 +112,13 @@ class InstanceService:
             ChallengeInstanceRepository.add_log(instance.id, f'Run failed: {msg}', level='error')
             return False, instance, f'Failed to start container: {msg}'
 
-        import datetime
+        from app.extensions import utcnow
         ChallengeInstanceRepository.update(
             instance.id,
             container_id=container_id,
             mapped_port=host_port,
             status='running',
-            started_at=datetime.datetime.utcnow(),
+            started_at=utcnow(),
         )
         ChallengeInstanceRepository.add_log(instance.id, f'Container {container_id[:12]} running on port {host_port}.')
         logger.info('[InstanceService] Instance %d launched container %s', instance.id, container_id[:12])

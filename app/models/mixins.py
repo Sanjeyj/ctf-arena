@@ -1,10 +1,10 @@
 import uuid
 import datetime
-from app.extensions import db
+from app.extensions import db, utcnow
 
 class TimestampMixin:
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=utcnow, onupdate=utcnow, nullable=False)
 
 class UUIDMixin:
     uuid = db.Column(db.String(36), default=lambda: str(uuid.uuid4()), unique=True, nullable=False, index=True)

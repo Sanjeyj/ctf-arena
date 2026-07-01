@@ -1,10 +1,11 @@
 from app.repositories.announcement_repository import AnnouncementRepository
 import datetime
+from app.extensions import utcnow
 
 class AnnouncementService:
     @staticmethod
     def get_active_announcements():
-        now = datetime.datetime.utcnow()
+        now = utcnow()
         all_anns = AnnouncementRepository.get_all(include_unpublished=False)
         active = []
         for ann in all_anns:

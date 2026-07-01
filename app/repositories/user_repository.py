@@ -39,13 +39,14 @@ class UserRepository:
         
         Uses joinedload to reduce scoreboard queries from 1+2N to a single query.
         """
+        from app.models.hint import HintUnlock
         return (
             User.query
             .join(User.roles)
             .filter(Role.name == "Participant", User.is_deleted == False)
             .options(
                 joinedload(User.submissions),
-                joinedload(User.hint_unlocks)
+                joinedload(User.hint_unlocks).joinedload(HintUnlock.hint)
             )
             .all()
         )

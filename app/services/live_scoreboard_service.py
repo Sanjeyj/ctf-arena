@@ -4,12 +4,13 @@ from app.repositories.submission_repository import SubmissionRepository
 from app.services.competition_service import CompetitionService
 from app.utils.legacy import compute_leaderboard, build_stats
 import datetime
+from app.extensions import utcnow
 
 class LiveScoreboardService:
     @staticmethod
     def get_live_rankings(is_admin_preview=False):
         comp = CompetitionService.get_active_competition()
-        now = datetime.datetime.utcnow()
+        now = utcnow()
         
         # Check if freeze is active
         freeze_active = False
@@ -104,7 +105,7 @@ class LiveScoreboardService:
             return {"state": "practice", "remaining_seconds": 0}
         
         state = CompetitionService.get_competition_state(comp)
-        now = datetime.datetime.utcnow()
+        now = utcnow()
         
         remaining = 0
         if state == "scheduled" and comp.start_time:

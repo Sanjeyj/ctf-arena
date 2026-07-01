@@ -1,6 +1,6 @@
 import datetime
 from flask import current_app, request
-from app.extensions import db
+from app.extensions import db, safe_commit, utcnow
 from app.models.user import User
 from app.models.login_history import LoginHistory
 from app.models.audit import AuditLog
@@ -32,7 +32,7 @@ class SessionService:
         if success:
             if user:
                 user.failed_login_attempts = 0
-                user.last_login = datetime.datetime.utcnow()
+                user.last_login = utcnow()
                 user.last_ip = ip_address
                 db.session.add(user)
                 
@@ -66,7 +66,7 @@ class SessionService:
             )
             db.session.add(audit)
             
-        db.session.commit()
+        safe_commit()
 
     @staticmethod
     def log_logout(user_id, username, ip_address=None):
@@ -77,7 +77,7 @@ class SessionService:
             details=f"Username: {username} logged out."
         )
         db.session.add(audit)
-        db.session.commit()
+        safe_commit()
 
     @staticmethod
     def log_audit_event(user_id, action, details=None, ip_address=None):
@@ -88,4 +88,4 @@ class SessionService:
             details=details
         )
         db.session.add(audit)
-        db.session.commit()
+        safe_commit()
