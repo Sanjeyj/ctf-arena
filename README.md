@@ -1,81 +1,83 @@
-# 🚩 CTF Arena
+# 🚩 CTF Arena v2
 
-A self-hosted **Capture The Flag (CTF)** platform built with Flask for college cybersecurity competitions. Features **7 challenges** spanning Cryptography, Web Exploitation, Steganography, Encoding, and OSINT — with a live scoreboard, admin dashboard, and time-based dynamic scoring.
+A self-hosted **Capture The Flag (CTF)** platform built with Flask for college
+cybersecurity competitions. Features a **live scoreboard**, **admin dashboard**,
+**Docker-based container challenges**, **time-based dynamic scoring**, **team mode**,
+and a full **REST + SSE API** — all running from a single Python process.
 
 ---
 
 ## 🌐 Live Demo
 
-> Run locally and share your LAN IP with participants — no internet required (except Google Fonts).
+> Run locally and share your LAN IP with participants — no internet required.
 
 ---
 
 ## ⚡ Quick Start
 
 ```bash
-# 1. Clone the repo
+# 1. Clone the repository
 git clone https://github.com/Sanjeyj/ctf-arena.git
 cd ctf-arena
 
-# 2. Install dependencies
+# 2. Create and activate a virtual environment
+python -m venv venv
+# Windows:  venv\Scripts\activate
+# Linux/macOS: source venv/bin/activate
+
+# 3. Install dependencies
 pip install -r requirements.txt
 
-# 3. (One-time) Generate the steganography image
+# 4. Configure environment
+cp .env.example .env
+# Edit .env — at minimum set SECRET_KEY and ADMIN_PASSWORD
+
+# 5. Initialise the database
+flask db upgrade
+
+# 6. (One-time) Generate the steganography challenge image
 python make_stego.py
 
-# 4. Start the server
-python app.py
-
-# 5. Open in browser
-#    http://localhost:5000
+# 7. Start the development server
+flask run --host=0.0.0.0 --port=5000
+# or
+python run.py
 ```
 
-> Or use the bundled start script on Linux/Mac:
-> ```bash
-> bash start.sh
-> ```
-
----
-
-## 📋 Challenges Overview
-
-| # | Challenge | Category | Points | Difficulty | Solve Method |
-|---|-----------|----------|--------|------------|--------------|
-| 01 | 🔐 Caesar's Secret | Cryptography | 50 | Easy | Decode ROT-3 cipher |
-| 02 | 🍪 Cookie Monster | Web Exploitation | 75 | Easy | Edit browser cookie `role=admin` |
-| 03 | 🖼️ Hidden in Plain Sight | Steganography | 75 | Easy | `strings cat.jpg \| grep FLAG` |
-| 04 | 💻 Base Jumping | Encoding | 50 | Easy | Base64 decode the payload |
-| 05 | 🔎 GitLeaks | OSINT | 100 | Easy | Dig through Git commit history |
-| 06 | 🗄️ Broken Vault | Web Exploitation | 200 | Hard | SQL Injection via `/vault-search` |
-| 07 | 📡 Whisper Protocol | Cryptography | 200 | Hard | Repeating-key XOR brute-force |
-| | **TOTAL** | | **750 pts** | | |
-
----
-
-## 🏁 Answer Keys *(Organizers Only)*
-
-```
-CH-01: FLAG{caesar_salad_is_delicious}
-CH-02: FLAG{c00ki3s_are_delic10us}
-CH-03: FLAG{steg0_master_101}
-CH-04: FLAG{base64_is_not_encryption}
-CH-05: FLAG{git_gud_at_osint}
-CH-06: FLAG{sqli_is_still_alive_and_kicking}
-CH-07: FLAG{xor_ciphers_are_simple_but_effective}
-```
+Open `http://localhost:5000` and `http://localhost:5000/admin` in your browser.
 
 ---
 
 ## ✨ Features
 
-- 🏠 **Dashboard** — All challenges in a responsive card grid with live solved/unsolved status
-- 📡 **Live Scoreboard** — Auto-refreshes every second with Chart.js score distribution
-- ⏱️ **Dynamic Scoring** — Points decay over time (1 pt per 10 seconds), rewarding fast solvers
-- 🔑 **Admin Panel** — Password-protected dashboard at `/admin/login` with participant management & stats
-- 🧑‍🤝‍🧑 **Multi-User** — Multiple participants can register and compete simultaneously
-- 💉 **Intentional Vulnerability** — CH-06 uses a real SQLite SQL injection for teaching purposes
-- 🔐 **Session-based Auth** — Secure Flask sessions with configurable secret key
-- 🐳 **Docker Ready** — Includes `Dockerfile` and `render.yaml` for cloud deployment
+| Feature | Details |
+|---------|---------|
+| 🏠 **Challenge Dashboard** | Responsive card grid; category & difficulty filters; live solved/unsolved status |
+| 📡 **Live Scoreboard** | Auto-refreshes via SSE; score distribution chart (Chart.js) |
+| ⏱️ **Dynamic Scoring** | `static`, `legacy_time`, and `dynamic` decay modes |
+| 🔑 **Admin Panel** | Full competition management, user/team admin, audit log |
+| 🐳 **Docker Challenges** | Per-user isolated containers with automatic TTL expiry |
+| 🧑‍🤝‍🧑 **Teams** | Optional team mode with per-team scoreboard |
+| 💬 **Announcements** | Scheduled or immediate broadcast messages |
+| 🔐 **Auth & Security** | bcrypt passwords, CSRF protection, rate limiting, session security |
+| 📊 **Analytics** | Per-challenge solve rates, user activity heatmaps |
+| 🔌 **Plugins** | Drop-in plugin directory for custom extensions |
+| 🏅 **Certificates** | Auto-generated completion certificates |
+| 📋 **Audit Log** | Immutable record of all security-relevant events |
+
+---
+
+## 🏁 Default Challenge Flags *(Organizers Only)*
+
+| # | Title | Category | Flag |
+|---|-------|----------|------|
+| 01 | 🔐 Caesar's Secret | Cryptography | `FLAG{caesar_salad_is_delicious}` |
+| 02 | 🍪 Cookie Monster | Web Exploitation | `FLAG{c00ki3s_are_delic10us}` |
+| 03 | 🖼️ Hidden in Plain Sight | Steganography | `FLAG{steg0_master_101}` |
+| 04 | 💻 Base Jumping | Encoding | `FLAG{base64_is_not_encryption}` |
+| 05 | 🔎 GitLeaks | OSINT | `FLAG{git_gud_at_osint}` |
+| 06 | 🗄️ Broken Vault | Web Exploitation | `FLAG{sqli_is_still_alive_and_kicking}` |
+| 07 | 📡 Whisper Protocol | Cryptography | `FLAG{xor_ciphers_are_simple_but_effective}` |
 
 ---
 
@@ -83,140 +85,129 @@ CH-07: FLAG{xor_ciphers_are_simple_but_effective}
 
 ```
 ctf-arena/
-├── app.py                  # Main Flask server (all routes & logic)
-├── requirements.txt        # Python dependencies (Flask, Pillow, Gunicorn)
-├── make_stego.py           # One-time script to generate the stego image
-├── start.sh                # Convenience start script
-├── scores.json             # Auto-created: tracks all participant scores
-├── render.yaml             # Render.com deployment config
-├── Docker                  # Dockerfile for containerized deployment
-├── templates/
-│   ├── base.html           # Shared layout (nav, toast, flag submit)
-│   ├── index.html          # Challenge dashboard
-│   ├── register.html       # Participant registration
-│   ├── scoreboard.html     # Public live scoreboard
-│   ├── admin.html          # Admin dashboard
-│   ├── admin_login.html    # Admin login
-│   ├── ch_ch1.html         # Caesar cipher
-│   ├── ch_ch2.html         # Cookie Monster
-│   ├── ch_ch3.html         # Steganography
-│   ├── ch_ch4.html         # Base64 Encoding
-│   ├── ch_ch5.html         # OSINT / GitLeaks
-│   ├── ch_ch6.html         # SQL Injection (Broken Vault)
-│   └── ch_ch7.html         # XOR Cipher (Whisper Protocol)
-└── static/
-    └── files/
-        └── cat.jpg         # Stego challenge image (generated by make_stego.py)
+├── app/
+│   ├── __init__.py          # Application factory
+│   ├── config.py            # Dev / Test / Staging / Prod configs
+│   ├── extensions.py        # Shared Flask extensions + helpers
+│   ├── models/              # SQLAlchemy models
+│   ├── repositories/        # Database query layer
+│   ├── services/            # Business logic
+│   ├── admin/               # Admin blueprint
+│   ├── api/                 # JSON API v1 blueprint
+│   ├── auth/                # Auth blueprint
+│   ├── challenges/          # Challenge pages blueprint
+│   ├── scoreboard/          # Live scoreboard blueprint
+│   ├── docker/              # Container challenge blueprint
+│   └── ...                  # (20+ additional blueprints)
+├── docs/                    # Documentation
+│   ├── api.md               # REST API reference
+│   ├── architecture.md      # System architecture
+│   ├── deployment.md        # Deployment guide
+│   ├── security.md          # Security guide
+│   └── admin.md             # Admin operations guide
+├── migrations/              # Alembic migration scripts
+├── tests/                   # pytest test suite (86 tests)
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+├── run.py                   # Dev server entry point
+└── wsgi.py                  # Gunicorn entry point
 ```
 
 ---
 
 ## 🔧 Requirements
 
-- Python 3.8+
-- pip packages: `flask`, `pillow`, `gunicorn`
-- Modern browser (Chrome / Firefox)
-- Internet for Google Fonts *(works offline with system fonts as fallback)*
+| Requirement | Version |
+|-------------|---------|
+| Python | 3.10+ |
+| Flask | 3.0+ |
+| SQLAlchemy | 2.x |
+| Database | SQLite (dev) or PostgreSQL 14+ (prod) |
+| Redis | 6.2+ *(optional, for multi-worker rate limiting)* |
+
+```
+pip install -r requirements.txt
+```
 
 ---
 
 ## 🛡️ Admin Panel
 
-Access the admin dashboard at `http://localhost:5000/admin/login`.
+Access: `http://localhost:5000/admin`
 
-Default credentials (override via environment variables in production):
-
-| Setting | Default | Env Variable |
+| Setting | Default | Env variable |
 |---------|---------|--------------|
 | Username | `admin` | `ADMIN_USER` |
 | Password | `ctf_admin_2024` | `ADMIN_PASSWORD` |
 
-The admin panel shows:
-- Live leaderboard with per-challenge solve badges
-- Total participants, solves, and most-popular challenge stats
-- Score distribution chart
-- One-click scoreboard reset
+> ⚠️ Override defaults in production via environment variables!
+
+See [`docs/admin.md`](docs/admin.md) for the full admin operations guide.
 
 ---
 
 ## 🎓 Competitor Instructions
 
-Share the server URL with participants:
-
-1. Open `http://<your-ip>:5000` in your browser
-2. Enter a display name to register (appears on leaderboard)
-3. Click any challenge card to open it
-4. Solve the challenge using the hints provided
-5. Submit the flag in format `FLAG{...}`
-6. Earn points — solve faster for more points! ⏱️
-
-### 🛠️ Useful Tools
-
-| Tool | Purpose |
-|------|---------|
-| **Linux terminal** | `strings`, `xxd`, `base64`, `git log` |
-| **CyberChef** | https://gchq.github.io/CyberChef |
-| **Browser DevTools** | F12 → Application → Cookies |
-| **Python** | `base64`, `codecs` modules |
-| **Burp Suite / curl** | HTTP manipulation for web challenges |
-
----
-
-## 🔄 Reset Progress
-
-- Click **RESET** in the top navigation bar (resets your own progress only), OR
-- Visit `http://localhost:5000/reset`, OR
-- Admin panel → Reset All (clears all participant data)
-
----
-
-## 🚀 Hosting for Multiple Users (LAN)
-
-The server already binds to `0.0.0.0:5000`. To let participants on the same network connect:
-
-```bash
-# Find your local IP
-ip addr show | grep "inet "   # Linux/Mac
-ipconfig                       # Windows
-
-# Share with participants:
-# http://192.168.x.x:5000
-```
-
----
-
-## 🐳 Docker Deployment
-
-```bash
-docker build -t ctf-arena .
-docker run -p 5000:5000 \
-  -e SECRET_KEY=your_secret \
-  -e ADMIN_PASSWORD=your_password \
-  ctf-arena
-```
-
----
-
-## ☁️ Cloud Deployment (Render.com)
-
-A `render.yaml` is included for one-click deployment to [Render](https://render.com):
-
-1. Fork this repo
-2. Connect to Render → New Web Service → select repo
-3. Set environment variables: `SECRET_KEY`, `ADMIN_USER`, `ADMIN_PASSWORD`
-4. Deploy!
+1. Open `http://<server-ip>:5000` in your browser.
+2. Register an account.
+3. Browse challenges and click a card to open one.
+4. Solve the challenge and submit the flag in `FLAG{...}` format.
+5. Earn points — faster solvers score more with time-decay enabled!
 
 ---
 
 ## ⚙️ Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `SECRET_KEY` | `ctf_super_secret_2024` | Flask session secret key |
-| `ADMIN_USER` | `admin` | Admin panel username |
-| `ADMIN_PASSWORD` | `ctf_admin_2024` | Admin panel password |
+See [`docs/deployment.md`](docs/deployment.md) for the full variable reference.
 
-> ⚠️ Always override defaults in production!
+**Minimum required for production:**
+
+```bash
+SECRET_KEY=<random 32+ char string>
+ADMIN_PASSWORD=<strong password>
+DATABASE_URL=postgresql://user:pass@host:5432/ctfdb  # or sqlite:///instance/ctf.db
+FLASK_ENV=production
+SESSION_COOKIE_SECURE=True
+```
+
+---
+
+## 🐳 Docker
+
+```bash
+# Build and run
+docker build -t ctf-arena:latest .
+docker run -d -p 5000:5000 \
+  -e SECRET_KEY=changeme \
+  -e ADMIN_PASSWORD=changeme \
+  -v $(pwd)/instance:/app/instance \
+  ctf-arena:latest
+```
+
+See [`docs/deployment.md`](docs/deployment.md) for a full Docker Compose production stack example.
+
+---
+
+## 🧪 Running Tests
+
+```bash
+python -m pytest                    # Run all 86 tests
+python -m pytest -v                 # Verbose output
+python -m pytest tests/test_challenges.py  # Run a single file
+```
+
+---
+
+## 📚 Documentation
+
+| Document | Description |
+|----------|-------------|
+| [`docs/api.md`](docs/api.md) | Full REST API reference |
+| [`docs/architecture.md`](docs/architecture.md) | System architecture & design |
+| [`docs/deployment.md`](docs/deployment.md) | Deployment & configuration guide |
+| [`docs/security.md`](docs/security.md) | Security controls & hardening |
+| [`docs/admin.md`](docs/admin.md) | Admin operations guide |
 
 ---
 
