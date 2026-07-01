@@ -183,7 +183,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for sub in result.items %}
+                {% for sub in result['items'] %}
                 {% set user = all_users | selectattr('id', 'equalto', sub.user_id) | first %}
                 {% set ch = all_challenges | selectattr('id', 'equalto', sub.challenge_id) | first %}
                 <tr id="sub-row-{{ sub.id }}">
