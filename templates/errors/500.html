@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}500 Server Error | CTF Arena{% endblock %}
+{% block content %}
+<style>
+.error-page { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; gap: 1.5rem; }
+.error-code { font-family: 'Fira Code', monospace; font-size: 6rem; font-weight: 700; background: linear-gradient(135deg, var(--neon-red), #ff6b00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
+.error-title { font-size: 1.8rem; font-weight: 700; color: var(--text-primary); }
+.error-desc { font-size: 1rem; color: var(--text-secondary); max-width: 440px; line-height: 1.7; }
+.error-icon { font-size: 4rem; animation: spin 2s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+<div class="error-page" id="error-500-page">
+    <div class="error-icon">⚙️</div>
+    <div class="error-code">500</div>
+    <div class="error-title">Internal Server Error</div>
+    <div class="error-desc">Something went wrong on the server side. The administrators have been notified. Please try again in a moment.</div>
+    <div style="display: flex; gap: 1rem;">
+        <a href="/" class="submit-btn" id="btn-goto-home-500" style="text-decoration: none; padding: 0.75rem 2rem;">Dashboard</a>
+        <a href="javascript:location.reload()" class="btn-secondary" id="btn-retry-500" style="text-decoration: none; padding: 0.75rem 2rem;">Retry</a>
+    </div>
+</div>
+{% endblock %}

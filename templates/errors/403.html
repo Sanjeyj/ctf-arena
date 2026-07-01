@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}403 Forbidden | CTF Arena{% endblock %}
+{% block content %}
+<style>
+.error-page { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; gap: 1.5rem; }
+.error-code { font-family: 'Fira Code', monospace; font-size: 6rem; font-weight: 700; background: linear-gradient(135deg, #ff8c00, var(--neon-red)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
+.error-title { font-size: 1.8rem; font-weight: 700; color: var(--text-primary); }
+.error-desc { font-size: 1rem; color: var(--text-secondary); max-width: 400px; line-height: 1.7; }
+.error-icon { font-size: 4rem; }
+</style>
+<div class="error-page" id="error-403-page">
+    <div class="error-icon">🚫</div>
+    <div class="error-code">403</div>
+    <div class="error-title">Access Forbidden</div>
+    <div class="error-desc">You don't have permission to access this page. If you believe this is a mistake, contact an administrator.</div>
+    <a href="/" class="submit-btn" id="btn-goto-home-403" style="text-decoration: none; padding: 0.75rem 2rem;">Back to Dashboard</a>
+</div>
+{% endblock %}

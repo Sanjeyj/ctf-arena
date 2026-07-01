@@ -1,0 +1,458 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ch.title }} | CTF Arena{% endblock %}
+
+{% block content %}
+<style>
+    .ch-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .ch-meta-row {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.5rem;
+    }
+
+    .badge-difficulty {
+        display: inline-block;
+        padding: 0.2rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        font-family: 'Fira Code', monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .badge-difficulty.easy   { background: rgba(0,255,102,0.12); color: var(--neon-green); border: 1px solid rgba(0,255,102,0.25); }
+    .badge-difficulty.medium { background: rgba(255,215,0,0.12);  color: var(--neon-yellow); border: 1px solid rgba(255,215,0,0.25); }
+    .badge-difficulty.hard   { background: rgba(255,51,102,0.12); color: var(--neon-red); border: 1px solid rgba(255,51,102,0.25); }
+    .badge-difficulty.expert { background: rgba(180,0,255,0.12);  color: #c084fc; border: 1px solid rgba(180,0,255,0.3); }
+
+    .ch-points-badge {
+        font-family: 'Fira Code', monospace;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--neon-blue);
+        background: rgba(0,240,255,0.07);
+        border: 1px solid rgba(0,240,255,0.2);
+        border-radius: 12px;
+        padding: 0.4rem 1rem;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .ch-points-badge small {
+        display: block;
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        font-weight: 400;
+        font-family: 'Outfit', sans-serif;
+        margin-top: 0.1rem;
+    }
+
+    .section-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.5rem;
+    }
+
+    .desc-card {
+        background: rgba(0,240,255,0.03);
+        border: 1px solid rgba(0,240,255,0.1);
+        border-left: 3px solid var(--neon-blue);
+        border-radius: 10px;
+        padding: 1.2rem 1.4rem;
+        font-size: 1.05rem;
+        line-height: 1.75;
+        margin-bottom: 2rem;
+        color: var(--text-primary);
+    }
+
+    .conn-info-card {
+        background: rgba(0,255,102,0.04);
+        border: 1px solid rgba(0,255,102,0.18);
+        border-radius: 10px;
+        padding: 1rem 1.2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .conn-info-card .conn-label {
+        font-size: 0.85rem;
+        color: var(--neon-green);
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .conn-info-card code {
+        font-family: 'Fira Code', monospace;
+        font-size: 0.95rem;
+        color: var(--text-primary);
+        word-break: break-all;
+    }
+
+    /* Hints Section */
+    .hints-section {
+        margin-bottom: 2rem;
+    }
+
+    .hint-item {
+        background: rgba(255,215,0,0.04);
+        border: 1px solid rgba(255,215,0,0.15);
+        border-radius: 10px;
+        padding: 1rem 1.2rem;
+        margin-bottom: 0.75rem;
+        transition: border-color 0.2s;
+    }
+
+    .hint-item:hover { border-color: rgba(255,215,0,0.35); }
+
+    .hint-cost {
+        font-size: 0.78rem;
+        font-family: 'Fira Code', monospace;
+        color: var(--neon-yellow);
+        font-weight: 600;
+    }
+
+    .hint-reveal-btn {
+        background: rgba(255,215,0,0.08);
+        border: 1px solid rgba(255,215,0,0.3);
+        color: var(--neon-yellow);
+        border-radius: 6px;
+        padding: 0.3rem 0.9rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    .hint-reveal-btn:hover {
+        background: rgba(255,215,0,0.18);
+        transform: translateY(-1px);
+    }
+
+    .hint-content {
+        margin-top: 0.6rem;
+        font-size: 0.95rem;
+        color: var(--text-primary);
+        padding-top: 0.6rem;
+        border-top: 1px solid rgba(255,215,0,0.1);
+        display: none;
+    }
+
+    .hint-content.visible { display: block; }
+
+    /* Files Section */
+    .files-section {
+        margin-bottom: 2rem;
+    }
+
+    .file-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 0.6rem 1rem;
+        margin-bottom: 0.5rem;
+        transition: border-color 0.2s, background 0.2s;
+        text-decoration: none;
+        color: var(--text-primary);
+    }
+
+    .file-item:hover {
+        border-color: var(--neon-blue);
+        background: rgba(0,240,255,0.05);
+        color: var(--neon-blue);
+    }
+
+    .file-icon { font-size: 1.2rem; }
+
+    .file-name {
+        font-family: 'Fira Code', monospace;
+        font-size: 0.9rem;
+        flex: 1;
+    }
+
+    .file-download-icon {
+        font-size: 1rem;
+        opacity: 0.5;
+    }
+
+    /* Submit Section */
+    .submit-card {
+        background: rgba(0,255,102,0.03);
+        border: 1px solid rgba(0,255,102,0.15);
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+
+    .submit-card h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--neon-green);
+    }
+
+    .flag-row {
+        display: flex;
+        gap: 0.6rem;
+    }
+
+    .flag-row .flag-input {
+        flex: 1;
+    }
+
+    .solved-banner {
+        background: linear-gradient(90deg, rgba(0,255,102,0.08), rgba(0,240,255,0.06));
+        border: 1px solid rgba(0,255,102,0.3);
+        border-radius: 10px;
+        padding: 1rem 1.4rem;
+        text-align: center;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--neon-green);
+        margin-bottom: 1.5rem;
+        animation: solvedPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes solvedPulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(0,255,102,0); }
+        50% { box-shadow: 0 0 16px 2px rgba(0,255,102,0.15); }
+    }
+
+    #flag-feedback {
+        margin-top: 0.75rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        min-height: 1.4rem;
+        transition: opacity 0.3s;
+    }
+
+    #flag-feedback.success { color: var(--neon-green); }
+    #flag-feedback.error   { color: var(--neon-red); }
+</style>
+
+<div class="back-nav">
+    <a href="/" class="btn-secondary" id="btn-back-dashboard">
+        &larr; Back to Dashboard
+    </a>
+</div>
+
+<div class="glass-card" id="challenge-card-{{ ch_id }}">
+
+    <!-- Header -->
+    <div class="ch-header">
+        <div>
+            <div class="ch-meta-row">
+                <span class="badge-category">{{ ch.category }}</span>
+                {% set diff_lower = ch.difficulty | lower %}
+                <span class="badge-difficulty {{ diff_lower }}">{{ ch.difficulty }}</span>
+            </div>
+            <h1 style="font-size: 2.1rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem; margin-top: 0.4rem;">
+                {% if ch.icon %}<span>{{ ch.icon }}</span>{% endif %}
+                {{ ch.title }}
+            </h1>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; font-family: 'Fira Code', monospace; margin-top: 0.4rem;">
+                ID: {{ ch_id }}
+            </p>
+        </div>
+        <div class="ch-points-badge">
+            {{ ch.points }}
+            <small>points</small>
+        </div>
+    </div>
+
+    <!-- Solved Banner -->
+    {% if ch_id in solved %}
+    <div class="solved-banner" id="solved-banner-{{ ch_id }}">
+        🎉 You have successfully solved this challenge! +{{ solved[ch_id].points }} pts
+    </div>
+    {% endif %}
+
+    <!-- Description -->
+    <div class="section-label">📋 Description</div>
+    <div class="desc-card">
+        {{ ch.description }}
+    </div>
+
+    <!-- Connection Info (if any) -->
+    {% if ch.connection_info %}
+    <div class="conn-info-card">
+        <span class="conn-label">🔗 Target:</span>
+        <code>{{ ch.connection_info }}</code>
+    </div>
+    {% endif %}
+
+    <!-- Downloadable Files -->
+    {% if files %}
+    <div class="files-section">
+        <div class="section-label">📎 Challenge Files</div>
+        {% for f in files %}
+        <a href="/uploads/{{ f.stored_filename }}" class="file-item" id="file-{{ f.id }}" download>
+            <span class="file-icon">📄</span>
+            <span class="file-name">{{ f.original_filename }}</span>
+            <span class="file-download-icon">⬇️</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Hints -->
+    {% if hints %}
+    <div class="hints-section">
+        <div class="section-label">💡 Hints</div>
+        {% for hint in hints %}
+        <div class="hint-item" id="hint-item-{{ hint.id }}">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span style="color: var(--text-secondary); font-size: 0.9rem;">Hint #{{ loop.index }}</span>
+                    <span class="hint-cost" style="margin-left: 0.6rem;">
+                        {% if hint.cost > 0 %}-{{ hint.cost }} pts{% else %}Free{% endif %}
+                    </span>
+                </div>
+                {% if hint.unlocked %}
+                <span style="font-size: 0.8rem; color: var(--neon-green);">✓ Unlocked</span>
+                {% else %}
+                <button class="hint-reveal-btn" id="btn-hint-{{ hint.id }}"
+                        onclick="unlockHint({{ hint.id }})">
+                    {% if hint.cost > 0 %}Unlock (-{{ hint.cost }} pts){% else %}Show Hint{% endif %}
+                </button>
+                {% endif %}
+            </div>
+            {% if hint.unlocked %}
+            <div class="hint-content visible" id="hint-text-{{ hint.id }}">
+                {{ hint.content }}
+            </div>
+            {% else %}
+            <div class="hint-content" id="hint-text-{{ hint.id }}"></div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Flag Submission -->
+    <div class="submit-card">
+        <h3>🔑 Submit Flag</h3>
+        <form onsubmit="submitFlag('{{ ch_id }}', event)" id="form-flag-{{ ch_id }}">
+            <div class="flag-row">
+                <input type="text"
+                       name="flag"
+                       class="flag-input"
+                       placeholder="FLAG{...}"
+                       required
+                       autocomplete="off"
+                       id="input-flag-{{ ch_id }}"
+                       {% if ch_id in solved %}disabled{% endif %}>
+                <button type="submit"
+                        class="submit-btn"
+                        id="btn-submit-{{ ch_id }}"
+                        {% if ch_id in solved %}disabled style="opacity:0.5;cursor:not-allowed"{% endif %}>
+                    {% if ch_id in solved %}Solved ✓{% else %}Submit{% endif %}
+                </button>
+            </div>
+            <div id="flag-feedback" class=""></div>
+        </form>
+    </div>
+
+</div>
+
+<script>
+    async function submitFlag(chId, e) {
+        e.preventDefault();
+        const input = document.getElementById('input-flag-' + chId);
+        const feedback = document.getElementById('flag-feedback');
+        const btn = document.getElementById('btn-submit-' + chId);
+
+        btn.disabled = true;
+        btn.textContent = 'Checking…';
+        feedback.className = '';
+        feedback.textContent = '';
+
+        try {
+            const fd = new FormData();
+            fd.append('flag', input.value.trim());
+            const resp = await fetch('/submit/' + chId, { method: 'POST', body: fd });
+            const data = await resp.json();
+
+            if (data.success) {
+                feedback.className = 'success';
+                feedback.textContent = data.msg;
+                btn.textContent = 'Solved ✓';
+                input.disabled = true;
+                // Show solved banner
+                let banner = document.getElementById('solved-banner-' + chId);
+                if (!banner) {
+                    banner = document.createElement('div');
+                    banner.id = 'solved-banner-' + chId;
+                    banner.className = 'solved-banner';
+                    banner.innerHTML = '🎉 ' + data.msg;
+                    document.getElementById('challenge-card-' + chId).insertBefore(
+                        banner,
+                        document.querySelector('.desc-card')
+                    );
+                }
+            } else {
+                feedback.className = 'error';
+                feedback.textContent = data.msg;
+                btn.disabled = false;
+                btn.textContent = 'Submit';
+                // Shake the input
+                input.style.borderColor = 'var(--neon-red)';
+                input.style.boxShadow = '0 0 8px rgba(255,51,102,0.4)';
+                setTimeout(() => {
+                    input.style.borderColor = '';
+                    input.style.boxShadow = '';
+                }, 1500);
+            }
+        } catch (err) {
+            feedback.className = 'error';
+            feedback.textContent = 'Network error. Please try again.';
+            btn.disabled = false;
+            btn.textContent = 'Submit';
+        }
+    }
+
+    async function unlockHint(hintId) {
+        const btn = document.getElementById('btn-hint-' + hintId);
+        const textDiv = document.getElementById('hint-text-' + hintId);
+        btn.disabled = true;
+        btn.textContent = 'Unlocking…';
+
+        try {
+            const resp = await fetch('/hints/' + hintId + '/unlock', { method: 'POST' });
+            const data = await resp.json();
+            if (data.success) {
+                btn.style.display = 'none';
+                textDiv.textContent = data.content;
+                textDiv.classList.add('visible');
+            } else {
+                btn.disabled = false;
+                btn.textContent = 'Unlock';
+                alert('Could not unlock hint: ' + (data.msg || 'Unknown error'));
+            }
+        } catch (err) {
+            btn.disabled = false;
+            btn.textContent = 'Unlock';
+            alert('Network error unlocking hint.');
+        }
+    }
+</script>
+{% endblock %}

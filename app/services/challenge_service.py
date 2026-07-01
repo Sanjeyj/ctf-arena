@@ -71,7 +71,9 @@ class ChallengeService:
             "icon": ch.icon,
             "difficulty": ch.difficulty,
             "description": ch.description,
-            "flag": ch.flags[0].content if ch.flags else ""
+            "flag": ch.flags[0].content if ch.flags else "",
+            "connection_info": ch.connection_info or "",
+            "requires_connection_info": ch.requires_connection_info,
         }
         
         solved_list = SubmissionRepository.get_solved_by_user(username)

@@ -23,6 +23,7 @@ def index():
 @challenges_bp.route("/challenge/<ch_id>")
 @require_login
 def challenge(ch_id):
+    from jinja2 import TemplateNotFound
     username = current_user.username
     ch, solved = ChallengeService.get_challenge(ch_id, username)
     if not ch:
@@ -39,9 +40,18 @@ def challenge(ch_id):
     # Fetch files list
     files = challenge_record.files if challenge_record else []
     
+    # Try per-challenge template first; fall back to generic template for CMS-created challenges
+    specific_template = f"ch_{ch_id}.html"
+    try:
+        current_app.jinja_env.get_template(specific_template)
+        template_name = specific_template
+    except TemplateNotFound:
+        template_name = "ch_generic.html"
+
     return render_template(
-        f"ch_{ch_id}.html",
+        template_name,
         ch=ch,
+        ch_id=ch_id,
         solved=solved,
         username=username,
         challenges=challenges,

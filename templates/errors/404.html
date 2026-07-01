@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}404 Not Found | CTF Arena{% endblock %}
+{% block content %}
+<style>
+.error-page { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; gap: 1.5rem; }
+.error-code { font-family: 'Fira Code', monospace; font-size: 6rem; font-weight: 700; background: linear-gradient(135deg, var(--neon-blue), #9945ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; animation: glitch 3s infinite; }
+.error-title { font-size: 1.8rem; font-weight: 700; color: var(--text-primary); }
+.error-desc { font-size: 1rem; color: var(--text-secondary); max-width: 440px; line-height: 1.7; }
+.error-icon { font-size: 4rem; }
+.terminal-line { font-family: 'Fira Code', monospace; font-size: 0.85rem; color: var(--neon-green); background: rgba(0,255,102,0.05); border: 1px solid rgba(0,255,102,0.1); border-radius: 8px; padding: 0.75rem 1.2rem; max-width: 400px; text-align: left; }
+@keyframes glitch {
+    0%, 90%, 100% { text-shadow: none; }
+    92% { text-shadow: -2px 0 var(--neon-red), 2px 0 var(--neon-green); }
+    94% { text-shadow: 2px 0 var(--neon-red), -2px 0 var(--neon-blue); }
+    96% { text-shadow: none; }
+}
+</style>
+<div class="error-page" id="error-404-page">
+    <div class="error-icon">🕵️</div>
+    <div class="error-code">404</div>
+    <div class="error-title">Page Not Found</div>
+    <div class="error-desc">The target you're looking for doesn't exist or has been moved. Time to try a different attack vector.</div>
+    <div class="terminal-line">> ERROR: route not found in map<br>> try: <a href="/" style="color: var(--neon-blue); text-decoration: none;">goto /dashboard</a></div>
+    <div style="display: flex; gap: 1rem;">
+        <a href="/" class="submit-btn" id="btn-goto-home-404" style="text-decoration: none; padding: 0.75rem 2rem;">Dashboard</a>
+        <a href="javascript:history.back()" class="btn-secondary" id="btn-go-back-404" style="text-decoration: none; padding: 0.75rem 2rem;">Go Back</a>
+    </div>
+</div>
+{% endblock %}
