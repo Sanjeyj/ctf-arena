@@ -1,0 +1,51 @@
+name: Draft Auto Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install wheel setuptools
+
+    - name: Build python source and wheel packages
+      run: |
+        python setup.py sdist bdist_wheel
+
+    - name: Generate Changelog
+      id: changelog
+      run: |
+        # Generate release summary from CHANGELOG.md file
+        echo "## Release Highlights" > release_notes.md
+        sed -n '/## \[1.0.0-rc1\]/,/## \[/p' CHANGELOG.md | grep -v '## \[' >> release_notes.md
+
+    - name: Create GitHub Release Draft
+      id: create_release
+      uses: softprops/action-gh-release@v2
+      with:
+        draft: true
+        prerelease: false
+        body_path: release_notes.md
+        files: |
+          dist/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -12,3 +12,4 @@ instance/*.zip
 instance/backups/
 logs/
 .pytest_cache/
+docs-site/site/

@@ -1,0 +1,35 @@
+from setuptools import setup, find_packages
+
+setup(
+    name="ctfarena",
+    version="1.0.0",
+    description="Self-hosted CTF platform with native Docker challenge deployments.",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
+    author="CTF Arena Contributors",
+    author_email="contributors@ctf-arena.example.com",
+    url="https://github.com/Sanjeyj/ctf-arena",
+    packages=find_packages(),
+    include_package_data=True,
+    install_requires=[
+        "flask>=3.0.0",
+        "pillow>=10.0.0",
+        "gunicorn>=21.2.0",
+        "python-dotenv>=1.0.0",
+        "flask-sqlalchemy>=3.1.0",
+        "flask-migrate>=4.0.0",
+        "psycopg2-binary>=2.9.9",
+        "flask-login>=0.6.3",
+        "bcrypt>=4.1.0",
+        "flask-wtf>=1.2.1",
+        "flask-limiter>=3.5.0",
+        "docker>=7.0.0",
+    ],
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Framework :: Flask",
+    ],
+    python_requires=">=3.10",
+)
