@@ -153,6 +153,10 @@ class DockerService:
         Returns (ok, container_id, host_port, message).
         host_port is the mapped port on the Docker host (None if no port mapping).
         """
+        # Trigger before_container_start hook
+        from app.services.hook_service import HookService
+        HookService.trigger_hook("before_container_start", image_ref=image_ref, container_name=container_name)
+
         if not _DOCKER_AVAILABLE:
             return DockerService._sim_run(
                 image_ref,
@@ -203,6 +207,10 @@ class DockerService:
 
     @staticmethod
     def stop_container(container_id: str) -> Tuple[bool, str]:
+        # Trigger after_container_stop hook
+        from app.services.hook_service import HookService
+        HookService.trigger_hook("after_container_stop", container_id=container_id)
+
         if not _DOCKER_AVAILABLE:
             return DockerService._sim_stop(container_id)
         try:

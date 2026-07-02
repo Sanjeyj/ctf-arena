@@ -45,6 +45,23 @@ def create_app(config_name="default"):
     csrf.init_app(app)
     limiter.init_app(app)
     
+    # Configure Jinja override template loader for plugins
+    if app.jinja_loader:
+        old_loader = app.jinja_loader
+        class OverrideLoader(object):
+            def get_source(self, environment, template):
+                from app.services.plugin_service import PluginService
+                target = PluginService.get_template_override(template)
+                if os.path.isabs(target) or "plugins" in target.replace("\\", "/"):
+                    if os.path.exists(target):
+                        with open(target, 'r', encoding='utf-8') as f:
+                            source = f.read()
+                        return source, target, lambda: True
+                return old_loader.get_source(environment, target)
+            def list_templates(self):
+                return old_loader.list_templates()
+        app.jinja_loader = OverrideLoader()
+    
     # Setup directories
     os.makedirs(os.path.join(app.root_path, "..", "logs"), exist_ok=True)
     os.makedirs(os.path.join(app.root_path, "..", "instance"), exist_ok=True)
@@ -205,6 +222,14 @@ def create_app(config_name="default"):
     # Register CLI
     register_cli_commands(app)
     
+    # Load enabled plugins on startup
+    with app.app_context():
+        try:
+            from app.services.plugin_service import PluginService
+            PluginService.load_enabled_plugins()
+        except Exception as e:
+            app.logger.error(f"Error loading enabled plugins: {str(e)}")
+
     return app
 
 def register_blueprints(app):

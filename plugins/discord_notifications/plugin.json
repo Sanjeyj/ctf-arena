@@ -1,0 +1,7 @@
+{
+  "name": "Discord Notifications",
+  "version": "1.0.0",
+  "author": "CTF Arena Community",
+  "permissions": ["NETWORK_ACCESS"],
+  "entry": "plugin.py"
+}

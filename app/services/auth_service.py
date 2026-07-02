@@ -91,6 +91,11 @@ class AuthService:
 
         if user and check_password(password, user.password_hash):
             SessionService.record_login_attempt(username, True, ip_address, user_agent)
+            
+            # Trigger after_login hook
+            from app.services.hook_service import HookService
+            HookService.trigger_hook("after_login", user=user, ip_address=ip_address)
+            
             return user, None
         else:
             SessionService.record_login_attempt(username, False, ip_address, user_agent)

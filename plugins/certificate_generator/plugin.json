@@ -1,0 +1,7 @@
+{
+  "name": "Certificate Generator",
+  "version": "1.0.0",
+  "author": "CTF Arena Community",
+  "permissions": ["FILESYSTEM_WRITE"],
+  "entry": "plugin.py"
+}

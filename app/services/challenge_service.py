@@ -124,6 +124,10 @@ class ChallengeService:
         from app.extensions import safe_commit
         safe_commit()
 
+        # Trigger after_submission hook
+        from app.services.hook_service import HookService
+        HookService.trigger_hook("after_submission", user=user, challenge=ch, correct=correct, submitted_flag=submitted_flag)
+
         if correct:
             reg_time = user.registered_at if user else utcnow()
             elapsed = (utcnow() - reg_time).total_seconds()

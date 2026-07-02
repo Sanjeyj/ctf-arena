@@ -1,0 +1,7 @@
+{
+  "name": "Sample Plugin Template",
+  "version": "1.0.0",
+  "author": "CTF Arena Team",
+  "permissions": [],
+  "entry": "plugin.py"
+}

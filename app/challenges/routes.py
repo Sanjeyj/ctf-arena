@@ -48,6 +48,10 @@ def challenge(ch_id):
     except TemplateNotFound:
         template_name = "ch_generic.html"
 
+    # Trigger before_challenge_render hook
+    from app.services.hook_service import HookService
+    HookService.trigger_hook("before_challenge_render", challenge=ch, user=current_user)
+
     return render_template(
         template_name,
         ch=ch,

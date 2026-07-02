@@ -22,3 +22,6 @@ from app.models.deployment_profile import DeploymentProfile
 from app.models.challenge_instance import ChallengeInstance
 from app.models.container_log import ContainerLog
 from app.models.instance_snapshot import InstanceSnapshot
+from app.models.plugin_installation import PluginInstallation
+from app.models.plugin_permission import PluginPermission
+from app.models.plugin_setting import PluginSetting

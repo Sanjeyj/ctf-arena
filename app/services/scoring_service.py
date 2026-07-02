@@ -6,6 +6,13 @@ class ScoringService:
         if solve_count is None:
             solve_count = challenge.solve_count
             
+        # Trigger before_score_update hook
+        from app.services.hook_service import HookService
+        hook_points = HookService.trigger_hook("before_score_update", challenge=challenge, solve_count=solve_count)
+        for val in hook_points:
+            if val is not None:
+                return val
+
         initial = challenge.initial_points
         minimum = challenge.minimum_points
         decay_type = (challenge.decay_type or "static").lower()

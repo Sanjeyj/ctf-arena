@@ -841,3 +841,110 @@ def admin_system_metrics():
         "response_status_counts": _response_status_counts,
         "api_requests": _api_requests
     }), 200
+
+
+# --- Plugin Marketplace Admin Endpoints ---
+
+@admin_bp.route("/admin/plugins", methods=["GET"])
+@require_admin
+def admin_plugins():
+    from app.services.plugin_service import PluginService
+    plugins = PluginService.discover_plugins()
+    return render_template("admin_plugins.html", plugins=plugins)
+
+
+@admin_bp.route("/admin/plugins/upload", methods=["POST"])
+@require_admin
+def admin_plugins_upload():
+    from flask import flash
+    from app.services.plugin_service import PluginService
+    from werkzeug.utils import secure_filename
+
+    if 'zip_file' not in request.files:
+        flash("No file part uploaded", "error")
+        return redirect(url_for("admin.admin_plugins"))
+
+    file = request.files['zip_file']
+    if file.filename == '':
+        flash("No file selected", "error")
+        return redirect(url_for("admin.admin_plugins"))
+
+    if file and file.filename.endswith(".zip"):
+        plugins_dir = PluginService.get_plugins_dir()
+        temp_zip = os.path.join(plugins_dir, secure_filename(file.filename))
+        try:
+            file.save(temp_zip)
+            manifest = PluginService.install_plugin_zip(temp_zip)
+            flash(f"Plugin '{manifest.get('name')}' successfully uploaded and installed!", "success")
+        except Exception as e:
+            flash(f"Installation failed: {str(e)}", "error")
+        finally:
+            if os.path.exists(temp_zip):
+                os.remove(temp_zip)
+    else:
+        flash("Only ZIP files are supported", "error")
+
+    return redirect(url_for("admin.admin_plugins"))
+
+
+@admin_bp.route("/admin/plugins/<plugin_name>/enable", methods=["POST"])
+@require_admin
+def admin_plugins_enable(plugin_name):
+    from flask import flash
+    from app.services.plugin_service import PluginService
+    ok = PluginService.enable_plugin(plugin_name)
+    if ok:
+        flash(f"Plugin '{plugin_name}' has been enabled.", "success")
+    else:
+        flash(f"Failed enabling plugin '{plugin_name}'. Check logs for safety warnings.", "error")
+    return redirect(url_for("admin.admin_plugins"))
+
+
+@admin_bp.route("/admin/plugins/<plugin_name>/disable", methods=["POST"])
+@require_admin
+def admin_plugins_disable(plugin_name):
+    from flask import flash
+    from app.services.plugin_service import PluginService
+    ok = PluginService.disable_plugin(plugin_name)
+    if ok:
+        flash(f"Plugin '{plugin_name}' has been disabled.", "success")
+    else:
+        flash(f"Failed disabling plugin '{plugin_name}'.", "error")
+    return redirect(url_for("admin.admin_plugins"))
+
+
+@admin_bp.route("/admin/plugins/<plugin_name>/uninstall", methods=["POST"])
+@require_admin
+def admin_plugins_uninstall(plugin_name):
+    from flask import flash
+    from app.services.plugin_service import PluginService
+    PluginService.uninstall_plugin(plugin_name)
+    flash(f"Plugin '{plugin_name}' uninstalled completely.", "success")
+    return redirect(url_for("admin.admin_plugins"))
+
+
+@admin_bp.route("/admin/plugins/<plugin_name>", methods=["GET"])
+@require_admin
+def admin_plugin_detail(plugin_name):
+    from app.services.plugin_service import PluginService
+    from app.services.plugin_security import PluginSecurity
+    from app.models.plugin_installation import PluginInstallation
+    
+    plugins = PluginService.discover_plugins()
+    plugin = next((p for p in plugins if p["name"] == plugin_name), None)
+    if not plugin:
+        return redirect(url_for("admin.admin_plugins"))
+
+    plugins_dir = PluginService.get_plugins_dir()
+    plugin_folder = os.path.join(plugins_dir, plugin["folder_name"])
+    security_status, reasons = PluginSecurity.scan_plugin(plugin_folder)
+    
+    db_inst = PluginInstallation.query.filter_by(plugin_name=plugin_name).first()
+    
+    return render_template(
+        "admin_plugin_detail.html",
+        plugin=plugin,
+        security_status=security_status,
+        security_reasons=reasons,
+        db_inst=db_inst
+    )
