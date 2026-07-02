@@ -92,7 +92,19 @@ def create_app(config_name="default"):
     
     # Exempt API from CSRF protection
     from app.api import api_bp
+    from app.ai import ai_bp
+    from app.organization import org_bp
+    from app.cyberrange import cyberrange_bp
+    from app.lms import lms_bp
+    from app.soc import soc_bp
     csrf.exempt(api_bp)
+    csrf.exempt(ai_bp)
+    csrf.exempt(org_bp)
+    csrf.exempt(cyberrange_bp)
+    csrf.exempt(lms_bp)
+    csrf.exempt(soc_bp)
+
+
 
     # Hook up HTTP security headers after request
     @app.after_request
@@ -124,7 +136,10 @@ def create_app(config_name="default"):
         return response
 
     # Metrics Hookups
+    from app.middleware.tenant_middleware import OrganizationResolverMiddleware
+    app.before_request(OrganizationResolverMiddleware.resolve_tenant)
     app.before_request(MetricsService.before_request)
+
     
     @app.after_request
     def log_and_metrics_after_request(response):
@@ -240,6 +255,11 @@ def register_blueprints(app):
     from app.admin import admin_bp
     from app.api import api_bp
     from app.docker import docker_bp
+    from app.ai import ai_bp
+    from app.organization import org_bp
+    from app.cyberrange import cyberrange_bp
+    from app.lms import lms_bp
+    from app.soc import soc_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(challenges_bp)
@@ -247,6 +267,13 @@ def register_blueprints(app):
     app.register_blueprint(admin_bp)
     app.register_blueprint(api_bp)
     app.register_blueprint(docker_bp)
+    app.register_blueprint(ai_bp)
+    app.register_blueprint(org_bp)
+    app.register_blueprint(cyberrange_bp)
+    app.register_blueprint(lms_bp)
+    app.register_blueprint(soc_bp)
+
+
     
     # Blueprint Skeletons for future milestones
     skeletons = [

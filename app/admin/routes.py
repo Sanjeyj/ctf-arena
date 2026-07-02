@@ -948,3 +948,302 @@ def admin_plugin_detail(plugin_name):
         security_reasons=reasons,
         db_inst=db_inst
     )
+
+
+# =============================================================================
+# PHASE 14 — AI ADMIN DASHBOARD
+# =============================================================================
+
+@admin_bp.route("/admin/ai", methods=["GET"])
+@require_admin
+def ai_dashboard():
+    """AI control panel: provider config, stats overview."""
+    from app.models.setting import Setting
+    from app.services.ai_service import AIService
+    from app.services.writeup_service import WriteupService
+
+    ai_provider = (Setting.query.filter_by(key="AI_PROVIDER").first() or type('', (), {'value': 'stub'})()).value
+    ai_model = (Setting.query.filter_by(key="AI_MODEL").first() or type('', (), {'value': 'stub-v1'})()).value
+    max_tokens = (Setting.query.filter_by(key="MAX_AI_TOKENS").first() or type('', (), {'value': '512'})()).value
+    ai_hint_cost = (Setting.query.filter_by(key="AI_HINT_COST").first() or type('', (), {'value': '0'})()).value
+    ai_max_hints = (Setting.query.filter_by(key="AI_MAX_HINTS").first() or type('', (), {'value': '3'})()).value
+
+    token_stats = AIService.get_token_usage_stats()
+    draft_writeups = WriteupService.list_all(status='draft')
+    approved_writeups = WriteupService.list_all(status='approved')
+
+    return render_template(
+        "admin_ai.html",
+        ai_provider=ai_provider,
+        ai_model=ai_model,
+        max_tokens=max_tokens,
+        ai_hint_cost=ai_hint_cost,
+        ai_max_hints=ai_max_hints,
+        token_stats=token_stats,
+        draft_writeups=draft_writeups,
+        approved_writeups=approved_writeups,
+    )
+
+
+@admin_bp.route("/admin/ai/config", methods=["POST"])
+@require_admin
+def ai_config_save():
+    """Save AI provider configuration to settings."""
+    from app.models.setting import Setting
+    from app.extensions import db
+
+    fields = {
+        'AI_PROVIDER': request.form.get('ai_provider', 'stub'),
+        'AI_MODEL': request.form.get('ai_model', 'stub-v1'),
+        'MAX_AI_TOKENS': request.form.get('max_tokens', '512'),
+        'AI_HINT_COST': request.form.get('ai_hint_cost', '0'),
+        'AI_MAX_HINTS': request.form.get('ai_max_hints', '3'),
+        'OLLAMA_URL': request.form.get('ollama_url', 'http://localhost:11434'),
+        'OPENAI_API_KEY': request.form.get('openai_api_key', ''),
+        'ANTHROPIC_API_KEY': request.form.get('anthropic_api_key', ''),
+        'GEMINI_API_KEY': request.form.get('gemini_api_key', ''),
+    }
+
+    for key, value in fields.items():
+        rec = Setting.query.filter_by(key=key).first()
+        if rec:
+            rec.value = value
+        else:
+            db.session.add(Setting(key=key, value=value))
+    db.session.commit()
+
+    flash("AI configuration saved.", "success")
+    return redirect(url_for("admin.ai_dashboard"))
+
+
+@admin_bp.route("/admin/ai/stats", methods=["GET"])
+@require_admin
+def ai_stats():
+    """Token usage statistics page."""
+    from app.services.ai_service import AIService
+    from app.models.ai_hint_request import AIHintRequest
+    from app.models.ai_difficulty_prediction import AIDifficultyPrediction
+
+    token_stats = AIService.get_token_usage_stats()
+    recent_hints = AIHintRequest.query.order_by(AIHintRequest.id.desc()).limit(20).all()
+    recent_predictions = AIDifficultyPrediction.query.order_by(AIDifficultyPrediction.id.desc()).limit(10).all()
+
+    return render_template(
+        "admin_ai_stats.html",
+        token_stats=token_stats,
+        recent_hints=recent_hints,
+        recent_predictions=recent_predictions,
+    )
+
+
+@admin_bp.route("/admin/ai/predict/<int:challenge_id>", methods=["POST"])
+@require_admin
+def ai_predict_difficulty(challenge_id):
+    """Run AI difficulty prediction for a specific challenge."""
+    from app.models.challenge import Challenge
+    from app.services.difficulty_service import DifficultyService
+
+    challenge = Challenge.query.get_or_404(challenge_id)
+    result = DifficultyService.predict(challenge)
+
+    if result.get('error'):
+        flash(f"Prediction failed: {result['error']}", "danger")
+    else:
+        flash(
+            f"Predicted: {result['predicted_difficulty']} "
+            f"(confidence {result['confidence']:.0%})",
+            "success"
+        )
+    return redirect(url_for("admin.ai_dashboard"))
+
+
+@admin_bp.route("/admin/ai/writeup/<int:writeup_id>/approve", methods=["POST"])
+@require_admin
+def ai_writeup_approve(writeup_id):
+    """Admin approves a draft AI writeup."""
+    from app.services.writeup_service import WriteupService
+    result = WriteupService.approve(writeup_id)
+    if result.get('error'):
+        flash(result['error'], "danger")
+    else:
+        flash("Writeup approved.", "success")
+    return redirect(url_for("admin.ai_dashboard"))
+
+
+@admin_bp.route("/admin/ai/writeup/<int:writeup_id>/publish", methods=["POST"])
+@require_admin
+def ai_writeup_publish(writeup_id):
+    """Admin publishes an approved AI writeup."""
+    from app.services.writeup_service import WriteupService
+    result = WriteupService.publish(writeup_id)
+    if result.get('error'):
+        flash(result['error'], "danger")
+    else:
+        flash("Writeup published successfully.", "success")
+    return redirect(url_for("admin.ai_dashboard"))
+
+
+# =============================================================================
+# PHASE 15 — SAAS ADMIN DASHBOARD
+# =============================================================================
+
+@admin_bp.route("/admin/organization", methods=["GET"])
+@require_admin
+def admin_organization():
+    """Organization overview page."""
+    from app.models.organization import Organization
+    from app.services.quota_service import QuotaService
+    from app.services.organization_service import OrganizationService
+
+    all_orgs = []
+    members = []
+    quotas = {}
+
+    if g.current_org:
+        members = OrganizationService.get_members(g.current_org)
+        # Compute quotas usage
+        for res in ('users', 'competitions', 'challenges', 'containers', 'ai_tokens', 'storage_mb'):
+            allowed, limit, used = QuotaService.check(g.current_org, res)
+            quotas[res] = {
+                'limit': limit,
+                'used': used,
+                'percent': min(100, int((used / limit) * 100)) if limit > 0 else (0 if limit == 0 else -1)
+            }
+    else:
+        # Default view: list all organizations
+        all_orgs = Organization.query.filter_by(is_deleted=False).all()
+
+    return render_template(
+        "admin_organization.html",
+        all_orgs=all_orgs,
+        members=members,
+        quotas=quotas,
+    )
+
+
+@admin_bp.route("/admin/organization/billing", methods=["GET"])
+@require_admin
+def admin_organization_billing():
+    """Billing overview page."""
+    from app.services.billing_service import BillingService
+
+    if not g.current_org:
+        flash("Please access this page via a tenant subdomain (e.g. acme.ctfarena.local).", "warning")
+        return redirect(url_for("admin.admin_organization"))
+
+    billing = BillingService.get_billing(g.current_org)
+    return render_template(
+        "admin_organization_billing.html",
+        billing=billing,
+    )
+
+
+@admin_bp.route("/admin/organization/plan", methods=["POST"])
+@require_admin
+def admin_organization_plan():
+    """Change organization plan type."""
+    from app.services.billing_service import BillingService
+
+    if not g.current_org:
+        flash("No resolved organization.", "danger")
+        return redirect(url_for("admin.admin_organization"))
+
+    plan = request.form.get("plan_type")
+    success, msg = BillingService.upgrade(g.current_org, plan, actor_id=current_user.id)
+    if success:
+        flash(f"Plan switched to {plan.capitalize()} successfully.", "success")
+    else:
+        flash(msg, "danger")
+
+    return redirect(url_for("admin.admin_organization_billing"))
+
+
+# =============================================================================
+# PHASE 16 — AI CYBER RANGE ROUTES
+# =============================================================================
+
+@admin_bp.route("/admin/cyberrange", methods=["GET"])
+@require_admin
+def admin_cyberrange():
+    """Cyber Range main control panel."""
+    from app.models.attack_simulation import AttackSimulation
+    from app.models.attack_event import AttackEvent
+    from app.models.incident import Incident
+
+    # Fetch simulations (scoped by tenant if resolved)
+    org_id = g.current_org.id if g.current_org else None
+    query = AttackSimulation.query
+    if org_id:
+        query = query.filter_by(organization_id=org_id)
+    
+    simulations = query.order_by(AttackSimulation.created_at.desc()).all()
+    
+    # Calculate some summary stats
+    running_sims = [s for s in simulations if s.status == 'running']
+    total_attacks = AttackEvent.query.count()
+    total_incidents = Incident.query.count()
+
+    return render_template(
+        "admin_cyberrange.html",
+        simulations=simulations,
+        running_sims=running_sims,
+        total_attacks=total_attacks,
+        total_incidents=total_incidents
+    )
+
+
+@admin_bp.route("/admin/cyberrange/simulation/<int:sim_id>", methods=["GET"])
+@require_admin
+def admin_simulation_detail(sim_id):
+    """View details of a specific cyber range session, including MITRE heatmap and scores."""
+    from app.models.attack_simulation import AttackSimulation
+    from app.services.mitre_service import MitreService
+
+    sim = AttackSimulation.query.get(sim_id)
+    if not sim:
+        flash("Simulation not found.", "danger")
+        return redirect(url_for("admin.admin_cyberrange"))
+
+    MitreService.seed_techniques()
+    kill_chain = MitreService.get_kill_chain(sim_id)
+
+    return render_template(
+        "admin_cyberrange_detail.html",
+        sim=sim,
+        kill_chain=kill_chain
+    )
+
+
+@admin_bp.route("/admin/cyberrange/incidents", methods=["GET"])
+@require_admin
+def admin_cyberrange_incidents():
+    """Incident Response queue view."""
+    from app.models.incident import Incident
+
+    incidents = Incident.query.order_by(Incident.created_at.desc()).all()
+    return render_template(
+        "admin_incidents.html",
+        incidents=incidents
+    )
+
+
+@admin_bp.route("/admin/cyberrange/timeline/<int:sim_id>", methods=["GET"])
+@require_admin
+def admin_cyberrange_timeline(sim_id):
+    """Timeline event stream visualization for a simulation session."""
+    from app.models.attack_simulation import AttackSimulation
+    from app.services.timeline_service import TimelineService
+
+    sim = AttackSimulation.query.get(sim_id)
+    if not sim:
+        flash("Simulation not found.", "danger")
+        return redirect(url_for("admin.admin_cyberrange"))
+
+    timeline = TimelineService.get_timeline(sim_id)
+    return render_template(
+        "admin_timeline.html",
+        sim=sim,
+        timeline=timeline
+    )
+
+

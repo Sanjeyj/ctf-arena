@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Verification | CTF Arena</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0c10; --card: #11141a; --border: #2b313d;
+            --neon-blue: #00f0ff; --neon-green: #00ff66; --neon-red: #ff3366;
+            --text: #f0f2f5; --muted: #8b949e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1.5rem;
+        }
+        .container {
+            max-width: 580px;
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            border-top: 5px solid var(--neon-blue);
+        }
+        .badge {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+            filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.4));
+        }
+        h2 { font-size: 1.8rem; margin-bottom: 0.5rem; color: #fff; }
+        .subtitle { color: var(--muted); font-size: 0.95rem; margin-bottom: 2rem; }
+        
+        .status-box {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+        .status-valid {
+            background: rgba(0, 255, 102, 0.08);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            text-shadow: 0 0 5px rgba(0, 255, 102, 0.2);
+        }
+        .status-invalid {
+            background: rgba(255, 51, 102, 0.08);
+            border: 1px solid var(--neon-red);
+            color: var(--neon-red);
+            text-shadow: 0 0 5px rgba(255, 51, 102, 0.2);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            text-align: left;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.92rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 0.6rem;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .label { color: var(--muted); }
+        .value { color: #fff; font-weight: 600; }
+        
+        .btn {
+            display: inline-block;
+            background: var(--neon-blue);
+            color: #0b0c10;
+            text-decoration: none;
+            font-weight: 700;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .btn:hover {
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% if cert %}
+            <div class="badge">📜</div>
+            <h2>Credential Verified</h2>
+            <div class="subtitle">This completion certificate has been verified as authentic.</div>
+            
+            <div class="status-box status-valid">
+                ✅ Authentic & Active
+            </div>
+
+            <div class="info-grid">
+                <div class="info-row">
+                    <span class="label">Credential Name</span>
+                    <span class="value">{{ cert.title }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Recipient Student ID</span>
+                    <span class="value">Student #{{ cert.user_id }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Recipient Name</span>
+                    <span class="value">{{ cert.recipient_name or 'N/A' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Verification ID</span>
+                    <span class="value" style="font-family: monospace; color: var(--neon-blue);">{{ cert.verification_id }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Issued Timestamp</span>
+                    <span class="value">{{ cert.issued_at.strftime('%Y-%m-%d %H:%M:%S UTC') if cert.issued_at else 'N/A' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Organization ID</span>
+                    <span class="value">Org #{{ cert.organization_id or '1 (Default)' }}</span>
+                </div>
+                <div class="info-row" style="word-break: break-all;">
+                    <span class="label">Digital Signature Hash</span>
+                    <span class="value" style="font-family: monospace; font-size: 0.8rem; text-align: right; max-width: 60%;">{{ cert.hash }}</span>
+                </div>
+            </div>
+        {% else %}
+            <div class="badge" style="filter: drop-shadow(0 0 10px rgba(255, 51, 102, 0.4));">❌</div>
+            <h2>Verification Failed</h2>
+            <div class="subtitle">Unable to verify the provided certificate reference.</div>
+            
+            <div class="status-box status-invalid">
+                ⚠️ Invalid / Revoked Credential
+            </div>
+
+            <div style="background: rgba(255,51,102,0.05); border: 1px solid var(--neon-red); border-radius: 10px; padding: 1.5rem; color: var(--text-primary); text-align: left; margin-bottom: 2rem; font-size: 0.95rem;">
+                <strong>Reason:</strong> {{ error or 'The credential verification ID does not exist or has been revoked by the issuer.' }}
+            </div>
+        {% endif %}
+
+        <a href="/" class="btn">Return to CTF Arena</a>
+    </div>
+</body>
+</html>

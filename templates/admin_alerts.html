@@ -1,0 +1,195 @@
+{% extends "admin.html" %}
+{% block title %}Alert Queue — CTF Arena SOC{% endblock %}
+
+{% block content %}
+<div class="alerts-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">🚨 Alert Queue</h1>
+      <p class="page-sub">Review, triage, and resolve SIEM-generated security alerts.</p>
+    </div>
+    <div class="header-actions">
+      <select id="filter-severity" class="filter-select" onchange="filterAlerts()">
+        <option value="">All Severities</option>
+        <option value="critical">Critical</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+        <option value="info">Info</option>
+      </select>
+      <select id="filter-status" class="filter-select" onchange="filterAlerts()">
+        <option value="">All Statuses</option>
+        <option value="new">New</option>
+        <option value="acknowledged">Acknowledged</option>
+        <option value="investigating">Investigating</option>
+        <option value="resolved">Resolved</option>
+        <option value="false_positive">False Positive</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Summary Strip -->
+  <div class="summary-strip">
+    {% for sev, count in severity_summary.items() %}
+    <div class="strip-item {{ sev }}">
+      <span class="strip-count">{{ count }}</span>
+      <span class="strip-label">{{ sev|capitalize }}</span>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Alert Table -->
+  <div class="table-container">
+    <table class="alert-table" id="alertTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Severity</th>
+          <th>Title</th>
+          <th>Event Type</th>
+          <th>Source IP</th>
+          <th>Status</th>
+          <th>MITRE</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for alert in alerts %}
+        <tr class="alert-row" data-severity="{{ alert.severity }}" data-status="{{ alert.status }}">
+          <td class="alert-id">#{{ alert.id }}</td>
+          <td><span class="sev-badge {{ alert.severity }}">{{ alert.severity|upper }}</span></td>
+          <td class="alert-title-cell">
+            <span class="alert-title-text">{{ alert.title }}</span>
+            {% if alert.ai_analysis %}
+            <span class="ai-tag">🤖 AI Triaged</span>
+            {% endif %}
+          </td>
+          <td><span class="event-type-badge">{{ alert.event_type }}</span></td>
+          <td class="ip-cell">{{ alert.source_ip or '—' }}</td>
+          <td><span class="status-badge {{ alert.status }}">{{ alert.status }}</span></td>
+          <td class="mitre-cell">
+            {% if alert.mitre_technique %}
+            <span class="mitre-pill" title="{{ alert.mitre_tactic }}">{{ alert.mitre_technique[:20] }}…</span>
+            {% else %}—{% endif %}
+          </td>
+          <td class="date-cell">{{ alert.created_at.strftime('%Y-%m-%d %H:%M') if alert.created_at else '—' }}</td>
+          <td class="action-cell">
+            <button class="action-btn triage-btn" onclick="triageAlert({{ alert.id }})">🤖 Triage</button>
+            <button class="action-btn resolve-btn" onclick="updateAlertStatus({{ alert.id }}, 'resolved')">✓</button>
+            <button class="action-btn fp-btn" onclick="updateAlertStatus({{ alert.id }}, 'false_positive')">FP</button>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="9" class="empty-row">No alerts found. The queue is clear! 🎉</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script>
+function filterAlerts() {
+  const sev = document.getElementById('filter-severity').value;
+  const status = document.getElementById('filter-status').value;
+  document.querySelectorAll('.alert-row').forEach(row => {
+    const sevMatch = !sev || row.dataset.severity === sev;
+    const statusMatch = !status || row.dataset.status === status;
+    row.style.display = (sevMatch && statusMatch) ? '' : 'none';
+  });
+}
+
+async function triageAlert(id) {
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = '⏳';
+  try {
+    const resp = await fetch(`/api/v1/alerts/${id}/triage`, { method: 'POST' });
+    const data = await resp.json();
+    showToast(`AI Triage: ${data.recommended_severity?.toUpperCase()} — ${data.mitre_technique || ''}`, 'success');
+    setTimeout(() => location.reload(), 2000);
+  } catch { showToast('Triage failed', 'error'); }
+  finally { btn.disabled = false; btn.textContent = '🤖 Triage'; }
+}
+
+async function updateAlertStatus(id, status) {
+  try {
+    const resp = await fetch(`/api/v1/alerts/${id}`, {
+      method: 'PATCH',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ status })
+    });
+    if (resp.ok) {
+      showToast(`Alert #${id} → ${status}`, 'success');
+      setTimeout(() => location.reload(), 1000);
+    }
+  } catch { showToast('Update failed', 'error'); }
+}
+
+function showToast(msg, type = 'info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`; t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+</script>
+
+<style>
+.alerts-page { padding-bottom: 2rem; }
+.page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+.page-title { margin: 0; font-size: 1.5rem; font-weight: 700; color: #e2e8f0; }
+.page-sub { margin: 0.25rem 0 0; color: #64748b; font-size: 0.9rem; }
+.header-actions { display: flex; gap: 0.75rem; }
+.filter-select { background: #1e293b; border: 1px solid rgba(255,255,255,0.1); color: #e2e8f0; padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.85rem; }
+
+.summary-strip { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; padding: 1rem; background: #1e293b; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+.strip-item { display: flex; flex-direction: column; align-items: center; padding: 0.5rem 1rem; border-radius: 8px; min-width: 80px; }
+.strip-item.critical { background: rgba(239,68,68,0.1); }
+.strip-item.high { background: rgba(249,115,22,0.1); }
+.strip-item.medium { background: rgba(234,179,8,0.1); }
+.strip-item.low { background: rgba(34,197,94,0.1); }
+.strip-count { font-size: 1.5rem; font-weight: 700; color: #e2e8f0; }
+.strip-label { font-size: 0.7rem; text-transform: uppercase; color: #64748b; }
+
+.table-container { background: #1e293b; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); overflow-x: auto; }
+.alert-table { width: 100%; border-collapse: collapse; }
+.alert-table th { padding: 1rem; text-align: left; color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap; }
+.alert-table td { padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.03); color: #cbd5e1; font-size: 0.875rem; }
+.alert-id { color: #64748b; font-size: 0.8rem; }
+.sev-badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
+.sev-badge.critical { background: rgba(239,68,68,0.2); color: #f87171; }
+.sev-badge.high { background: rgba(249,115,22,0.2); color: #fb923c; }
+.sev-badge.medium { background: rgba(234,179,8,0.2); color: #facc15; }
+.sev-badge.low { background: rgba(34,197,94,0.2); color: #4ade80; }
+.sev-badge.info { background: rgba(148,163,184,0.2); color: #94a3b8; }
+.alert-title-cell { max-width: 260px; }
+.alert-title-text { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ai-tag { font-size: 0.7rem; color: #a78bfa; }
+.event-type-badge { padding: 0.15rem 0.5rem; background: rgba(99,102,241,0.15); color: #818cf8; border-radius: 4px; font-size: 0.75rem; }
+.ip-cell { font-family: monospace; font-size: 0.8rem; color: #94a3b8; }
+.status-badge { padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.72rem; }
+.status-badge.new { background: rgba(239,68,68,0.15); color: #f87171; }
+.status-badge.investigating { background: rgba(249,115,22,0.15); color: #fb923c; }
+.status-badge.resolved { background: rgba(34,197,94,0.15); color: #4ade80; }
+.status-badge.false_positive { background: rgba(100,116,139,0.15); color: #94a3b8; }
+.status-badge.acknowledged { background: rgba(234,179,8,0.15); color: #facc15; }
+.mitre-pill { padding: 0.15rem 0.5rem; background: rgba(139,92,246,0.15); color: #a78bfa; border-radius: 4px; font-size: 0.72rem; cursor: help; }
+.date-cell { color: #64748b; font-size: 0.8rem; white-space: nowrap; }
+.action-cell { white-space: nowrap; }
+.action-btn { padding: 0.25rem 0.5rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75rem; margin-right: 0.25rem; transition: all 0.15s; }
+.triage-btn { background: rgba(139,92,246,0.2); color: #a78bfa; }
+.triage-btn:hover { background: rgba(139,92,246,0.4); }
+.resolve-btn { background: rgba(34,197,94,0.2); color: #4ade80; }
+.resolve-btn:hover { background: rgba(34,197,94,0.4); }
+.fp-btn { background: rgba(100,116,139,0.2); color: #94a3b8; }
+.empty-row { text-align: center; color: #475569; padding: 3rem !important; }
+
+#toastContainer { position: fixed; bottom: 2rem; right: 2rem; display: flex; flex-direction: column; gap: 0.5rem; z-index: 9999; }
+.toast { padding: 0.75rem 1.25rem; border-radius: 8px; font-size: 0.875rem; color: #fff; animation: fadeIn 0.3s; }
+.toast.success { background: #166534; }
+.toast.error { background: #7f1d1d; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+</style>
+{% endblock %}

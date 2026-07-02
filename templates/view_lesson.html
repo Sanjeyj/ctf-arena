@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}{{ lesson.title }} | Lesson | CTF Arena{% endblock %}
+
+{% block content %}
+<div class="back-nav">
+    <a href="{{ url_for('lms.course_detail', course_id=lesson.module.course.id) }}" class="btn-secondary" id="btn-back-course">🔙 Back to Course Curriculum</a>
+</div>
+
+<div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 2rem; align-items: start;">
+    
+    <!-- Left Column: Lesson Content -->
+    <div>
+        <div class="glass-card" style="margin-bottom: 2rem; padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                <div>
+                    <span class="badge-category" style="margin-bottom: 0.4rem; display: inline-block;">{{ lesson.module.course.title }}</span>
+                    <h2 style="font-size: 1.8rem; color: #fff;">{{ lesson.title }}</h2>
+                </div>
+                <div style="text-align: right;">
+                    <span style="color: var(--text-secondary); font-size: 0.9rem; display: block;">Duration: {{ lesson.duration_minutes }} mins</span>
+                    {% if completed %}
+                        <span style="color: var(--neon-green); font-weight: 700; font-size: 0.95rem; text-transform: uppercase; text-shadow: 0 0 5px rgba(0,255,102,0.2);">✔️ Completed</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Video Player block if URL provided -->
+            {% if lesson.video_url %}
+                <div style="margin-bottom: 2rem; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); aspect-ratio: 16/9; position: relative;">
+                    <iframe src="{{ lesson.video_url }}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" allowfullscreen></iframe>
+                </div>
+            {% endif %}
+
+            <!-- Lesson Text (Markdown) -->
+            <div style="color: var(--text-primary); font-size: 1.05rem; line-height: 1.7; margin-bottom: 2rem;">
+                {{ lesson.content_md | safe }}
+            </div>
+
+            <!-- Lab / Challenge Integration Section -->
+            {% if lesson.lab_required %}
+                <div style="background: rgba(255, 51, 102, 0.03); border: 1px solid var(--neon-red); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+                    <h4 style="color: var(--neon-red); font-size: 1.1rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        🧪 Hands-on Challenge Lab Required
+                    </h4>
+                    <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 1.2rem;">
+                        To complete this lesson, you must locate, deploy, and solve the designated challenge in the CTF Arena dashboard, then submit the correct flag.
+                    </p>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px;">
+                        <div>
+                            <span style="color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase;">Challenge Target:</span>
+                            <div style="font-weight: 700; color: #fff; font-size: 1.1rem;">Challenge #{{ lesson.challenge_id }}</div>
+                        </div>
+                        <div>
+                            {% if lab_solved %}
+                                <span style="background: rgba(0, 255, 102, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); padding: 0.4rem 1rem; border-radius: 6px; font-weight: 700; font-size: 0.9rem;">
+                                    🏆 Solved
+                                </span>
+                            {% else %}
+                                <a href="/challenges" class="submit-btn" style="background: var(--neon-red); color: #000; text-decoration: none; padding: 0.5rem 1.2rem; font-size: 0.88rem; display: inline-block;" id="btn-go-challenge">Go to challenges &rarr;</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Complete Lesson Button -->
+            <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    {% if lesson.lab_required and not lab_solved %}
+                        <p style="color: var(--neon-red); font-size: 0.88rem; font-style: italic;">⚠️ You must solve the challenge lab before marking this lesson complete.</p>
+                    {% endif %}
+                </div>
+                <div>
+                    {% if completed %}
+                        <button class="btn-secondary" style="border-color: var(--neon-green); color: var(--neon-green); cursor: default;" disabled>Lesson Completed</button>
+                    {% else %}
+                        <button onclick="markComplete()" class="submit-btn" {% if lesson.lab_required and not lab_solved %}disabled style="opacity:0.5; cursor:not-allowed;"{% endif %} id="btn-complete-lesson">
+                            Mark Lesson Complete &rarr;
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: AI Mentor Chat -->
+    <div>
+        <div class="glass-card" style="padding: 1.5rem; position: sticky; top: 5.5rem; height: calc(100vh - 8rem); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <h3 style="font-size: 1.2rem; margin-bottom: 0.3rem; color: var(--neon-blue); display: flex; align-items: center; gap: 0.5rem;">
+                    🤖 AI Mentor Chat
+                </h3>
+                <p style="color: var(--text-secondary); font-size: 0.82rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem;">
+                    Ask questions about this lesson, general security concepts, or request pointers.
+                </p>
+                
+                <!-- Chat Log -->
+                <div id="mentor-chat-log" style="overflow-y: auto; max-height: calc(100vh - 22rem); display: flex; flex-direction: column; gap: 0.8rem; padding-right: 0.3rem;">
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 0.75rem; font-size: 0.88rem;">
+                        <strong style="color: var(--neon-blue); display: block; margin-bottom: 0.15rem;">AI Mentor:</strong>
+                        Hello! I am your AI Mentor. Let me know if you need help understanding the concepts in <strong>{{ lesson.title }}</strong>!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input area -->
+            <div style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="mentor-chat-input" class="flag-input" placeholder="Ask the AI mentor..." style="padding: 0.6rem; font-size: 0.9rem;" onkeydown="if(event.key === 'Enter') sendMentorMessage()">
+                    <button onclick="sendMentorMessage()" class="submit-btn" style="padding: 0.6rem 1.2rem; font-size: 0.9rem;" id="btn-send-chat">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function markComplete() {
+    try {
+        const response = await fetch(`/lms/lessons/{{ lesson.id }}/complete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            }
+        });
+        const data = await response.json();
+        if (data.success) {
+            showToast('Lesson completed!', 'success');
+            if (data.cert_issued) {
+                showToast('Congratulations! You earned a course completion certificate!', 'success');
+            }
+            setTimeout(() => {
+                window.location.reload();
+            }, 1200);
+        } else {
+            showToast(data.error || 'Failed to complete lesson.', 'error');
+        }
+    } catch (err) {
+        console.error(err);
+        showToast('Error sending completion request.', 'error');
+    }
+}
+
+async function sendMentorMessage() {
+    const input = document.getElementById('mentor-chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    
+    // Add user message to log
+    const chatLog = document.getElementById('mentor-chat-log');
+    
+    const userDiv = document.createElement('div');
+    userDiv.style.background = 'rgba(0, 240, 255, 0.02)';
+    userDiv.style.border = '1px solid rgba(0, 240, 255, 0.08)';
+    userDiv.style.borderRadius = '8px';
+    userDiv.style.padding = '0.75rem';
+    userDiv.style.fontSize = '0.88rem';
+    userDiv.innerHTML = `<strong style="color: var(--text-primary); display: block; margin-bottom: 0.15rem;">You:</strong> ${text}`;
+    chatLog.appendChild(userDiv);
+    
+    input.value = '';
+    chatLog.scrollTop = chatLog.scrollHeight;
+    
+    // Send to backend
+    try {
+        const response = await fetch('/lms/mentor/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                prompt: text,
+                course_id: {{ lesson.module.course.id }},
+                lesson_id: {{ lesson.id }}
+            })
+        });
+        const data = await response.json();
+        
+        const aiDiv = document.createElement('div');
+        aiDiv.style.background = 'rgba(255,255,255,0.03)';
+        aiDiv.style.border = '1px solid rgba(255,255,255,0.05)';
+        aiDiv.style.borderRadius = '8px';
+        aiDiv.style.padding = '0.75rem';
+        aiDiv.style.fontSize = '0.88rem';
+        
+        if (data.response) {
+            aiDiv.innerHTML = `<strong style="color: var(--neon-blue); display: block; margin-bottom: 0.15rem;">AI Mentor:</strong> ${data.response}`;
+        } else {
+            aiDiv.innerHTML = `<strong style="color: var(--neon-red); display: block; margin-bottom: 0.15rem;">AI Mentor:</strong> ${data.error || 'Failed to generate response.'}`;
+        }
+        
+        chatLog.appendChild(aiDiv);
+        chatLog.scrollTop = chatLog.scrollHeight;
+    } catch (err) {
+        console.error(err);
+        const errDiv = document.createElement('div');
+        errDiv.style.color = 'var(--neon-red)';
+        errDiv.style.fontSize = '0.88rem';
+        errDiv.innerText = 'Error connecting to the AI Mentor.';
+        chatLog.appendChild(errDiv);
+    }
+}
+</script>
+{% endblock %}

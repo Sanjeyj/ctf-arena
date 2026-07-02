@@ -2,10 +2,11 @@ import datetime
 import json
 from flask_login import UserMixin
 from app.extensions import db, utcnow
-from app.models.mixins import TimestampMixin, UUIDMixin, SoftDeleteMixin
+from app.models.mixins import TimestampMixin, UUIDMixin, SoftDeleteMixin, TenantMixin
 
-class User(db.Model, UserMixin, TimestampMixin, UUIDMixin, SoftDeleteMixin):
+class User(db.Model, UserMixin, TimestampMixin, UUIDMixin, SoftDeleteMixin, TenantMixin):
     __tablename__ = 'users'
+
     
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False, index=True)

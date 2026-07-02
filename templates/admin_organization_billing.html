@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing | CTF Arena Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0c10; --surface: #11141a; --card: #1a1e26; --border: #2b313d;
+            --neon-blue: #00f0ff; --neon-green: #00ff66; --neon-red: #ff3366;
+            --neon-yellow: #ffd700; --neon-purple: #bf5af2; --neon-orange: #ff9500;
+            --text: #f0f2f5; --muted: #8b949e;
+        }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+        body::before { content:''; position:fixed; top:-15%; right:-5%; width:55%; height:65%;
+            background:radial-gradient(circle, rgba(191,90,242,0.05) 0%, transparent 70%);
+            z-index:-1; pointer-events:none; }
+        header { background:rgba(17,20,26,0.92); backdrop-filter:blur(14px);
+            border-bottom:1px solid var(--border); padding:0.9rem 2rem; position:sticky; top:0; z-index:100; }
+        .header-inner { max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; }
+        .brand { display:flex; align-items:center; gap:0.6rem; font-size:1.3rem; font-weight:700; text-decoration:none; color:var(--text); }
+        .brand span { color:var(--neon-blue); }
+        .admin-badge { background:rgba(191,90,242,0.12); border:1px solid rgba(191,90,242,0.3); color:var(--neon-purple);
+            padding:0.2rem 0.7rem; border-radius:20px; font-size:0.75rem; font-weight:700; text-transform:uppercase; }
+        .nav-links { display:flex; gap:1rem; align-items:center; }
+        .nav-links a { color:var(--muted); text-decoration:none; font-size:0.88rem; font-weight:600; transition:color 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color:var(--neon-blue); }
+
+        .page { max-width:1200px; margin:0 auto; padding:2rem 1.5rem; }
+        .breadcrumb { display:flex; gap:0.5rem; align-items:center; font-size:0.82rem; color:var(--muted); margin-bottom:0.8rem; }
+        .breadcrumb a { color:var(--neon-blue); text-decoration:none; }
+        .page-title { font-size:1.8rem; font-weight:700; margin-bottom:0.3rem; }
+        .page-title span { color:var(--neon-purple); }
+        .page-sub { color:var(--muted); margin-bottom:2rem; font-size:0.95rem; }
+
+        .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+        @media(max-width:900px) { .grid-2 { grid-template-columns:1fr; } }
+
+        .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.5rem; margin-bottom:1.5rem; }
+        .card-title { font-size:1.1rem; font-weight:700; margin-bottom:1.2rem; display:flex; align-items:center; gap:0.5rem; }
+
+        .alert { padding:0.8rem 1.2rem; border-radius:10px; margin-bottom:1.2rem; font-size:0.9rem; }
+        .alert-success { background:rgba(0,255,102,0.08); border:1px solid rgba(0,255,102,0.25); color:var(--neon-green); }
+        .alert-danger { background:rgba(255,51,102,0.08); border:1px solid rgba(255,51,102,0.25); color:var(--neon-red); }
+        .alert-warning { background:rgba(255,215,0,0.08); border:1px solid rgba(255,215,0,0.25); color:var(--neon-yellow); }
+
+        .badge { display:inline-block; padding:0.2rem 0.7rem; border-radius:8px; font-size:0.78rem; font-weight:700; text-transform:uppercase; }
+        .badge-trial    { background:rgba(0,240,255,0.1); border:1px solid rgba(0,240,255,0.2); color:var(--neon-blue); }
+        .badge-active   { background:rgba(0,255,102,0.1); border:1px solid rgba(0,255,102,0.2); color:var(--neon-green); }
+        .badge-past_due { background:rgba(255,215,0,0.1); border:1px solid rgba(255,215,0,0.2); color:var(--neon-yellow); }
+        .badge-cancelled{ background:rgba(255,51,102,0.1); border:1px solid rgba(255,51,102,0.2); color:var(--neon-red); }
+        .badge-plan-free         { background:rgba(139,148,158,0.1); border:1px solid rgba(139,148,158,0.2); color:var(--muted); }
+        .badge-plan-professional { background:rgba(0,240,255,0.1); border:1px solid rgba(0,240,255,0.2); color:var(--neon-blue); }
+        .badge-plan-enterprise   { background:rgba(191,90,242,0.1); border:1px solid rgba(191,90,242,0.2); color:var(--neon-purple); }
+
+        /* Billing status card */
+        .status-display { text-align:center; padding:2rem; }
+        .status-display .big-badge { font-size:1.4rem; padding:0.6rem 1.8rem; border-radius:12px; display:inline-block;
+            margin-bottom:1rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; }
+        .status-display p { color:var(--muted); font-size:0.9rem; margin-top:0.4rem; }
+
+        /* Plan selector cards */
+        .plans-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; }
+        @media(max-width:900px) { .plans-grid { grid-template-columns:1fr; } }
+        .plan-card { border:1px solid var(--border); border-radius:14px; padding:1.5rem; text-align:center;
+            transition:all 0.2s; cursor:pointer; }
+        .plan-card:hover { border-color:var(--neon-blue); transform:translateY(-2px); }
+        .plan-card.active { border-color:var(--neon-purple); background:rgba(191,90,242,0.06); }
+        .plan-name { font-size:1.2rem; font-weight:800; margin-bottom:0.6rem; }
+        .plan-price { font-size:0.85rem; color:var(--muted); margin-bottom:1rem; }
+        .plan-features { text-align:left; font-size:0.83rem; color:var(--muted); line-height:1.9; }
+        .plan-features li { list-style:none; }
+        .plan-features li::before { content:'✓ '; color:var(--neon-green); font-weight:700; }
+
+        form.plan-form { display:inline; }
+        .btn { display:inline-flex; align-items:center; justify-content:center; gap:0.5rem;
+            padding:0.6rem 1.2rem; border-radius:10px; font-size:0.88rem; font-weight:700;
+            border:none; cursor:pointer; text-decoration:none; transition:all 0.2s; }
+        .btn-primary { background:var(--neon-blue); color:#000; }
+        .btn-primary:hover { box-shadow:0 0 12px rgba(0,240,255,0.4); }
+        .btn-danger { background:rgba(255,51,102,0.1); border:1px solid rgba(255,51,102,0.3); color:var(--neon-red); }
+        .btn-danger:hover { background:var(--neon-red); color:#000; }
+
+        /* State machine diagram */
+        .state-diagram { display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-top:1rem; }
+        .state-node { padding:0.4rem 1rem; border-radius:8px; font-size:0.8rem; font-weight:700; border:1px solid; }
+        .state-arrow { color:var(--muted); font-size:1.2rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-inner">
+            <a href="/admin" class="brand">CTF <span>Arena</span> <div class="admin-badge">Admin</div></a>
+            <nav class="nav-links">
+                <a href="/admin">Dashboard</a>
+                <a href="/admin/challenges">Challenges</a>
+                <a href="/admin/competition">Competition</a>
+                <a href="/admin/plugins">Plugins</a>
+                <a href="/admin/organization" class="active">Organization</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="page">
+        <div class="breadcrumb">
+            <a href="/admin">Admin</a> /
+            <a href="/admin/organization">Organization</a> /
+            Billing
+        </div>
+        <h1 class="page-title">Subscription & <span>Billing</span></h1>
+        <p class="page-sub">Manage subscription plan and billing state for <strong>{{ g.current_org.name }}</strong>.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert {% if category == 'success' %}alert-success{% elif category == 'warning' %}alert-warning{% else %}alert-danger{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="grid-2">
+            <!-- Current Status -->
+            <div class="card">
+                <h2 class="card-title">📊 Current Billing Status</h2>
+                <div class="status-display">
+                    <div class="big-badge badge-{{ billing.status }}">{{ billing.status.replace('_', ' ').title() }}</div>
+                    <p>Plan: <span class="badge badge-plan-{{ billing.plan_type }}">{{ billing.plan_type.upper() }}</span></p>
+                    {% if billing.trial_ends_at %}
+                        <p style="margin-top:0.5rem;">Trial ends: <strong>{{ billing.trial_ends_at.strftime('%B %d, %Y') }}</strong></p>
+                    {% endif %}
+                    {% if billing.current_period_end %}
+                        <p style="margin-top:0.3rem;">Current period ends: <strong>{{ billing.current_period_end.strftime('%B %d, %Y') }}</strong></p>
+                    {% endif %}
+                </div>
+
+                <!-- Cancel button -->
+                {% if billing.status in ['trial', 'active', 'past_due'] %}
+                <form action="/admin/organization/plan" method="post" style="margin-top:1rem;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="plan_type" value="{{ billing.plan_type }}">
+                    <a href="/admin/organization" class="btn btn-danger" style="width:100%;">↩ Back to Organization</a>
+                </form>
+                {% endif %}
+            </div>
+
+            <!-- Allowed Transitions Reference -->
+            <div class="card">
+                <h2 class="card-title">🔄 Billing State Machine</h2>
+                <p style="color:var(--muted);font-size:0.88rem;margin-bottom:1rem;">Allowed subscription state transitions:</p>
+                <div class="state-diagram">
+                    <div class="state-node badge-trial">Trial</div>
+                    <div class="state-arrow">→</div>
+                    <div class="state-node badge-active">Active</div>
+                    <div class="state-arrow">→</div>
+                    <div class="state-node badge-past_due">Past Due</div>
+                    <div class="state-arrow">→</div>
+                    <div class="state-node badge-cancelled">Cancelled</div>
+                </div>
+                <div class="state-diagram" style="margin-top:0.5rem;">
+                    <div style="width:220px;"></div>
+                    <div class="state-arrow">↕</div>
+                </div>
+                <div class="state-diagram">
+                    <div style="width:220px;"></div>
+                    <div class="state-node badge-past_due">Past Due</div>
+                    <div class="state-arrow">→</div>
+                    <div class="state-node badge-active">Active</div>
+                </div>
+                <p style="color:var(--muted);font-size:0.8rem;margin-top:1rem;">No live payment SDK required. State transitions tracked internally.</p>
+            </div>
+        </div>
+
+        <!-- Plan Selector -->
+        <div class="card">
+            <h2 class="card-title">💼 Change Subscription Plan</h2>
+            <div class="plans-grid">
+                <!-- Free -->
+                <div class="plan-card {% if billing.plan_type == 'free' %}active{% endif %}">
+                    <div class="plan-name" style="color:var(--muted);">Free</div>
+                    <div class="plan-price">Community Edition</div>
+                    <ul class="plan-features">
+                        <li>100 users</li>
+                        <li>1 competition</li>
+                        <li>50 challenges</li>
+                        <li>5 containers</li>
+                    </ul>
+                    <form action="/admin/organization/plan" method="post" style="margin-top:1.2rem;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="plan_type" value="free">
+                        <button type="submit" class="btn btn-primary" style="width:100%;">Select Free</button>
+                    </form>
+                </div>
+
+                <!-- Professional -->
+                <div class="plan-card {% if billing.plan_type == 'professional' %}active{% endif %}">
+                    <div class="plan-name" style="color:var(--neon-blue);">Professional</div>
+                    <div class="plan-price">Hosted Teams</div>
+                    <ul class="plan-features">
+                        <li>1,000 users</li>
+                        <li>10 competitions</li>
+                        <li>500 challenges</li>
+                        <li>50 containers</li>
+                    </ul>
+                    <form action="/admin/organization/plan" method="post" style="margin-top:1.2rem;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="plan_type" value="professional">
+                        <button type="submit" class="btn btn-primary" style="width:100%;">Select Professional</button>
+                    </form>
+                </div>
+
+                <!-- Enterprise -->
+                <div class="plan-card {% if billing.plan_type == 'enterprise' %}active{% endif %}">
+                    <div class="plan-name" style="color:var(--neon-purple);">Enterprise</div>
+                    <div class="plan-price">Unlimited Scale</div>
+                    <ul class="plan-features">
+                        <li>Unlimited users</li>
+                        <li>Unlimited competitions</li>
+                        <li>Unlimited challenges</li>
+                        <li>Unlimited containers</li>
+                    </ul>
+                    <form action="/admin/organization/plan" method="post" style="margin-top:1.2rem;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="plan_type" value="enterprise">
+                        <button type="submit" class="btn btn-primary" style="width:100%;background:linear-gradient(135deg,var(--neon-purple),#7c3aed);">Select Enterprise</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

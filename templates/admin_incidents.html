@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incident Queue | CTF Arena Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0c10; --surface: #11141a; --card: #1a1e26; --border: #2b313d;
+            --neon-blue: #00f0ff; --neon-green: #00ff66; --neon-red: #ff3366;
+            --neon-yellow: #ffd700; --neon-purple: #bf5af2;
+            --text: #f0f2f5; --muted: #8b949e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        header { background: rgba(17,20,26,0.9); backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border); padding: 0.9rem 2rem; position: sticky; top: 0; z-index: 100; }
+        .header-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .brand { display:flex; align-items:center; gap:0.6rem; font-size:1.3rem; font-weight:700; text-decoration:none; color:var(--text); }
+        .brand span { color: var(--neon-blue); }
+        .admin-badge { background:rgba(0,240,255,0.12); border:1px solid rgba(0,240,255,0.3); color:var(--neon-blue);
+            padding:0.2rem 0.7rem; border-radius:20px; font-size:0.75rem; font-weight:700; text-transform:uppercase; }
+        .nav-links { display:flex; gap:1rem; align-items:center; }
+        .nav-links a { color:var(--muted); text-decoration:none; font-size:0.88rem; font-weight:600; transition:color 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color:var(--neon-blue); }
+
+        .page { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .breadcrumb { display:flex; gap:0.5rem; align-items:center; font-size:0.82rem; color:var(--muted); margin-bottom:0.8rem; }
+        .breadcrumb a { color:var(--neon-blue); text-decoration:none; }
+        .page-title { font-size:1.8rem; font-weight:700; margin-bottom:0.3rem; }
+        .page-title span { color: var(--neon-blue); }
+        .page-sub { color:var(--muted); margin-bottom:2rem; font-size:0.95rem; }
+
+        .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.5rem; margin-bottom:1.5rem; }
+        .card-title { font-size:1.1rem; font-weight:700; margin-bottom:1.2rem; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+        th, td { text-align: left; padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); }
+        th { font-size: 0.83rem; font-weight: 700; text-transform: uppercase; color: var(--muted); }
+        td { font-size: 0.92rem; }
+
+        .badge { display:inline-block; padding:0.15rem 0.5rem; border-radius:6px; font-size:0.75rem; font-weight:700; text-transform:uppercase; }
+        .badge-open { background:rgba(255,51,102,0.1); border:1px solid rgba(255,51,102,0.2); color:var(--neon-red); }
+        .badge-investigating { background:rgba(255,215,0,0.1); border:1px solid rgba(255,215,0,0.2); color:var(--neon-yellow); }
+        .badge-contained { background:rgba(0,240,255,0.1); border:1px solid rgba(0,240,255,0.2); color:var(--neon-blue); }
+        .badge-resolved { background:rgba(0,255,102,0.1); border:1px solid rgba(0,255,102,0.2); color:var(--neon-green); }
+        
+        .btn { display:inline-flex; align-items:center; justify-content:center; gap:0.5rem;
+            padding:0.6rem 1.2rem; border-radius:10px; font-size:0.88rem; font-weight:700;
+            border:none; cursor:pointer; text-decoration:none; transition:all 0.2s; }
+        .btn-secondary { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text); }
+        .btn-secondary:hover { background:rgba(255,255,255,0.12); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-inner">
+            <a href="/admin" class="brand">CTF <span>Arena</span> <div class="admin-badge">Admin</div></a>
+            <nav class="nav-links">
+                <a href="/admin">Dashboard</a>
+                <a href="/admin/challenges">Challenges</a>
+                <a href="/admin/competition">Competition</a>
+                <a href="/admin/plugins">Plugins</a>
+                <a href="/admin/organization">Organization</a>
+                <a href="/admin/cyberrange" class="active">Cyber Range</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="page">
+        <div class="breadcrumb">
+            <a href="/admin/cyberrange">Cyber Range</a> / Incidents
+        </div>
+        <h1 class="page-title">Incident <span>Queue</span></h1>
+        <p class="page-sub">Review active alerts, triage analysis progress, and lessons learned containment states.</p>
+
+        <div class="card">
+            <h2 class="card-title">Security Incidents</h2>
+            {% if incidents %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Incident Title</th>
+                            <th>Status</th>
+                            <th>Workflow Stage</th>
+                            <th>Simulation Session</th>
+                            <th>Reported At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inc in incidents %}
+                            <tr>
+                                <td><strong>{{ inc.title }}</strong></td>
+                                <td><span class="badge badge-{{ inc.status }}">{{ inc.status }}</span></td>
+                                <td><span class="badge badge-info">{{ inc.workflow_stage.replace('_', ' ') }}</span></td>
+                                <td>
+                                    <a href="/admin/cyberrange/simulation/{{ inc.simulation_id }}" style="color:var(--neon-blue); text-decoration:none; font-weight:600;">
+                                        #{{ inc.simulation_id }}
+                                    </a>
+                                </td>
+                                <td style="color:var(--muted); font-size:0.85rem;">{{ inc.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p style="color:var(--muted); text-align:center; padding:2rem 0;">No security incidents have been logged in the range queue.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

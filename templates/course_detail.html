@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.title }} | Course Details | CTF Arena{% endblock %}
+
+{% block content %}
+<div class="back-nav">
+    <a href="{{ url_for('lms.dashboard') }}" class="btn-secondary" id="btn-back-lms">🔙 Back to Learning Dashboard</a>
+</div>
+
+<div class="glass-card" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <span class="badge-category" style="margin-bottom: 0.5rem; display: inline-block;">{{ course.category | replace('_', ' ') }}</span>
+        <h2 style="font-size: 2rem; margin-bottom: 0.5rem; color: var(--neon-blue); text-shadow: 0 0 10px var(--glow-blue);">{{ course.title }}</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem; max-width: 700px;">{{ course.description }}</p>
+        
+        <div style="display: flex; gap: 1.5rem; font-size: 0.95rem; color: var(--text-secondary);">
+            <span>Difficulty: <strong style="color: var(--neon-yellow);">{{ course.difficulty | capitalize }}</strong></span>
+            <span>Duration: <strong>{{ course.estimated_hours }} Hours</strong></span>
+            <span>Total Lessons: <strong>{{ course.total_lessons }}</strong></span>
+        </div>
+    </div>
+    
+    <div>
+        {% if enrollment %}
+            <div style="text-align: center; background: rgba(0, 240, 255, 0.05); border: 1px solid var(--neon-blue); padding: 1.5rem; border-radius: 12px; min-width: 220px;">
+                <div style="font-size: 0.9rem; margin-bottom: 0.4rem; color: var(--text-secondary);">Your Course Progress</div>
+                <div style="font-size: 2rem; font-weight: 700; color: var(--neon-blue); font-family: 'Fira Code', monospace; margin-bottom: 0.5rem;">{{ enrollment.progress.percentage | round(1) if enrollment.progress else 0 }}%</div>
+                <div style="background: rgba(255,255,255,0.05); height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 1rem;">
+                    <div style="background: var(--neon-blue); height: 100%; width: {{ enrollment.progress.percentage if enrollment.progress else 0 }}%;"></div>
+                </div>
+                <span style="color: var(--neon-green); font-weight: 700; font-size: 0.9rem; text-transform: uppercase;">
+                    {% if enrollment.status == 'completed' %}🏆 Completed{% else %}⚡ In Progress{% endif %}
+                </span>
+            </div>
+        {% else %}
+            <form action="{{ url_for('lms.enroll_course', course_id=course.id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="submit-btn" style="padding: 1rem 2rem; font-size: 1.1rem;" id="btn-enroll-course">Enroll in Course</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="glass-card" style="padding: 2rem;">
+    <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem; color: var(--neon-blue);">📋 Course Curriculum</h3>
+    
+    {% if not course.modules %}
+        <p style="color: var(--text-secondary); font-style: italic;">No modules or lessons have been created for this course yet.</p>
+    {% else %}
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            {% for module in course.modules %}
+                <div style="background: rgba(26, 30, 38, 0.5); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
+                        <h4 style="font-size: 1.2rem; color: #fff;">Module {{ module.order }}: {{ module.title }}</h4>
+                        <span style="color: var(--text-secondary); font-size: 0.9rem;">{{ module.lessons | length }} Lessons</span>
+                    </div>
+                    
+                    {% if module.description %}
+                        <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 1rem;">{{ module.description }}</p>
+                    {% endif %}
+                    
+                    <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                        {% for lesson in module.lessons %}
+                            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 0.8rem 1.2rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.02);">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <span style="color: var(--text-secondary); font-size: 0.9rem;">{{ lesson.order }}.</span>
+                                    <div>
+                                        <h5 style="font-size: 1rem; color: #fff;">{{ lesson.title }}</h5>
+                                        <div style="display: flex; gap: 1rem; font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.15rem;">
+                                            <span>⏱️ {{ lesson.duration_minutes }} mins</span>
+                                            {% if lesson.lab_required %}
+                                                <span style="color: var(--neon-red);">🧪 Challenge Lab Required</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    {% if enrollment %}
+                                        {% if enrollment.progress and lesson.id in enrollment.progress.completed_lessons %}
+                                            <span style="color: var(--neon-green); font-size: 0.85rem; font-weight: 700; margin-right: 1rem;">✔️ Completed</span>
+                                        {% endif %}
+                                        <a href="{{ url_for('lms.view_lesson', lesson_id=lesson.id) }}" class="btn-secondary" style="font-size: 0.85rem; padding: 0.4rem 0.9rem;" id="btn-view-lesson-{{ lesson.id }}">Start Lesson &rarr;</a>
+                                    {% else %}
+                                        <span style="color: var(--muted); font-size: 0.88rem; font-style: italic;">Enroll to Unlock</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

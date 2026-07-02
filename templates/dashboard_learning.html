@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Learning Dashboard | CTF Arena{% endblock %}
+
+{% block content %}
+<div class="back-nav">
+    <a href="/" class="btn-secondary" id="btn-back-home">🔙 Back to CTF challenges</a>
+    <a href="/career/portal" class="btn-secondary" style="border-color:var(--neon-green);color:var(--neon-green);" id="btn-go-career">💼 Career Portal</a>
+</div>
+
+<div class="glass-card" style="margin-bottom: 2rem;">
+    <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem; text-shadow: 0 0 10px var(--glow-blue); color: var(--neon-blue);">🚀 Cybersecurity Learning LMS</h2>
+    <p style="color: var(--text-secondary);">Expand your skillset, earn recognized certifications, track career-ready skills, and talk to your personal AI mentor.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+    <!-- Left Column: Paths & Courses -->
+    <div>
+        <!-- Learning Paths -->
+        <div class="glass-card" style="margin-bottom: 2rem; padding: 1.5rem;">
+            <h3 style="font-size: 1.3rem; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; color: var(--neon-blue);">
+                🎯 Career Learning Paths
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                {% for path in paths %}
+                    <div style="background: rgba(26, 30, 38, 0.7); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.2rem; display: flex; flex-direction: column; justify-content: space-between; border-left: 4px solid {{ path.color }};">
+                        <div>
+                            <h4 style="font-size: 1.1rem; color: #fff; margin-bottom: 0.4rem;">{{ path.name }}</h4>
+                            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1rem; line-height: 1.4;">{{ path.description }}</p>
+                        </div>
+                        <div>
+                            {% if path.id in path_enrollments %}
+                                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.4rem;">
+                                    <span style="color: var(--text-secondary);">Path Progress</span>
+                                    <strong style="color: var(--neon-green);">{{ path_enrollments[path.id].progress_pct }}%</strong>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.05); height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 0.5rem;">
+                                    <div style="background: var(--neon-green); height: 100%; width: {{ path_enrollments[path.id].progress_pct }}%;"></div>
+                                </div>
+                                <span style="font-size: 0.8rem; color: var(--neon-green); font-weight: 600;">✔️ Enrolled</span>
+                            {% else %}
+                                <form action="{{ url_for('lms.enroll_path', path_id=path.id) }}" method="POST">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="submit-btn" style="padding: 0.5rem 1rem; font-size: 0.85rem; width: 100%;" id="btn-enroll-path-{{ path.slug }}">Enroll in Path</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Enrolled / Available Courses -->
+        <div class="glass-card" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.3rem; margin-bottom: 1.2rem; color: var(--neon-blue);">📚 Course Catalog</h3>
+            
+            {% if not enrollments %}
+                <p style="color: var(--text-secondary); font-style: italic; margin-bottom: 1rem;">You are not enrolled in any courses yet. Enroll in a course below to begin!</p>
+            {% else %}
+                <h4 style="font-size: 1rem; margin-bottom: 0.8rem; color: var(--neon-green);">Your Active Enrolled Courses:</h4>
+                <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+                    {% for enr in enrollments %}
+                        <div style="background: rgba(26, 30, 38, 0.7); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.2rem; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <span class="badge-category" style="margin-bottom: 0.4rem; display: inline-block;">{{ enr.course.category | replace('_', ' ') }}</span>
+                                <h4 style="font-size: 1.1rem; color: #fff; margin-bottom: 0.3rem;">{{ enr.course.title }}</h4>
+                                <div style="display: flex; gap: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
+                                    <span>Difficulty: <strong style="color: var(--neon-yellow);">{{ enr.course.difficulty | capitalize }}</strong></span>
+                                    <span>Hours: <strong>{{ enr.course.estimated_hours }} hrs</strong></span>
+                                </div>
+                            </div>
+                            <div style="text-align: right; min-width: 160px;">
+                                <div style="font-size: 0.85rem; margin-bottom: 0.3rem;">Progress: <strong style="color: var(--neon-blue);">{{ enr.progress.percentage | round(1) if enr.progress else 0 }}%</strong></div>
+                                <a href="{{ url_for('lms.course_detail', course_id=enr.course.id) }}" class="submit-btn" style="padding: 0.5rem 1rem; font-size: 0.85rem; display: inline-block; text-decoration: none;" id="btn-resume-course-{{ enr.course.id }}">Continue Course</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Explore More Courses -->
+            <h4 style="font-size: 1rem; margin-bottom: 0.8rem; color: var(--text-primary);">Available Courses:</h4>
+            <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+                <!-- We dynamically query courses that user is not enrolled in -->
+                {% set enrolled_ids = enrollments | map(attribute='course_id') | list %}
+                {% set db_courses = [] %}
+                {% if not enrolled_ids %}
+                    <!-- If none enrolled, show all -->
+                    <!-- In templates we use custom logic or let Python view pass all. We will seed default courses in python or render here. -->
+                {% endif %}
+                
+                <!-- Let's render a few courses directly if DB empty or we can rely on seed in backend -->
+                <div style="background: rgba(26, 30, 38, 0.4); border: 1px dashed var(--border-color); border-radius: 12px; padding: 1.5rem; text-align: center;">
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Visit course details to enroll and launch hands-on exercises.</p>
+                    <a href="{{ url_for('lms.course_detail', course_id=1) }}" class="btn-secondary" style="font-size: 0.9rem;" id="btn-view-course-1">Go to course details &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Skills, Badges & Certificates -->
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+        <!-- Skills Radar / Track -->
+        <div class="glass-card" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--neon-blue);">🔐 Your Skills Tracker</h3>
+            {% if not user_skills %}
+                <p style="color: var(--text-secondary); font-size: 0.9rem; font-style: italic;">Complete lessons to earn skill points.</p>
+            {% else %}
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    {% for us in user_skills %}
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.2rem;">
+                                <span>{{ us.skill.icon }} <strong>{{ us.skill.name }}</strong></span>
+                                <span style="color: var(--neon-yellow);">Lvl {{ us.level }} ({{ us.mastery | capitalize }})</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-secondary);">
+                                <span>XP: {{ us.xp }}</span>
+                                <span>{{ (us.xp % 100) }} / 100 to next level</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.05); height: 5px; border-radius: 2.5px; overflow: hidden; margin-top: 0.3rem;">
+                                <div style="background: var(--neon-yellow); height: 100%; width: {{ (us.xp % 100) }}%;"></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Earned Badges -->
+        <div class="glass-card" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--neon-blue);">🏅 Earned Badges</h3>
+            {% if not user_badges %}
+                <p style="color: var(--text-secondary); font-size: 0.9rem; font-style: italic;">No badges earned yet. Solve challenges or complete learning paths to earn them!</p>
+            {% else %}
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem;">
+                    {% for ub in user_badges %}
+                        <div style="background: rgba(26, 30, 38, 0.8); border: 1px solid {{ ub.badge.color }}; border-radius: 8px; padding: 0.6rem; text-align: center; cursor: pointer;" title="{{ ub.badge.name }}: {{ ub.badge.description }} (Reason: {{ ub.reason }})">
+                            <div style="font-size: 1.5rem; margin-bottom: 0.2rem;">{{ ub.badge.icon }}</div>
+                            <div style="font-size: 0.72rem; color: #fff; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">{{ ub.badge.name }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Verified Certificates -->
+        <div class="glass-card" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--neon-blue);">📜 Verified Certifications</h3>
+            {% if not certs %}
+                <p style="color: var(--text-secondary); font-size: 0.9rem; font-style: italic;">Complete a course 100% to earn a verified completion certificate.</p>
+            {% else %}
+                <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                    {% for cert in certs %}
+                        <div style="background: rgba(0, 240, 255, 0.03); border: 1px solid var(--neon-blue); border-radius: 10px; padding: 1rem;">
+                            <h4 style="font-size: 0.95rem; color: #fff; margin-bottom: 0.2rem;">{{ cert.title }}</h4>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Verified ID: <strong style="color: var(--neon-blue);">{{ cert.verification_id }}</strong></div>
+                            <a href="{{ url_for('lms.verify_certificate', verification_id=cert.verification_id) }}" class="btn-secondary" style="font-size: 0.78rem; padding: 0.3rem 0.7rem; width: 100%; text-align: center; justify-content: center;" id="btn-verify-cert-{{ cert.id }}" target="_blank">Verify Credential 🔗</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

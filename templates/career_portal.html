@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Career Portal | CTF Arena{% endblock %}
+
+{% block content %}
+<div class="back-nav">
+    <a href="{{ url_for('lms.dashboard') }}" class="btn-secondary" id="btn-back-lms-career">🔙 Back to Learning Dashboard</a>
+</div>
+
+<div class="glass-card" style="margin-bottom: 2rem;">
+    <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem; text-shadow: 0 0 10px var(--glow-green); color: var(--neon-green);">💼 Cybersecurity Career Portal</h2>
+    <p style="color: var(--text-secondary);">Verify your skills against active employer job postings, auto-generate your professional resume, and unlock opportunities with badges and certificates.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; align-items: start;">
+    
+    <!-- Left Column: Professional Profile (Resume builder) -->
+    <div>
+        <div class="glass-card" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--neon-green);">📄 Professional Resume</h3>
+            
+            <form action="{{ url_for('lms.update_resume') }}" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <div>
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.3rem;">Professional Headline</label>
+                    <input type="text" name="headline" class="flag-input" value="{{ resume.headline or '' }}" placeholder="e.g. Aspiring SOC Analyst | Incident Responder" style="padding: 0.6rem; font-size: 0.9rem; width: 100%;">
+                </div>
+                
+                <div>
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.3rem;">Summary / Core Focus</label>
+                    <textarea name="summary" class="flag-input" rows="4" placeholder="Briefly describe your specialization, achievements, and career goals..." style="padding: 0.6rem; font-size: 0.9rem; width: 100%; font-family: sans-serif; resize: vertical;">{{ resume.summary or '' }}</textarea>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" name="public" id="resume-public" {% if resume and resume.public %}checked{% endif %} style="transform: scale(1.1); cursor: pointer;">
+                    <label for="resume-public" style="font-size: 0.88rem; color: var(--text-primary); cursor: pointer;">Make Profile Public to Employers</label>
+                </div>
+                
+                {% if resume and resume.public %}
+                    <div style="background: rgba(0, 255, 102, 0.03); border: 1px solid var(--neon-green); border-radius: 8px; padding: 0.8rem; font-size: 0.8rem;">
+                        <span style="color: var(--text-secondary); display: block;">Public Share Link:</span>
+                        <strong style="color: var(--neon-green); word-break: break-all;">/verify/resume/{{ resume.share_url }}</strong>
+                    </div>
+                {% endif %}
+                
+                <button type="submit" class="submit-btn" style="background: var(--neon-green); color: #000; padding: 0.6rem; font-size: 0.9rem; width: 100%;" id="btn-update-resume">
+                    Update Resume Profile
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right Column: Active Job Openings -->
+    <div>
+        <div class="glass-card" style="padding: 1.5rem;">
+            <h3 style="font-size: 1.3rem; margin-bottom: 1.2rem; color: var(--neon-green);">💼 Available Jobs & Target Roles</h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                {% for job in jobs %}
+                    <div style="background: rgba(26, 30, 38, 0.7); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; position: relative;">
+                        
+                        <!-- Header info -->
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem;">
+                            <div>
+                                <h4 style="font-size: 1.2rem; color: #fff; margin-bottom: 0.2rem;">{{ job.title }}</h4>
+                                <div style="display: flex; gap: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
+                                    <span>🏢 <strong>{{ job.employer.name }}</strong> 
+                                        {% if job.employer.is_verified %}
+                                            <span style="color: var(--neon-blue); font-size: 0.8rem;">(Verified Employer ✔️)</span>
+                                        {% endif %}
+                                    </span>
+                                    <span>📍 {{ job.location }} {% if job.remote %}(Remote){% endif %}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Eligibility Status -->
+                            <div>
+                                {% if eligibility_map[job.id].eligible %}
+                                    <span style="background: rgba(0, 255, 102, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); padding: 0.35rem 0.8rem; border-radius: 20px; font-size: 0.78rem; font-weight: 700; text-transform: uppercase;">
+                                        ✔️ Qualified
+                                    </span>
+                                {% else %}
+                                    <span style="background: rgba(255, 51, 102, 0.1); border: 1px solid var(--neon-red); color: var(--neon-red); padding: 0.35rem 0.8rem; border-radius: 20px; font-size: 0.78rem; font-weight: 700; text-transform: uppercase;" title="{{ eligibility_map[job.id].reason }}">
+                                        ⚠️ Ineligible
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.5; margin-bottom: 1.2rem;">
+                            {{ job.description }}
+                        </p>
+
+                        <!-- Required criteria -->
+                        <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.8rem; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; gap: 0.6rem; align-items: center;">
+                                <span style="font-size: 0.82rem; color: var(--muted); text-transform: uppercase;">Requires:</span>
+                                
+                                {% for r_skill in job.required_skills %}
+                                    <span style="background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.2); color: var(--neon-yellow); font-size: 0.76rem; padding: 0.2rem 0.5rem; border-radius: 4px;">
+                                        Skill: {{ r_skill | replace('_', ' ') }}
+                                    </span>
+                                {% endfor %}
+                                
+                                {% for r_badge in job.required_badges %}
+                                    <span style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); color: var(--neon-blue); font-size: 0.76rem; padding: 0.2rem 0.5rem; border-radius: 4px;">
+                                        Badge: {{ r_badge | replace('_', ' ') }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+
+                            <div>
+                                {% if eligibility_map[job.id].eligible %}
+                                    <button class="submit-btn" style="background: var(--neon-green); color: #000; padding: 0.4rem 1rem; font-size: 0.82rem;" onclick="showToast('Application submitted successfully!', 'success')">
+                                        Apply Now
+                                    </button>
+                                {% else %}
+                                    <span style="color: var(--neon-red); font-size: 0.78rem; font-style: italic;">
+                                        {{ eligibility_map[job.id].reason }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

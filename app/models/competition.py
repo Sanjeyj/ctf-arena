@@ -1,6 +1,7 @@
 from app.extensions import db, utcnow
-from app.models.mixins import TimestampMixin, UUIDMixin
+from app.models.mixins import TimestampMixin, UUIDMixin, TenantMixin
 import datetime
+
 
 # Association Table for Team-Competition Many-to-Many
 team_competitions = db.Table('team_competitions',
@@ -8,8 +9,9 @@ team_competitions = db.Table('team_competitions',
     db.Column('competition_id', db.Integer, db.ForeignKey('competitions.id', ondelete='CASCADE'), primary_key=True)
 )
 
-class Competition(db.Model, TimestampMixin, UUIDMixin):
+class Competition(db.Model, TimestampMixin, UUIDMixin, TenantMixin):
     __tablename__ = 'competitions'
+
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False, index=True)

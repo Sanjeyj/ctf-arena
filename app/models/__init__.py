@@ -25,3 +25,45 @@ from app.models.instance_snapshot import InstanceSnapshot
 from app.models.plugin_installation import PluginInstallation
 from app.models.plugin_permission import PluginPermission
 from app.models.plugin_setting import PluginSetting
+from app.models.ai_hint_request import AIHintRequest
+from app.models.ai_writeup import AIWriteup
+from app.models.ai_difficulty_prediction import AIDifficultyPrediction
+from app.models.ai_conversation import AIConversation
+
+from app.models.organization import Organization
+from app.models.organization_member import OrganizationMember
+from app.models.organization_setting import OrganizationSetting
+from app.models.organization_billing import OrganizationBilling
+from app.models.organization_audit_log import OrganizationAuditLog
+
+from app.models.attack_simulation import AttackSimulation
+from app.models.attack_event import AttackEvent
+from app.models.defense_action import DefenseAction
+from app.models.incident import Incident
+from app.models.mitre_technique import MitreTechnique
+from app.models.attack_chain import AttackChain
+
+# Phase 17 — LMS & Certification Platform
+from app.models.course import Course
+from app.models.module import CourseModule
+from app.models.lesson import Lesson
+from app.models.course_enrollment import CourseEnrollment
+from app.models.course_progress import CourseProgress
+from app.models.learning_path import LearningPath, PathEnrollment
+from app.models.badge import Badge, UserBadge
+from app.models.skill import Skill, UserSkill
+from app.models.career import Job, Employer, Resume
+
+# Phase 18 — Enterprise SOC & Threat Intelligence
+from app.models.ioc import IOC
+from app.models.threat_feed import ThreatFeed
+from app.models.sigma_rule import SigmaRule
+from app.models.yara_rule import YaraRule
+from app.models.alert import Alert
+from app.models.detection import Detection
+from app.models.case import Case
+from app.models.hunt import Hunt
+
+
+
+

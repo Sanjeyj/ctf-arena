@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Stats | CTF Arena Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0c10; --surface: #11141a; --card: #1a1e26; --border: #2b313d;
+            --neon-blue: #00f0ff; --neon-green: #00ff66; --neon-red: #ff3366;
+            --neon-yellow: #ffd700; --neon-purple: #bf5af2; --neon-orange: #ff9500;
+            --text: #f0f2f5; --muted: #8b949e;
+        }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+        body::before { content:''; position:fixed; top:-10%; right:-5%; width:50%; height:60%;
+            background:radial-gradient(circle, rgba(0,240,255,0.04) 0%, transparent 70%);
+            z-index:-1; pointer-events:none; }
+        header { background:rgba(17,20,26,0.92); backdrop-filter:blur(14px);
+            border-bottom:1px solid var(--border); padding:0.9rem 2rem; position:sticky; top:0; z-index:100; }
+        .header-inner { max-width:1280px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; }
+        .brand { display:flex; align-items:center; gap:0.6rem; font-size:1.3rem; font-weight:700; text-decoration:none; color:var(--text); }
+        .brand span { color:var(--neon-blue); }
+        .admin-badge { background:rgba(191,90,242,0.12); border:1px solid rgba(191,90,242,0.3); color:var(--neon-purple);
+            padding:0.2rem 0.7rem; border-radius:20px; font-size:0.75rem; font-weight:700; text-transform:uppercase; }
+        .nav-links { display:flex; gap:1rem; align-items:center; }
+        .nav-links a { color:var(--muted); text-decoration:none; font-size:0.88rem; font-weight:600; transition:color 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color:var(--neon-blue); }
+
+        .page { max-width:1280px; margin:0 auto; padding:2rem 1.5rem; }
+        .page-title { font-size:1.8rem; font-weight:700; margin-bottom:0.3rem; }
+        .page-title span { color:var(--neon-blue); }
+        .breadcrumb { display:flex; gap:0.5rem; align-items:center; font-size:0.82rem; color:var(--muted); margin-bottom:0.8rem; }
+        .breadcrumb a { color:var(--neon-blue); text-decoration:none; }
+
+        .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1rem; margin-bottom:2rem; }
+        .stat-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.2rem; text-align:center; }
+        .stat-label { font-size:0.78rem; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:0.4rem; }
+        .stat-value { font-size:1.9rem; font-weight:800; }
+        .c-blue { color:var(--neon-blue); }
+        .c-green { color:var(--neon-green); }
+        .c-purple { color:var(--neon-purple); }
+        .c-yellow { color:var(--neon-yellow); }
+        .c-orange { color:var(--neon-orange); }
+
+        .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.5rem; margin-bottom:1.5rem; }
+        .card-title { font-size:1.05rem; font-weight:700; margin-bottom:1.2rem; display:flex; align-items:center; gap:0.5rem; }
+        table { width:100%; border-collapse:collapse; }
+        th, td { text-align:left; padding:0.75rem 1rem; border-bottom:1px solid var(--border); font-size:0.88rem; }
+        th { font-size:0.78rem; font-weight:700; text-transform:uppercase; color:var(--muted); }
+        tr:last-child td { border-bottom:none; }
+        code { font-family:'Fira Code',monospace; font-size:0.82rem; color:var(--neon-purple); }
+        .badge { display:inline-block; padding:0.15rem 0.5rem; border-radius:6px; font-size:0.73rem; font-weight:700; text-transform:uppercase; }
+        .badge-easy { background:rgba(0,255,102,0.1); border:1px solid rgba(0,255,102,0.2); color:var(--neon-green); }
+        .badge-medium { background:rgba(255,215,0,0.1); border:1px solid rgba(255,215,0,0.2); color:var(--neon-yellow); }
+        .badge-hard { background:rgba(255,149,0,0.1); border:1px solid rgba(255,149,0,0.2); color:var(--neon-orange); }
+        .badge-insane { background:rgba(255,51,102,0.1); border:1px solid rgba(255,51,102,0.25); color:var(--neon-red); }
+        .back-btn { display:inline-flex; align-items:center; gap:0.4rem; color:var(--neon-blue);
+            text-decoration:none; font-size:0.88rem; font-weight:600; margin-bottom:1.5rem; }
+        .back-btn:hover { opacity:0.8; }
+        .empty { text-align:center; padding:2rem; color:var(--muted); font-size:0.9rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-inner">
+            <a href="/admin" class="brand">CTF <span>Arena</span> <div class="admin-badge">Admin</div></a>
+            <nav class="nav-links">
+                <a href="/admin">Dashboard</a>
+                <a href="/admin/challenges">Challenges</a>
+                <a href="/admin/competition">Competition</a>
+                <a href="/admin/submissions">Submissions</a>
+                <a href="/admin/plugins">Plugins</a>
+                <a href="/admin/ai" class="active">AI</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="page">
+        <div class="breadcrumb"><a href="/admin">Admin</a> / <a href="/admin/ai">AI Assistant</a> / Stats</div>
+        <h1 class="page-title">AI <span>Token Statistics</span></h1>
+        <p style="color:var(--muted);font-size:0.95rem;margin-bottom:2rem;">Token usage breakdown across all AI subsystems.</p>
+
+        <!-- Aggregate Stats -->
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-label">Total Tokens</div><div class="stat-value c-blue">{{ token_stats.total_tokens | default(0) }}</div></div>
+            <div class="stat-card"><div class="stat-label">Hint Tokens</div><div class="stat-value c-green">{{ token_stats.hint_tokens | default(0) }}</div></div>
+            <div class="stat-card"><div class="stat-label">Writeup Tokens</div><div class="stat-value c-purple">{{ token_stats.writeup_tokens | default(0) }}</div></div>
+            <div class="stat-card"><div class="stat-label">Prediction Tokens</div><div class="stat-value c-yellow">{{ token_stats.prediction_tokens | default(0) }}</div></div>
+            <div class="stat-card"><div class="stat-label">Chat Tokens</div><div class="stat-value c-orange">{{ token_stats.conversation_tokens | default(0) }}</div></div>
+        </div>
+
+        <!-- Recent Hint Requests -->
+        <div class="card">
+            <h2 class="card-title">🤖 Recent AI Hint Requests</h2>
+            {% if recent_hints %}
+            <table>
+                <thead><tr><th>ID</th><th>User</th><th>Challenge</th><th>Level</th><th>Provider</th><th>Tokens</th><th>Cost</th><th>Time</th></tr></thead>
+                <tbody>
+                    {% for h in recent_hints %}
+                    <tr>
+                        <td>#{{ h.id }}</td>
+                        <td>{{ h.user.username if h.user else '—' }}</td>
+                        <td>#{{ h.challenge_id }}</td>
+                        <td><code>L{{ h.hint_level }}</code></td>
+                        <td><code>{{ h.provider }}</code></td>
+                        <td>{{ h.tokens_used }}</td>
+                        <td>{{ h.cost_deducted }}pts</td>
+                        <td style="color:var(--muted);font-size:0.8rem;">{{ h.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty">No AI hint requests yet.</div>
+            {% endif %}
+        </div>
+
+        <!-- Recent Difficulty Predictions -->
+        <div class="card">
+            <h2 class="card-title">🔮 Recent Difficulty Predictions</h2>
+            {% if recent_predictions %}
+            <table>
+                <thead><tr><th>ID</th><th>Challenge</th><th>Prediction</th><th>Confidence</th><th>Provider</th><th>Tokens</th><th>Time</th></tr></thead>
+                <tbody>
+                    {% for p in recent_predictions %}
+                    <tr>
+                        <td>#{{ p.id }}</td>
+                        <td>#{{ p.challenge_id }}</td>
+                        <td>
+                            {% if p.predicted_difficulty %}
+                            <span class="badge badge-{{ p.predicted_difficulty | lower }}">{{ p.predicted_difficulty }}</span>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td>{{ (p.confidence_score * 100) | round(0) | int }}%</td>
+                        <td><code>{{ p.provider }}</code></td>
+                        <td>{{ p.tokens_used }}</td>
+                        <td style="color:var(--muted);font-size:0.8rem;">{{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty">No difficulty predictions run yet. Use the AI dashboard to predict a challenge.</div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

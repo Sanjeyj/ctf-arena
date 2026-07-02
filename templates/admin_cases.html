@@ -1,0 +1,176 @@
+{% extends "admin.html" %}
+{% block title %}Case Management — CTF Arena SOC{% endblock %}
+
+{% block content %}
+<div class="cases-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">📋 Case Management</h1>
+      <p class="page-sub">Incident investigation lifecycle — open through resolution.</p>
+    </div>
+    <button class="create-case-btn" onclick="document.getElementById('createModal').style.display='flex'">+ New Case</button>
+  </div>
+
+  <!-- Kanban Board -->
+  <div class="kanban-board">
+    {% for status_col in ['open', 'investigating', 'contained', 'resolved', 'closed'] %}
+    <div class="kanban-col" id="col-{{ status_col }}">
+      <div class="col-header status-{{ status_col }}">
+        <span class="col-icon">{% if status_col=='open' %}🔓{% elif status_col=='investigating' %}🔎{% elif status_col=='contained' %}🛑{% elif status_col=='resolved' %}✅{% else %}🗄️{% endif %}</span>
+        <span class="col-title">{{ status_col|capitalize }}</span>
+        <span class="col-count">{{ cases_by_status.get(status_col, [])|length }}</span>
+      </div>
+      <div class="col-body">
+        {% for case in cases_by_status.get(status_col, []) %}
+        <div class="case-card priority-{{ case.priority }}" onclick="openCase({{ case.id }})">
+          <div class="case-card-header">
+            <span class="priority-dot priority-{{ case.priority }}"></span>
+            <span class="case-id">#{{ case.id }}</span>
+            <span class="priority-label priority-{{ case.priority }}">{{ case.priority|upper }}</span>
+          </div>
+          <div class="case-title">{{ case.title }}</div>
+          {% if case.mitre_technique %}
+          <div class="case-mitre">🎯 {{ case.mitre_technique[:30] }}</div>
+          {% endif %}
+          <div class="case-footer">
+            <span class="case-analyst">{{ case.analyst.username if case.analyst else '—' }}</span>
+            <span class="case-date">{{ case.created_at.strftime('%m/%d') if case.created_at else '' }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Create Case Modal -->
+<div id="createModal" class="modal-overlay" style="display:none">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Create New Case</h3>
+      <button class="modal-close" onclick="document.getElementById('createModal').style.display='none'">✕</button>
+    </div>
+    <form id="createCaseForm">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" id="case-title" class="form-input" placeholder="Incident title..." required>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="case-desc" class="form-input" rows="3" placeholder="Brief description..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Priority</label>
+          <select id="case-priority" class="form-input">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="cancel-btn" onclick="document.getElementById('createModal').style.display='none'">Cancel</button>
+        <button type="submit" class="submit-btn">Create Case</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script>
+document.getElementById('createCaseForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const resp = await fetch('/api/v1/cases', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      title: document.getElementById('case-title').value,
+      description: document.getElementById('case-desc').value,
+      priority: document.getElementById('case-priority').value
+    })
+  });
+  if (resp.ok) {
+    showToast('Case created!', 'success');
+    setTimeout(() => location.reload(), 1000);
+  } else {
+    showToast('Failed to create case', 'error');
+  }
+});
+
+function openCase(id) {
+  window.location.href = `/admin/cases/${id}`;
+}
+
+function showToast(msg, type) {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`; t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+</script>
+
+<style>
+.cases-page { padding-bottom: 2rem; }
+.page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+.page-title { margin: 0; font-size: 1.5rem; font-weight: 700; color: #e2e8f0; }
+.page-sub { margin: 0.25rem 0 0; color: #64748b; font-size: 0.9rem; }
+.create-case-btn { background: linear-gradient(135deg, #8b5cf6, #6366f1); color: #fff; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+.create-case-btn:hover { filter: brightness(1.15); }
+
+.kanban-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; min-height: 600px; }
+.kanban-col { display: flex; flex-direction: column; background: #0f172a; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+.col-header { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1rem; font-size: 0.85rem; font-weight: 600; }
+.col-header.status-open { background: rgba(239,68,68,0.15); color: #f87171; }
+.col-header.status-investigating { background: rgba(249,115,22,0.15); color: #fb923c; }
+.col-header.status-contained { background: rgba(234,179,8,0.15); color: #facc15; }
+.col-header.status-resolved { background: rgba(34,197,94,0.15); color: #4ade80; }
+.col-header.status-closed { background: rgba(100,116,139,0.15); color: #94a3b8; }
+.col-count { margin-left: auto; background: rgba(255,255,255,0.1); padding: 0.1rem 0.5rem; border-radius: 10px; font-size: 0.75rem; }
+.col-body { flex: 1; padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; overflow-y: auto; max-height: 600px; }
+
+.case-card { background: #1e293b; border-radius: 10px; padding: 0.875rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: all 0.2s; }
+.case-card:hover { border-color: rgba(139,92,246,0.4); transform: translateY(-1px); }
+.case-card.priority-critical { border-left: 3px solid #ef4444; }
+.case-card.priority-high { border-left: 3px solid #f97316; }
+.case-card.priority-medium { border-left: 3px solid #eab308; }
+.case-card.priority-low { border-left: 3px solid #22c55e; }
+.case-card-header { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.5rem; }
+.priority-dot { width: 8px; height: 8px; border-radius: 50%; }
+.priority-dot.priority-critical { background: #ef4444; }
+.priority-dot.priority-high { background: #f97316; }
+.priority-dot.priority-medium { background: #eab308; }
+.priority-dot.priority-low { background: #22c55e; }
+.case-id { color: #475569; font-size: 0.75rem; }
+.priority-label { margin-left: auto; font-size: 0.65rem; font-weight: 700; }
+.priority-label.priority-critical { color: #f87171; }
+.priority-label.priority-high { color: #fb923c; }
+.priority-label.priority-medium { color: #facc15; }
+.priority-label.priority-low { color: #4ade80; }
+.case-title { font-size: 0.85rem; color: #cbd5e1; font-weight: 500; margin-bottom: 0.4rem; line-height: 1.4; }
+.case-mitre { font-size: 0.72rem; color: #a78bfa; margin-bottom: 0.4rem; }
+.case-footer { display: flex; justify-content: space-between; font-size: 0.72rem; color: #475569; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9998; }
+.modal-card { background: #1e293b; border-radius: 16px; padding: 2rem; width: 90%; max-width: 480px; border: 1px solid rgba(255,255,255,0.1); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.modal-header h3 { margin: 0; color: #e2e8f0; font-size: 1.1rem; }
+.modal-close { background: none; border: none; color: #64748b; font-size: 1.25rem; cursor: pointer; }
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.form-input { width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.1); color: #e2e8f0; padding: 0.625rem; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; }
+.cancel-btn { background: rgba(255,255,255,0.05); border: none; color: #94a3b8; padding: 0.6rem 1.25rem; border-radius: 8px; cursor: pointer; }
+.submit-btn { background: linear-gradient(135deg, #8b5cf6, #6366f1); border: none; color: #fff; padding: 0.6rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600; }
+
+#toastContainer { position: fixed; bottom: 2rem; right: 2rem; display: flex; flex-direction: column; gap: 0.5rem; z-index: 9999; }
+.toast { padding: 0.75rem 1.25rem; border-radius: 8px; font-size: 0.875rem; color: #fff; }
+.toast.success { background: #166534; }
+.toast.error { background: #7f1d1d; }
+</style>
+{% endblock %}

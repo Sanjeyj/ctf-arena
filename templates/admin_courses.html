@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Administration | CTF Arena Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0c10; --surface: #11141a; --card: #1a1e26; --border: #2b313d;
+            --neon-blue: #00f0ff; --neon-green: #00ff66; --neon-red: #ff3366;
+            --neon-yellow: #ffd700; --neon-purple: #bf5af2;
+            --text: #f0f2f5; --muted: #8b949e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        header { background: rgba(17,20,26,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.9rem 2rem; position: sticky; top: 0; z-index: 100; }
+        .header-inner { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .brand { display:flex; align-items:center; gap:0.6rem; font-size:1.3rem; font-weight:700; text-decoration:none; color:var(--text); }
+        .brand span { color: var(--neon-blue); }
+        .admin-badge { background:rgba(0,240,255,0.12); border:1px solid rgba(0,240,255,0.3); color:var(--neon-blue); padding:0.2rem 0.7rem; border-radius:20px; font-size:0.75rem; font-weight:700; text-transform:uppercase; }
+        .header-nav-link { color: var(--muted); text-decoration: none; font-size: 0.95rem; font-weight: 600; margin-left: 1.2rem; transition: color 0.2s; }
+        .header-nav-link:hover, .header-nav-link.active { color: var(--neon-blue); }
+        
+        .page { max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .page-title { font-size:1.8rem; font-weight:700; margin-bottom:0.3rem; }
+        .page-title span { color: var(--neon-blue); }
+        .page-sub { color:var(--muted); margin-bottom:2rem; font-size:0.95rem; }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+        @media(max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+        
+        .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.5rem; margin-bottom:1.5rem; }
+        .card-title { font-size:1.1rem; font-weight:700; margin-bottom:1.2rem; display:flex; align-items:center; justify-content:space-between; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); }
+        th { font-size: 0.83rem; font-weight: 700; text-transform: uppercase; color: var(--muted); }
+        td { font-size: 0.92rem; }
+        
+        .flag-input { background: #0b0c10; border: 1px solid var(--border); color: #fff; padding: 0.6rem 0.8rem; border-radius: 8px; font-size: 0.9rem; width: 100%; margin-bottom: 1rem; }
+        .btn { display:inline-flex; align-items:center; justify-content:center; gap:0.5rem; padding:0.6rem 1.2rem; border-radius:10px; font-size:0.88rem; font-weight:700; border:none; cursor:pointer; text-decoration:none; transition:all 0.2s; }
+        .btn-primary { background:var(--neon-blue); color:#000; }
+        .btn-primary:hover { box-shadow:0 0 12px rgba(0,240,255,0.4); }
+        .btn-secondary { background:transparent; border: 1px solid var(--border); color:var(--muted); }
+        .btn-secondary:hover { color:#fff; border-color:#fff; }
+        .btn-danger { background:rgba(255,51,102,0.1); border:1px solid rgba(255,51,102,0.4); color:var(--neon-red); }
+        .btn-danger:hover { background:rgba(255,51,102,0.2); }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div style="display:flex;align-items:center;gap:1rem;">
+            <a href="/admin" class="brand">
+                🚩 CTF <span>Arena</span>
+            </a>
+            <span class="admin-badge">Admin</span>
+            <a href="/admin" class="header-nav-link">Dashboard</a>
+            <a href="/admin/challenges" class="header-nav-link">Challenges</a>
+            <a href="/admin/categories" class="header-nav-link">Categories</a>
+            <a href="/admin/announcements" class="header-nav-link">Announcements</a>
+            <a href="/lms/admin/courses" class="header-nav-link active">LMS Management</a>
+        </div>
+        <div>
+            <a href="/admin/logout" class="btn btn-secondary">Logout</a>
+        </div>
+    </div>
+</header>
+
+<div class="page">
+    <div class="page-title">LMS & Certificate <span>Management</span></div>
+    <div class="page-sub">Create curriculum, issue/revoke certificates, verify skills, and track employers.</div>
+
+    <div class="grid-2">
+        
+        <!-- Left: Course Creation & Modules -->
+        <div>
+            <div class="card">
+                <div class="card-title">📚 Create LMS Course</div>
+                <form action="{{ url_for('lms.admin_create_course') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <label style="font-size:0.85rem;color:var(--muted);">Course Title</label>
+                    <input type="text" name="title" class="flag-input" placeholder="e.g. Linux Privilege Escalation" required>
+                    
+                    <label style="font-size:0.85rem;color:var(--muted);">Category</label>
+                    <select name="category" class="flag-input" style="appearance:none;">
+                        <option value="web_security">Web Security</option>
+                        <option value="cryptography">Cryptography</option>
+                        <option value="reverse_engineering">Reverse Engineering</option>
+                        <option value="forensics">Digital Forensics</option>
+                        <option value="incident_response">Incident Response</option>
+                        <option value="blue_team">Blue Teaming</option>
+                        <option value="red_team">Red Teaming</option>
+                    </select>
+
+                    <div style="display:flex; gap:1rem;">
+                        <div style="flex:1;">
+                            <label style="font-size:0.85rem;color:var(--muted);">Difficulty</label>
+                            <select name="difficulty" class="flag-input">
+                                <option value="beginner">Beginner</option>
+                                <option value="intermediate">Intermediate</option>
+                                <option value="advanced">Advanced</option>
+                            </select>
+                        </div>
+                        <div style="flex:1;">
+                            <label style="font-size:0.85rem;color:var(--muted);">Est. Hours</label>
+                            <input type="number" name="estimated_hours" class="flag-input" value="3" step="0.5">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width:100%;">Create Course</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-title">📦 Active Courses</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Diff</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in courses %}
+                            <tr>
+                                <td><strong>{{ course.title }}</strong></td>
+                                <td>{{ course.category }}</td>
+                                <td>{{ course.difficulty }}</td>
+                                <td>
+                                    <form action="{{ url_for('lms.admin_delete_course', course_id=course.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this course?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-danger" style="padding:0.3rem 0.6rem;font-size:0.75rem;">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Right: Certificates & Career onboarding -->
+        <div>
+            <div class="card">
+                <div class="card-title">📜 Issued Certificates</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Course</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cert in certs %}
+                            <tr>
+                                <td>Student #{{ cert.user_id }}</td>
+                                <td>{{ cert.title }}</td>
+                                <td>
+                                    <span style="color: {% if cert.state == 'issued' %}var(--neon-green){% else %}var(--neon-red){% endif %}; font-weight:700;">
+                                        {{ cert.state | uppercase }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if cert.state == 'issued' %}
+                                        <form action="{{ url_for('lms.admin_revoke_cert', cert_id=cert.id) }}" method="POST" onsubmit="return confirm('Revoke this certificate?');">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn btn-danger" style="padding:0.3rem 0.6rem;font-size:0.75rem;">Revoke</button>
+                                        </form>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🏢 Career Employer Verification</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Company</th>
+                            <th>Website</th>
+                            <th>Verified</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emp in employers %}
+                            <tr>
+                                <td><strong>{{ emp.name }}</strong></td>
+                                <td><a href="{{ emp.website }}" target="_blank" style="color:var(--neon-blue);">Link</a></td>
+                                <td>
+                                    {% if emp.is_verified %}
+                                        <span style="color:var(--neon-green);">Yes</span>
+                                    {% else %}
+                                        <span style="color:var(--neon-red);">No</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if not emp.is_verified %}
+                                        <form action="{{ url_for('lms.admin_verify_employer', emp_id=emp.id) }}" method="POST">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn btn-primary" style="padding:0.3rem 0.6rem;font-size:0.75rem;">Verify</button>
+                                        </form>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,143 @@
+{% extends "admin.html" %}
+{% block title %}SOC Operations Center — CTF Arena Admin{% endblock %}
+
+{% block content %}
+<div class="soc-dashboard">
+  <div class="soc-header">
+    <div class="soc-header-left">
+      <div class="soc-icon">🛡️</div>
+      <div>
+        <h1 class="soc-title">SOC Operations Center</h1>
+        <p class="soc-subtitle">Security Operations & Threat Intelligence</p>
+      </div>
+    </div>
+    <div class="soc-status-indicator">
+      <span class="pulse-dot"></span>
+      <span class="status-text">LIVE MONITORING</span>
+    </div>
+  </div>
+
+  <!-- Severity Metrics -->
+  <div class="metrics-grid">
+    <div class="metric-card critical">
+      <div class="metric-icon">🔴</div>
+      <div class="metric-value" id="critical-count">{{ alert_counts.get('critical', 0) }}</div>
+      <div class="metric-label">Critical Alerts</div>
+    </div>
+    <div class="metric-card high">
+      <div class="metric-icon">🟠</div>
+      <div class="metric-value" id="high-count">{{ alert_counts.get('high', 0) }}</div>
+      <div class="metric-label">High Alerts</div>
+    </div>
+    <div class="metric-card medium">
+      <div class="metric-icon">🟡</div>
+      <div class="metric-value" id="medium-count">{{ alert_counts.get('medium', 0) }}</div>
+      <div class="metric-label">Medium Alerts</div>
+    </div>
+    <div class="metric-card cases">
+      <div class="metric-icon">📁</div>
+      <div class="metric-value" id="open-cases">{{ open_cases }}</div>
+      <div class="metric-label">Open Cases</div>
+    </div>
+    <div class="metric-card iocs">
+      <div class="metric-icon">🔍</div>
+      <div class="metric-value" id="active-iocs">{{ active_iocs }}</div>
+      <div class="metric-label">Active IOCs</div>
+    </div>
+    <div class="metric-card hunts">
+      <div class="metric-icon">🏹</div>
+      <div class="metric-value" id="active-hunts">{{ active_hunts }}</div>
+      <div class="metric-label">Active Hunts</div>
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="soc-nav-grid">
+    <a href="/admin/alerts" class="soc-nav-card">
+      <div class="nav-icon">🚨</div>
+      <div class="nav-label">Alert Queue</div>
+      <div class="nav-sub">Review & triage alerts</div>
+    </a>
+    <a href="/admin/cases" class="soc-nav-card">
+      <div class="nav-icon">📋</div>
+      <div class="nav-label">Case Management</div>
+      <div class="nav-sub">Track incidents</div>
+    </a>
+    <a href="/admin/hunts" class="soc-nav-card">
+      <div class="nav-icon">🎯</div>
+      <div class="nav-label">Threat Hunting</div>
+      <div class="nav-sub">IOC & behavioral hunts</div>
+    </a>
+    <a href="/admin/threat-intel" class="soc-nav-card">
+      <div class="nav-icon">🌐</div>
+      <div class="nav-label">Threat Intel</div>
+      <div class="nav-sub">IOCs & feeds</div>
+    </a>
+  </div>
+
+  <!-- Recent Alerts Feed -->
+  <div class="soc-section">
+    <div class="section-header">
+      <h2 class="section-title">Recent Alerts</h2>
+      <a href="/admin/alerts" class="view-all-link">View All →</a>
+    </div>
+    <div class="alert-feed">
+      {% for alert in recent_alerts %}
+      <div class="alert-feed-item sev-{{ alert.severity }}">
+        <span class="alert-sev-badge {{ alert.severity }}">{{ alert.severity.upper() }}</span>
+        <span class="alert-title">{{ alert.title }}</span>
+        <span class="alert-meta">{{ alert.event_type }} • {{ alert.created_at.strftime('%H:%M') if alert.created_at else '' }}</span>
+        <span class="alert-status-pill {{ alert.status }}">{{ alert.status }}</span>
+      </div>
+      {% else %}
+      <div class="empty-state">No recent alerts.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<style>
+.soc-dashboard { padding: 0 0 2rem; }
+.soc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border-radius: 16px; border: 1px solid rgba(139,92,246,0.3); }
+.soc-header-left { display: flex; align-items: center; gap: 1rem; }
+.soc-icon { font-size: 2.5rem; }
+.soc-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.soc-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+.soc-status-indicator { display: flex; align-items: center; gap: 0.5rem; }
+.pulse-dot { width: 10px; height: 10px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite; display: inline-block; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.3)} }
+.status-text { color: #22c55e; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; }
+
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.metric-card { background: #1e293b; border-radius: 12px; padding: 1.25rem; text-align: center; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.2s; }
+.metric-card:hover { transform: translateY(-2px); }
+.metric-card.critical { border-color: rgba(239,68,68,0.4); }
+.metric-card.high { border-color: rgba(249,115,22,0.4); }
+.metric-card.medium { border-color: rgba(234,179,8,0.4); }
+.metric-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.metric-value { font-size: 2rem; font-weight: 800; color: #e2e8f0; }
+.metric-label { font-size: 0.75rem; color: #64748b; margin-top: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.soc-nav-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.soc-nav-card { background: #1e293b; border-radius: 12px; padding: 1.5rem; text-decoration: none; border: 1px solid rgba(255,255,255,0.05); transition: all 0.2s; display: block; }
+.soc-nav-card:hover { border-color: rgba(139,92,246,0.5); background: #262f45; transform: translateY(-2px); }
+.nav-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.nav-label { font-size: 1rem; font-weight: 600; color: #e2e8f0; margin-bottom: 0.25rem; }
+.nav-sub { font-size: 0.8rem; color: #64748b; }
+
+.soc-section { background: #1e293b; border-radius: 12px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.05); }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.section-title { margin: 0; font-size: 1.1rem; font-weight: 600; color: #e2e8f0; }
+.view-all-link { color: #8b5cf6; text-decoration: none; font-size: 0.85rem; }
+.alert-feed-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: 8px; background: rgba(255,255,255,0.02); margin-bottom: 0.5rem; }
+.alert-sev-badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
+.alert-sev-badge.critical { background: rgba(239,68,68,0.2); color: #ef4444; }
+.alert-sev-badge.high { background: rgba(249,115,22,0.2); color: #f97316; }
+.alert-sev-badge.medium { background: rgba(234,179,8,0.2); color: #eab308; }
+.alert-sev-badge.low, .alert-sev-badge.info { background: rgba(34,197,94,0.2); color: #22c55e; }
+.alert-title { flex: 1; color: #cbd5e1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.alert-meta { color: #475569; font-size: 0.8rem; }
+.alert-status-pill { padding: 0.15rem 0.5rem; border-radius: 20px; font-size: 0.7rem; background: rgba(139,92,246,0.15); color: #a78bfa; }
+.empty-state { color: #475569; text-align: center; padding: 2rem; }
+</style>
+{% endblock %}

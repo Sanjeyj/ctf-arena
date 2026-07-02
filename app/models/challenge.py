@@ -1,9 +1,10 @@
 from app.extensions import db, utcnow
-from app.models.mixins import TimestampMixin, UUIDMixin, SoftDeleteMixin
+from app.models.mixins import TimestampMixin, UUIDMixin, SoftDeleteMixin, TenantMixin
 import datetime
 
-class Challenge(db.Model, TimestampMixin, UUIDMixin, SoftDeleteMixin):
+class Challenge(db.Model, TimestampMixin, UUIDMixin, SoftDeleteMixin, TenantMixin):
     __tablename__ = 'challenges'
+
     
     id = db.Column(db.Integer, primary_key=True)
     legacy_id = db.Column(db.String(20), unique=True, nullable=False, index=True) # e.g. "ch1"

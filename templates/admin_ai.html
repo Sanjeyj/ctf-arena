@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant | CTF Arena Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0c10; --surface: #11141a; --card: #1a1e26; --border: #2b313d;
+            --neon-blue: #00f0ff; --neon-green: #00ff66; --neon-red: #ff3366;
+            --neon-yellow: #ffd700; --neon-purple: #bf5af2; --neon-orange: #ff9500;
+            --text: #f0f2f5; --muted: #8b949e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        body::before { content:''; position:fixed; top:-15%; left:-10%; width:60%; height:70%;
+            background: radial-gradient(circle, rgba(191,90,242,0.05) 0%, transparent 70%);
+            z-index:-1; pointer-events:none; }
+        body::after { content:''; position:fixed; bottom:-10%; right:-5%; width:45%; height:50%;
+            background: radial-gradient(circle, rgba(0,240,255,0.04) 0%, transparent 70%);
+            z-index:-1; pointer-events:none; }
+
+        header { background: rgba(17,20,26,0.92); backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border); padding: 0.9rem 2rem; position: sticky; top: 0; z-index: 100; }
+        .header-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .brand { display:flex; align-items:center; gap:0.6rem; font-size:1.3rem; font-weight:700; text-decoration:none; color:var(--text); }
+        .brand span { color: var(--neon-blue); }
+        .admin-badge { background:rgba(191,90,242,0.12); border:1px solid rgba(191,90,242,0.3); color:var(--neon-purple);
+            padding:0.2rem 0.7rem; border-radius:20px; font-size:0.75rem; font-weight:700; text-transform:uppercase; }
+        .nav-links { display:flex; gap:1rem; align-items:center; }
+        .nav-links a { color:var(--muted); text-decoration:none; font-size:0.88rem; font-weight:600; transition:color 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color:var(--neon-blue); }
+
+        .page { max-width: 1280px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .page-header { margin-bottom: 2rem; }
+        .page-title { font-size: 2rem; font-weight: 700; }
+        .page-title span { color: var(--neon-purple); }
+        .page-sub { color: var(--muted); font-size: 0.95rem; margin-top: 0.3rem; }
+        .breadcrumb { display:flex; gap:0.5rem; align-items:center; font-size:0.82rem; color:var(--muted); margin-bottom:0.8rem; }
+        .breadcrumb a { color:var(--neon-blue); text-decoration:none; }
+
+        /* Stat cards */
+        .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:1rem; margin-bottom:2rem; }
+        .stat-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.2rem; text-align:center; transition:transform 0.2s; }
+        .stat-card:hover { transform:translateY(-2px); }
+        .stat-label { font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); margin-bottom:0.4rem; }
+        .stat-value { font-size:1.8rem; font-weight:800; }
+        .stat-blue .stat-value { color:var(--neon-blue); }
+        .stat-green .stat-value { color:var(--neon-green); }
+        .stat-purple .stat-value { color:var(--neon-purple); }
+        .stat-yellow .stat-value { color:var(--neon-yellow); }
+        .stat-orange .stat-value { color:var(--neon-orange); }
+
+        /* Grid */
+        .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+        .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.5rem; }
+        @media(max-width:1000px) { .grid-2,.grid-3 { grid-template-columns:1fr; } }
+        .col-span-2 { grid-column: span 2; }
+        @media(max-width:1000px) { .col-span-2 { grid-column: span 1; } }
+
+        /* Card */
+        .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.5rem; }
+        .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.2rem; }
+        .card-title { font-size:1.05rem; font-weight:700; display:flex; align-items:center; gap:0.5rem; }
+        .card-title .icon { font-size:1.2rem; }
+
+        /* Form */
+        .form-group { margin-bottom:1.1rem; }
+        label { display:block; font-size:0.82rem; font-weight:600; color:var(--muted); margin-bottom:0.4rem;
+            text-transform:uppercase; letter-spacing:0.4px; }
+        input[type="text"], input[type="number"], select {
+            width:100%; background:var(--surface); border:1px solid var(--border);
+            color:var(--text); padding:0.65rem 0.9rem; border-radius:10px;
+            font-family:'Outfit',sans-serif; font-size:0.9rem; transition:border-color 0.2s; }
+        input:focus, select:focus { outline:none; border-color:var(--neon-purple); }
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+        .form-hint { font-size:0.78rem; color:var(--muted); margin-top:0.3rem; }
+
+        /* Buttons */
+        .btn { display:inline-flex; align-items:center; justify-content:center; gap:0.5rem;
+            padding:0.6rem 1.2rem; border-radius:10px; font-size:0.88rem; font-weight:700;
+            border:none; cursor:pointer; text-decoration:none; transition:all 0.2s; }
+        .btn-sm { padding:0.35rem 0.8rem; font-size:0.8rem; border-radius:8px; }
+        .btn-primary { background:linear-gradient(135deg,var(--neon-purple),#7c3aed); color:#fff; }
+        .btn-primary:hover { box-shadow:0 0 16px rgba(191,90,242,0.45); transform:translateY(-1px); }
+        .btn-blue { background:var(--neon-blue); color:#000; }
+        .btn-blue:hover { box-shadow:0 0 12px rgba(0,240,255,0.4); }
+        .btn-success { background:rgba(0,255,102,0.1); border:1px solid rgba(0,255,102,0.3); color:var(--neon-green); }
+        .btn-success:hover { background:var(--neon-green); color:#000; }
+        .btn-warning { background:rgba(255,215,0,0.1); border:1px solid rgba(255,215,0,0.3); color:var(--neon-yellow); }
+        .btn-warning:hover { background:var(--neon-yellow); color:#000; }
+        .btn-secondary { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text); }
+        .btn-secondary:hover { background:rgba(255,255,255,0.12); }
+
+        /* Alert */
+        .alert { padding:0.8rem 1.2rem; border-radius:10px; margin-bottom:1.2rem; font-size:0.9rem; }
+        .alert-success { background:rgba(0,255,102,0.08); border:1px solid rgba(0,255,102,0.25); color:var(--neon-green); }
+        .alert-danger { background:rgba(255,51,102,0.08); border:1px solid rgba(255,51,102,0.25); color:var(--neon-red); }
+
+        /* Badge */
+        .badge { display:inline-block; padding:0.15rem 0.5rem; border-radius:6px; font-size:0.73rem; font-weight:700; text-transform:uppercase; }
+        .badge-draft { background:rgba(139,148,158,0.1); border:1px solid rgba(139,148,158,0.2); color:var(--muted); }
+        .badge-approved { background:rgba(255,215,0,0.1); border:1px solid rgba(255,215,0,0.2); color:var(--neon-yellow); }
+        .badge-published { background:rgba(0,255,102,0.1); border:1px solid rgba(0,255,102,0.2); color:var(--neon-green); }
+
+        /* Table */
+        table { width:100%; border-collapse:collapse; }
+        th, td { text-align:left; padding:0.75rem 1rem; border-bottom:1px solid var(--border); }
+        th { font-size:0.78rem; font-weight:700; text-transform:uppercase; color:var(--muted); }
+        td { font-size:0.88rem; }
+        tr:last-child td { border-bottom:none; }
+
+        /* Provider selector */
+        .provider-tabs { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.2rem; }
+        .provider-tab { padding:0.4rem 0.9rem; border-radius:8px; font-size:0.82rem; font-weight:700;
+            border:1px solid var(--border); color:var(--muted); cursor:pointer; transition:all 0.2s;
+            background:var(--surface); }
+        .provider-tab:hover { border-color:var(--neon-purple); color:var(--text); }
+        .provider-tab.active { background:rgba(191,90,242,0.1); border-color:var(--neon-purple); color:var(--neon-purple); }
+
+        /* Provider config panels */
+        .provider-panel { display:none; }
+        .provider-panel.active { display:block; }
+
+        .section-divider { border:none; border-top:1px solid var(--border); margin:1.5rem 0; }
+
+        /* AI status indicator */
+        .ai-status { display:flex; align-items:center; gap:0.5rem; }
+        .ai-dot { width:8px; height:8px; border-radius:50%; }
+        .ai-dot.stub { background:var(--muted); }
+        .ai-dot.ollama { background:var(--neon-green); box-shadow:0 0 8px var(--neon-green); }
+        .ai-dot.openai { background:var(--neon-blue); box-shadow:0 0 8px var(--neon-blue); }
+        .ai-dot.anthropic { background:var(--neon-orange); box-shadow:0 0 8px var(--neon-orange); }
+        .ai-dot.gemini { background:var(--neon-purple); box-shadow:0 0 8px var(--neon-purple); }
+
+        .empty-state { text-align:center; padding:2rem; color:var(--muted); font-size:0.9rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-inner">
+            <a href="/admin" class="brand">CTF <span>Arena</span> <div class="admin-badge">Admin</div></a>
+            <nav class="nav-links">
+                <a href="/admin">Dashboard</a>
+                <a href="/admin/challenges">Challenges</a>
+                <a href="/admin/competition">Competition</a>
+                <a href="/admin/announcements">Announcements</a>
+                <a href="/admin/submissions">Submissions</a>
+                <a href="/admin/plugins">Plugins</a>
+                <a href="/admin/ai" class="active">AI</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="page">
+        <div class="page-header">
+            <div class="breadcrumb"><a href="/admin">Admin</a> / AI Assistant</div>
+            <h1 class="page-title">AI <span>Challenge Assistant</span></h1>
+            <p class="page-sub">Configure AI providers, manage writeups, and run difficulty predictions.</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert {% if category == 'success' %}alert-success{% else %}alert-danger{% endif %}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Token Stats -->
+        <div class="stats-grid">
+            <div class="stat-card stat-blue">
+                <div class="stat-label">Total Tokens</div>
+                <div class="stat-value">{{ token_stats.total_tokens | default(0) }}</div>
+            </div>
+            <div class="stat-card stat-green">
+                <div class="stat-label">Hint Tokens</div>
+                <div class="stat-value">{{ token_stats.hint_tokens | default(0) }}</div>
+            </div>
+            <div class="stat-card stat-purple">
+                <div class="stat-label">Writeup Tokens</div>
+                <div class="stat-value">{{ token_stats.writeup_tokens | default(0) }}</div>
+            </div>
+            <div class="stat-card stat-yellow">
+                <div class="stat-label">Prediction Tokens</div>
+                <div class="stat-value">{{ token_stats.prediction_tokens | default(0) }}</div>
+            </div>
+            <div class="stat-card stat-orange">
+                <div class="stat-label">Chat Tokens</div>
+                <div class="stat-value">{{ token_stats.conversation_tokens | default(0) }}</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <!-- Provider Configuration -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><span class="icon">⚙️</span> Provider Configuration</h2>
+                    <div class="ai-status">
+                        <div class="ai-dot {{ ai_provider }}"></div>
+                        <span style="font-size:0.82rem;color:var(--muted);">{{ ai_provider | upper }}</span>
+                    </div>
+                </div>
+
+                <div class="provider-tabs">
+                    {% for p in ['stub', 'ollama', 'openai', 'anthropic', 'gemini'] %}
+                    <div class="provider-tab {% if ai_provider == p %}active{% endif %}" onclick="selectProvider('{{ p }}')">{{ p | upper }}</div>
+                    {% endfor %}
+                </div>
+
+                <form action="/admin/ai/config" method="post" id="ai-config-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="ai_provider" id="ai_provider_input" value="{{ ai_provider }}">
+
+                    <div class="form-group">
+                        <label>AI Model</label>
+                        <input type="text" name="ai_model" value="{{ ai_model }}" placeholder="stub-v1 / qwen2.5-coder / gpt-4o-mini">
+                        <div class="form-hint">Model name sent to the selected provider.</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Max Tokens / Request</label>
+                            <input type="number" name="max_tokens" value="{{ max_tokens }}" min="50" max="4096">
+                        </div>
+                        <div class="form-group">
+                            <label>Max Hints per Challenge</label>
+                            <input type="number" name="ai_max_hints" value="{{ ai_max_hints }}" min="1" max="10">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hint Cost (points per level)</label>
+                        <input type="number" name="ai_hint_cost" value="{{ ai_hint_cost }}" min="0">
+                        <div class="form-hint">Points deducted per hint level. 0 = free hints.</div>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <!-- Ollama Panel -->
+                    <div class="provider-panel {% if ai_provider == 'ollama' %}active{% endif %}" id="panel-ollama">
+                        <div class="form-group">
+                            <label>Ollama URL</label>
+                            <input type="text" name="ollama_url" placeholder="http://localhost:11434">
+                            <div class="form-hint">Base URL of your local Ollama instance.</div>
+                        </div>
+                    </div>
+
+                    <!-- OpenAI Panel -->
+                    <div class="provider-panel {% if ai_provider == 'openai' %}active{% endif %}" id="panel-openai">
+                        <div class="form-group">
+                            <label>OpenAI API Key</label>
+                            <input type="text" name="openai_api_key" placeholder="sk-...">
+                        </div>
+                    </div>
+
+                    <!-- Anthropic Panel -->
+                    <div class="provider-panel {% if ai_provider == 'anthropic' %}active{% endif %}" id="panel-anthropic">
+                        <div class="form-group">
+                            <label>Anthropic API Key</label>
+                            <input type="text" name="anthropic_api_key" placeholder="sk-ant-...">
+                        </div>
+                    </div>
+
+                    <!-- Gemini Panel -->
+                    <div class="provider-panel {% if ai_provider == 'gemini' %}active{% endif %}" id="panel-gemini">
+                        <div class="form-group">
+                            <label>Gemini API Key</label>
+                            <input type="text" name="gemini_api_key" placeholder="AIza...">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.5rem;">
+                        💾 Save Configuration
+                    </button>
+                </form>
+            </div>
+
+            <!-- Writeup Management -->
+            <div>
+                <div class="card" style="margin-bottom:1.5rem;">
+                    <div class="card-header">
+                        <h2 class="card-title"><span class="icon">📝</span> Draft Writeups</h2>
+                        <a href="/admin/ai/stats" class="btn btn-secondary btn-sm">View Stats →</a>
+                    </div>
+                    {% if draft_writeups %}
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Challenge</th><th>Tokens</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for w in draft_writeups %}
+                            <tr>
+                                <td>#{{ w.id }}</td>
+                                <td>#{{ w.challenge_id }}</td>
+                                <td>{{ w.tokens_used }}</td>
+                                <td>
+                                    <form action="/admin/ai/writeup/{{ w.id }}/approve" method="post" style="display:inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-warning btn-sm">Approve</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="empty-state">No draft writeups pending review.</div>
+                    {% endif %}
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><span class="icon">✅</span> Approved Writeups</h2>
+                    </div>
+                    {% if approved_writeups %}
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Challenge</th><th>Status</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for w in approved_writeups %}
+                            <tr>
+                                <td>#{{ w.id }}</td>
+                                <td>#{{ w.challenge_id }}</td>
+                                <td><span class="badge badge-approved">Approved</span></td>
+                                <td>
+                                    <form action="/admin/ai/writeup/{{ w.id }}/publish" method="post" style="display:inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-success btn-sm">Publish</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="empty-state">No approved writeups ready to publish.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Difficulty Prediction Quick-Launch -->
+        <div class="card" style="margin-top:1.5rem;">
+            <div class="card-header">
+                <h2 class="card-title"><span class="icon">🔮</span> Difficulty Prediction</h2>
+                <span style="color:var(--muted);font-size:0.85rem;">AI-powered difficulty analysis using solve telemetry</span>
+            </div>
+            <p style="color:var(--muted);font-size:0.88rem;margin-bottom:1rem;">
+                Enter a challenge ID to run AI difficulty prediction. The model analyses solve rate,
+                wrong attempts, average solve time and hint usage.
+            </p>
+            <form action="/admin/ai/predict/1" method="post" id="predict-form" style="display:flex;gap:1rem;align-items:flex-end;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group" style="margin:0;flex:1;">
+                    <label>Challenge ID</label>
+                    <input type="number" id="predict-challenge-id" placeholder="e.g. 1" min="1">
+                </div>
+                <button type="button" class="btn btn-blue" onclick="submitPredict()">🔮 Predict Difficulty</button>
+            </form>
+        </div>
+
+        <!-- Hook Reference -->
+        <div class="card" style="margin-top:1.5rem;">
+            <div class="card-header">
+                <h2 class="card-title"><span class="icon">🔌</span> AI Plugin Hooks</h2>
+            </div>
+            <table>
+                <thead><tr><th>Hook Name</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code style="color:var(--neon-purple);font-family:'Fira Code',monospace;">before_ai_request</code></td><td style="color:var(--muted);">Fired before AI generation. Return a string to override the prompt.</td></tr>
+                    <tr><td><code style="color:var(--neon-purple);font-family:'Fira Code',monospace;">after_ai_response</code></td><td style="color:var(--muted);">Fired after AI generation completes. Receives prompt, response, tokens_used.</td></tr>
+                    <tr><td><code style="color:var(--neon-purple);font-family:'Fira Code',monospace;">before_hint_generate</code></td><td style="color:var(--muted);">Fired before a hint is generated. Receives challenge, user, level.</td></tr>
+                    <tr><td><code style="color:var(--neon-purple);font-family:'Fira Code',monospace;">after_hint_generate</code></td><td style="color:var(--muted);">Fired after a hint is generated. Receives challenge, user, level, response.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function selectProvider(name) {
+            document.getElementById('ai_provider_input').value = name;
+            document.querySelectorAll('.provider-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.provider-panel').forEach(p => p.classList.remove('active'));
+            const panel = document.getElementById('panel-' + name);
+            if (panel) panel.classList.add('active');
+        }
+
+        function submitPredict() {
+            const id = document.getElementById('predict-challenge-id').value;
+            if (!id) { alert('Please enter a challenge ID.'); return; }
+            const form = document.getElementById('predict-form');
+            form.action = '/admin/ai/predict/' + id;
+            form.submit();
+        }
+    </script>
+</body>
+</html>
