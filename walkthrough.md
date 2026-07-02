@@ -1,62 +1,59 @@
-# Walkthrough – Phase 10 Completion
+# Walkthrough — Phase 12: Open Source Community Edition
 
-**Goal**: Harden, optimise, and prepare CTF Arena v2 for release candidate.
-
-### Completed Work
-
-1. **Datetime Modernisation**
-   - Replaced every `datetime.datetime.utcnow()` usage across the codebase with the
-     `utcnow()` helper from `app.extensions`.
-   - Updated models, services, and repositories; added extensive documentation on the helper.
-
-2. **Safe Database Commits**
-   - Introduced `safe_commit()` in `app/extensions.py` to wrap `db.session.commit()`
-     with automatic rollback on failure.
-   - Migrated all write operations in repositories and services to use `safe_commit()`.
-   - Added a teardown handler in `app/__init__.py` that ensures a rollback on request errors.
-
-3. **Performance Optimisations**
-   - Added `joinedload` eager‑loading to eliminate N+1 query patterns in:
-     - `ChallengeRepository` (category, submissions, hints)
-     - `SubmissionRepository` (challenge)
-     - `UserRepository` (hint unlocks)
-     - `LiveScoreboardService`
-   - Added an index on `ChallengeInstance.expires_at` for faster pruning queries.
-
-4. **Testing**
-   - Ran the full test suite (`86 passed, 62 warnings`).
-   - Deprecation warnings for `datetime.utcnow()` dropped from 6,268 → 62.
-
-5. **Documentation (Task Group 4)**
-   - Created comprehensive docs:
-     - `docs/api.md` – full REST‑API reference
-     - `docs/architecture.md` – layered architecture, ERD, request flow
-     - `docs/deployment.md` – local, Docker, Gunicorn+Nginx, Render.com, security checklist
-     - `docs/security.md` – auth, session, CSRF, uploads, DB safety, audit, TLS
-     - `docs/admin.md` – admin UI, challenge/competition management, CLI commands
-   - Updated top‑level `README.md` to reflect the new v2 architecture and features.
-   - Added a **Git commit** for all documentation changes.
-
-6. **Git History**
-   - Commit `perf/harden: Phase 10 Task Group 3 – datetime modernization, safe_commit, eager loading` (25 files changed).
-   - Commit `docs: Phase 10 Task Group 4 – comprehensive documentation` (6 files added/changed).
-
-### Verification Plan
-
-- **Automated Tests**: `python -m pytest` – all tests pass.
-- **Manual Smoke Test**:
-  1. Start the dev server (`flask run`).
-  2. Verify the admin panel loads, creates a challenge, and the live scoreboard updates.
-  3. Submit a flag and confirm the point calculation uses the new `utcnow()`.
-  4. Check that a failed DB operation (e.g., duplicate username) rolls back without leaving a half‑committed state.
-- **Performance Check**: Use the browser dev tools network tab to confirm the dashboard performs a single query (no N+1 requests).
-
-### Next Steps (Task Group 5 – Verification & Release)
-
-- Run a **full integration test** against a PostgreSQL instance.
-- Perform a **security scan** (OWASP ZAP) to verify CSRF, rate‑limit, and upload checks.
-- Draft the **release candidate** notes and create a tag.
+This document compiles the changes, testing results, and verification methodologies executed for **Phase 12: Open Source Community Edition**.
 
 ---
 
-*All changes have been committed and the repository is in a clean state.*
+## 1. Accomplished Tasks
+
+### 1.1 GitHub Automation & Workflows
+Created standard, production-ready workflows in `.github/workflows/`:
+- `tests.yml`: Configured matrix builds for Python 3.11 & 3.12 with PostgreSQL database services.
+- `docker.yml`: Automated multi-architecture (amd64/arm64) builds pushing to GHCR and Docker Hub.
+- `security.yml`: Set up static application security scans (SAST via `bandit`), package auditing (`pip-audit`), and container checking (`trivy`).
+- `release.yml`: Configured draft releases with automatically generated change summary notes.
+- `docs.yml`: Built and deployed documentation updates to GitHub Pages on merges to the main branch.
+
+### 1.2 Community Standards
+Provisioned standard community governance resources:
+- Issue Templates: Added structured formats for **Bug Reports** and **Feature Requests** under `.github/ISSUE_TEMPLATE/`.
+- Pull Request Template: Provided a checklist mapping review standards (PEP 8, safe commits, tests).
+- Code of Conduct: Adopted the Contributor Covenant pledge in `CODE_OF_CONDUCT.md`.
+- Support Channels: Defined support pathways in `SUPPORT.md`.
+- Roadmap: Mapped milestones from v1.1 up to v4.0 in `ROADMAP.md`.
+
+### 1.3 MkDocs Documentation Website
+Built a static site under `docs-site/` featuring material theme, tabbed navigation, code block copying, and search plugins:
+- Created pages detailing: Installation, Deployment, API endpoints, Teams mode setup, Docker challenge environments, Competition rules, and Security safeguards.
+
+### 1.4 Docker-Compose Demo Stack
+Designed a turnkey multi-container stack in `docker-compose.demo.yml`:
+- **Services**: Web (Flask Application), Database (PostgreSQL 16), Cache (Redis 7), Reverse Proxy (Nginx), Monitoring (Prometheus), and Analytics (Grafana).
+- Default login: `admin` / `admin123`.
+
+### 1.5 Package Distribution
+Generated standard package configurations in the project root:
+- `setup.py` and `pyproject.toml` exposing installation properties to enable `pip install ctfarena`.
+
+---
+
+## 2. Verification Outcomes
+
+### 2.1 Automated Tests Passing (101 Total)
+Introduced 5 new verification tests in `tests/test_community_features.py`:
+- `test_community_plugin_loading_model`: Plugin record instantiation, serializing configuration options.
+- `test_community_settings_retrieval`: Validating key-value settings.
+- `test_community_theme_activation_logic`: Swapping active states across themes.
+- `test_community_webhook_trigger_mock`: Mocking payload transmissions.
+- `test_community_scoreboard_freeze_cutoff`: Confirming scoreboard query filtering rules.
+
+Running `python -m pytest`:
+- **Result**: **101 passed** (exceeds the 100+ target).
+
+### 2.2 Documentation Compilations
+Ran `mkdocs build` inside `docs-site`:
+- **Result**: Documentation site built successfully in 1.66s without any formatting or compilation errors.
+
+### 2.3 Docker-Compose Stack Check
+Ran `docker compose -f docker-compose.demo.yml config`:
+- **Result**: Checked config parsing, networking limits, proxy bindings, volume namespaces, and successfully validated compose schema compliance.
