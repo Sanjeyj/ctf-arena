@@ -52,7 +52,7 @@ class TestingConfig(Config):
     TESTING = True
     DEBUG = True
     SCORES_FILE = "tests/scores_test.json"
-    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    SQLALCHEMY_DATABASE_URI = os.environ.get("TEST_DATABASE_URL", "sqlite:///:memory:")
     WTF_CSRF_ENABLED = False # Disable CSRF for testing convenience in unittest client requests
 
 
