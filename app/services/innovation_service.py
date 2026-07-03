@@ -13,7 +13,7 @@ class InnovationService:
         project = db.session.get(InnovationProject, project_id)
         if not project:
             return None
-        project.progress = max(0.0, min(1.0, project.progress + progress_delta))
+        project.progress = round(max(0.0, min(1.0, project.progress + progress_delta)), 10)
         db.session.commit()
         return project
 
