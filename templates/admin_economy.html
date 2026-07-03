@@ -1,0 +1,80 @@
+{% extends "admin.html" %}
+{% block title %}Security Economy & Workforce — Admin{% endblock %}
+
+{% block content %}
+<div class="econ-center">
+  <div class="econ-header">
+    <div class="econ-icon">💸</div>
+    <div>
+      <h1 class="econ-title">Security Economy Engine</h1>
+      <p class="econ-sub">National cybersecurity investment growth, market value tracking, and workforce credentials</p>
+    </div>
+  </div>
+
+  <div class="econ-stats-row">
+    {% for econ in economies %}
+    <div class="econ-stat"><div class="stat-num">${{ "{:,.0f}".format(econ.investment) }}</div><div class="stat-lbl">Total Investment</div></div>
+    <div class="econ-stat"><div class="stat-num">{{ "%.1f%%" | format(econ.growth_rate * 100) }}</div><div class="stat-lbl">Growth Rate</div></div>
+    <div class="econ-stat"><div class="stat-num">{{ econ.workforce_score }}</div><div class="stat-lbl">Workforce Index</div></div>
+    <div class="econ-stat"><div class="stat-num">${{ "{:,.0f}".format(econ.market_value) }}</div><div class="stat-lbl">Market Value</div></div>
+    {% else %}
+    <div class="econ-stat"><div class="stat-num">$0</div><div class="stat-lbl">Total Investment</div></div>
+    <div class="econ-stat"><div class="stat-num">5.0%</div><div class="stat-lbl">Growth Rate</div></div>
+    <div class="econ-stat"><div class="stat-num">0.7</div><div class="stat-lbl">Workforce Index</div></div>
+    <div class="econ-stat"><div class="stat-num">$1,000,000</div><div class="stat-lbl">Market Value</div></div>
+    {% endfor %}
+  </div>
+
+  <div class="econ-grid">
+    <div class="econ-panel">
+      <div class="econ-panel-title">👥 Cybersecurity Workforce Profiles</div>
+      <div class="workforce-table-wrap">
+        <table class="workforce-table">
+          <thead>
+            <tr><th>#</th><th>Role</th><th>Skill Score</th><th>Experience</th><th>Certifications</th></tr>
+          </thead>
+          <tbody>
+            {% for p in profiles %}
+            <tr>
+              <td>{{ p.id }}</td>
+              <td><strong>{{ p.role }}</strong></td>
+              <td>
+                <div class="progress-container">
+                  <div class="progress-bar" style="width: {{ (p.skill_score * 100) | round | int }}%"></div>
+                  <span>{{ "%.2f" | format(p.skill_score) }}</span>
+                </div>
+              </td>
+              <td>{{ p.experience }} years</td>
+              <td>{{ p.certifications or 'None' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="no-data">No workforce profiles tracked yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+.econ-center{padding:2rem;max-width:1200px;margin:0 auto}
+.econ-header{display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem}
+.econ-icon{font-size:3rem}
+.econ-title{font-size:1.8rem;font-weight:700;color:#e2e8f0;margin:0}
+.econ-sub{color:#94a3b8;margin:.25rem 0 0}
+.econ-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.econ-stat{background:#1e293b;border-radius:.75rem;padding:1.25rem;text-align:center;border:1px solid #334155}
+.stat-num{font-size:1.8rem;font-weight:800;color:#e2e8f0}
+.stat-lbl{font-size:.8rem;color:#94a3b8;text-transform:uppercase}
+.econ-grid{margin-top:2rem}
+.econ-panel{background:#1e293b;border-radius:.75rem;padding:1.5rem;border:1px solid #334155}
+.econ-panel-title{font-size:1.1rem;font-weight:700;color:#e2e8f0;margin-bottom:1rem}
+.workforce-table-wrap{overflow:hidden}
+.workforce-table{width:100%;border-collapse:collapse}
+.workforce-table th{background:#0f172a;padding:.85rem 1rem;text-align:left;color:#94a3b8;font-size:.8rem;text-transform:uppercase}
+.workforce-table td{padding:.75rem 1rem;border-top:1px solid #1e293b;color:#cbd5e1;font-size:.9rem}
+.progress-container{display:flex;align-items:center;gap:.5rem}
+.progress-bar{height:.4rem;background:linear-gradient(90deg,#6366f1,#22c55e);border-radius:9999px}
+.no-data{text-align:center;color:#475569;padding:2rem}
+</style>
+{% endblock %}

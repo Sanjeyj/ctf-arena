@@ -1,0 +1,84 @@
+{% extends "admin.html" %}
+{% block title %}Cyber Nation Simulation — Admin{% endblock %}
+
+{% block content %}
+<div class="civ-center">
+  <div class="civ-header">
+    <div class="civ-icon">🏰</div>
+    <div>
+      <h1 class="civ-title">Cyber Nation Simulator</h1>
+      <p class="civ-sub">Maturity benchmarks and cyber nation demographic status profiles</p>
+    </div>
+  </div>
+
+  <div class="civ-stats-row">
+    <div class="civ-stat">
+      <div class="stat-num">{{ nations | length }}</div>
+      <div class="stat-lbl">Cyber Nations</div>
+    </div>
+    <div class="civ-stat benchmark">
+      <div class="stat-num">{{ benchmark.maturity or '0.50' }}</div>
+      <div class="stat-lbl">Maturity Score</div>
+    </div>
+    <div class="civ-stat diff">
+      <div class="stat-num">{% if benchmark.variance %}+{{ benchmark.variance }}{% else %}0.0{% endif %}</div>
+      <div class="stat-lbl">Industry Variance</div>
+    </div>
+    <div class="civ-stat status">
+      <div class="stat-num">{{ benchmark.status | replace('_', ' ') | upper if benchmark.status else 'ONLINE' }}</div>
+      <div class="stat-lbl">Status Assessment</div>
+    </div>
+  </div>
+
+  <div class="civ-table-wrap">
+    <table class="civ-table">
+      <thead>
+        <tr>
+          <th>#</th><th>Name</th><th>Region</th><th>Maturity Score</th><th>Population</th><th>Status</th><th>Registration Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for n in nations %}
+        <tr>
+          <td>{{ n.id }}</td>
+          <td>{{ n.name }}</td>
+          <td>{{ n.region }}</td>
+          <td>
+            <div class="progress-container">
+              <div class="progress-bar" style="width: {{ (n.maturity_score * 100) | round | int }}%"></div>
+              <span>{{ "%.2f" | format(n.maturity_score) }}</span>
+            </div>
+          </td>
+          <td>{{ "{:,}".format(n.population) }}</td>
+          <td><span class="badge-status status-{{ n.status }}">{{ n.status | upper }}</span></td>
+          <td>{{ n.created_at.strftime('%Y-%m-%d') if n.created_at else '—' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="no-data">No simulated cyber nations registered yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<style>
+.civ-center{padding:2rem;max-width:1200px;margin:0 auto}
+.civ-header{display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem}
+.civ-icon{font-size:3rem}
+.civ-title{font-size:1.8rem;font-weight:700;color:#e2e8f0;margin:0}
+.civ-sub{color:#94a3b8;margin:.25rem 0 0}
+.civ-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.civ-stat{background:#1e293b;border-radius:.75rem;padding:1.25rem;text-align:center;border:1px solid #334155}
+.civ-stat.benchmark{border-color:#6366f1}.civ-stat.diff{border-color:#22c55e}.civ-stat.status{border-color:#06b6d4}
+.stat-num{font-size:2rem;font-weight:800;color:#e2e8f0}
+.stat-lbl{font-size:.8rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
+.civ-table-wrap{background:#1e293b;border-radius:.75rem;overflow:hidden;border:1px solid #334155}
+.civ-table{width:100%;border-collapse:collapse}
+.civ-table th{background:#0f172a;padding:.85rem 1rem;text-align:left;color:#94a3b8;font-size:.8rem;text-transform:uppercase}
+.civ-table td{padding:.75rem 1rem;border-top:1px solid #1e293b;color:#cbd5e1;font-size:.9rem}
+.progress-container{display:flex;align-items:center;gap:.5rem}
+.progress-bar{height:.4rem;background:linear-gradient(90deg,#6366f1,#22c55e);border-radius:9999px}
+.badge-status{padding:.2rem .6rem;border-radius:9999px;font-size:.7rem;font-weight:700}
+.status-active{background:#052e16;color:#22c55e}.status-offline{background:#450a0a;color:#ef4444}
+.no-data{text-align:center;color:#475569;padding:2rem}
+</style>
+{% endblock %}

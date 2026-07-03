@@ -1,0 +1,61 @@
+{% extends "admin.html" %}
+{% block title %}Global Autonomous Defense Grid — Admin{% endblock %}
+
+{% block content %}
+<div class="grid-center">
+  <div class="grid-header">
+    <div class="grid-icon">🛡️</div>
+    <div>
+      <h1 class="grid-title">Global Autonomous Defense Grid</h1>
+      <p class="grid-sub">Command and control status of endpoints, zones, and synchronized alliance grid health</p>
+    </div>
+  </div>
+
+  <div class="grid-stats-row">
+    <div class="grid-stat"><div class="stat-num">{{ sync_info.total_defense_grids or 0 }}</div><div class="stat-lbl">Active Grids</div></div>
+    <div class="grid-stat sync"><div class="stat-num">{{ sync_info.synchronized_percentage or '100.0' }}%</div><div class="stat-lbl">Synchronized</div></div>
+    <div class="grid-stat status"><div class="stat-num">{{ sync_info.status | upper if sync_info.status else 'OPERATIONAL' }}</div><div class="stat-lbl">Grid Status</div></div>
+  </div>
+
+  <div class="grid-node-list">
+    {% for g in grids %}
+    <div class="grid-card status-{{ 'online' if g.health >= 0.8 else ('degraded' if g.health >= 0.5 else 'offline') }}">
+      <div class="gc-top">
+        <span class="gc-name"><strong>{{ g.name }}</strong></span>
+        <span class="gc-readiness">Readiness: {{ "%.0f%%" | format(g.readiness * 100) }}</span>
+      </div>
+      <div class="gc-coverage">Coverage Area: {{ "%.0f%%" | format(g.coverage * 100) }}</div>
+      <div class="gc-progress-bar">
+        <div class="progress-fill" style="width: {{ (g.health * 100) | round | int }}%"></div>
+      </div>
+      <div class="gc-footer">Health Metric: {{ "%.0f%%" | format(g.health * 100) }}</div>
+    </div>
+    {% else %}
+    <div class="no-data">No active defense grids deployed yet.</div>
+    {% endfor %}
+  </div>
+</div>
+<style>
+.grid-center{padding:2rem;max-width:1200px;margin:0 auto}
+.grid-header{display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem}
+.grid-icon{font-size:3rem}
+.grid-title{font-size:1.8rem;font-weight:700;color:#e2e8f0;margin:0}
+.grid-sub{color:#94a3b8;margin:.25rem 0 0}
+.grid-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
+.grid-stat{background:#1e293b;border-radius:.75rem;padding:1.25rem;text-align:center;border:1px solid #334155}
+.grid-stat.sync{border-color:#22c55e}.grid-stat.status{border-color:#6366f1}
+.stat-num{font-size:2rem;font-weight:800;color:#e2e8f0}
+.stat-lbl{font-size:.8rem;color:#94a3b8;text-transform:uppercase}
+.grid-node-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-top:2rem}
+.grid-card{background:#1e293b;border-radius:.75rem;padding:1.25rem;border:1px solid #334155}
+.grid-card.status-online{border-color:#22c55e}.grid-card.status-degraded{border-color:#eab308}.grid-card.status-offline{border-color:#ef4444}
+.gc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+.gc-name{color:#cbd5e1;font-size:.95rem}
+.gc-readiness{font-size:.75rem;color:#94a3b8}
+.gc-coverage{font-size:.85rem;color:#64748b;margin-bottom:.75rem}
+.gc-progress-bar{height:.4rem;background:#0f172a;border-radius:9999px;overflow:hidden;margin-bottom:.5rem}
+.progress-fill{height:100%;background:linear-gradient(90deg,#6366f1,#22c55e);border-radius:9999px}
+.gc-footer{font-size:.8rem;color:#475569}
+.no-data{text-align:center;color:#475569;padding:3rem;grid-column:1/-1}
+</style>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "admin.html" %}
+{% block title %}Cyber Alliances — Admin{% endblock %}
+
+{% block content %}
+<div class="all-center">
+  <div class="all-header">
+    <div class="all-icon">🤝</div>
+    <div>
+      <h1 class="all-title">Cyber Nation Alliances</h1>
+      <p class="all-sub">Bilateral/multilateral mutual cyber defense alliance registration registry</p>
+    </div>
+  </div>
+
+  <div class="all-stats-row">
+    <div class="all-stat active">
+      <div class="stat-num">{{ alliances | selectattr('status', 'equalto', 'active') | list | length }}</div>
+      <div class="stat-lbl">Active Alliances</div>
+    </div>
+    <div class="all-stat disbanded">
+      <div class="stat-num">{{ alliances | selectattr('status', 'equalto', 'disbanded') | list | length }}</div>
+      <div class="stat-lbl">Disbanded Alliances</div>
+    </div>
+    <div class="all-stat total">
+      <div class="stat-num">{{ alliances | length }}</div>
+      <div class="stat-lbl">Total Registered</div>
+    </div>
+  </div>
+
+  <div class="all-table-wrap">
+    <table class="all-table">
+      <thead>
+        <tr><th>#</th><th>Alliance Name</th><th>Trust Index</th><th>Member Nations</th><th>Status</th><th>Formed Date</th></tr>
+      </thead>
+      <tbody>
+        {% for a in alliances %}
+        <tr>
+          <td>{{ a.id }}</td>
+          <td><strong>{{ a.alliance_name }}</strong></td>
+          <td>
+            <div class="progress-container">
+              <div class="progress-bar" style="width: {{ (a.trust_score * 100) | round | int }}%"></div>
+              <span>{{ "%.2f" | format(a.trust_score) }}</span>
+            </div>
+          </td>
+          <td>{{ a.members }}</td>
+          <td><span class="badge-status status-{{ a.status }}">{{ a.status | upper }}</span></td>
+          <td>{{ a.created_at.strftime('%Y-%m-%d') if a.created_at else '—' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="no-data">No trans-national alliances registered yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<style>
+.all-center{padding:2rem;max-width:1200px;margin:0 auto}
+.all-header{display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem}
+.all-icon{font-size:3rem}
+.all-title{font-size:1.8rem;font-weight:700;color:#e2e8f0;margin:0}
+.all-sub{color:#94a3b8;margin:.25rem 0 0}
+.all-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
+.all-stat{background:#1e293b;border-radius:.75rem;padding:1.25rem;text-align:center;border:1px solid #334155}
+.all-stat.active{border-color:#22c55e}.all-stat.disbanded{border-color:#ef4444}.all-stat.total{border-color:#6366f1}
+.stat-num{font-size:2rem;font-weight:800;color:#e2e8f0}
+.stat-lbl{font-size:.8rem;color:#94a3b8;text-transform:uppercase}
+.all-table-wrap{background:#1e293b;border-radius:.75rem;overflow:hidden;border:1px solid #334155}
+.all-table{width:100%;border-collapse:collapse}
+.all-table th{background:#0f172a;padding:.85rem 1rem;text-align:left;color:#94a3b8;font-size:.8rem;text-transform:uppercase}
+.all-table td{padding:.75rem 1rem;border-top:1px solid #1e293b;color:#cbd5e1;font-size:.9rem}
+.progress-container{display:flex;align-items:center;gap:.5rem}
+.progress-bar{height:.4rem;background:linear-gradient(90deg,#6366f1,#22c55e);border-radius:9999px}
+.badge-status{padding:.2rem .6rem;border-radius:9999px;font-size:.7rem;font-weight:700}
+.status-active{background:#052e16;color:#22c55e}.status-disbanded{background:#450a0a;color:#ef4444}
+.no-data{text-align:center;color:#475569;padding:2rem}
+</style>
+{% endblock %}

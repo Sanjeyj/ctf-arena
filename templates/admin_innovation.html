@@ -1,0 +1,52 @@
+{% extends "admin.html" %}
+{% block title %}R&D Innovation Registry — Admin{% endblock %}
+
+{% block content %}
+<div class="inn-center">
+  <div class="inn-header">
+    <div class="inn-icon">💡</div>
+    <div>
+      <h1 class="inn-title">Research & Innovation Projects</h1>
+      <p class="inn-sub">Tracking technology development timelines and project priorities</p>
+    </div>
+  </div>
+
+  <div class="inn-grid">
+    {% for p in projects %}
+    <div class="inn-card">
+      <div class="inn-top">
+        <span class="inn-cat">{{ p.category | upper }}</span>
+        <span class="inn-progress-pct">{{ (p.progress * 100) | round | int }}%</span>
+      </div>
+      <h3 class="inn-project-title">{{ p.title }}</h3>
+      <div class="inn-health-bar">
+        <div class="health-fill" style="width: {{ (p.progress * 100) | round | int }}%"></div>
+      </div>
+      <div class="inn-footer">
+        <span>Owner: {{ p.owner }}</span>
+        <span>Timeline: {{ p.created_at.strftime('%Y-%m-%d') if p.created_at else '—' }}</span>
+      </div>
+    </div>
+    {% else %}
+    <div class="no-data">No active research & innovation projects registry recorded.</div>
+    {% endfor %}
+  </div>
+</div>
+<style>
+.inn-center{padding:2rem;max-width:1200px;margin:0 auto}
+.inn-header{display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem}
+.inn-icon{font-size:3rem}
+.inn-title{font-size:1.8rem;font-weight:700;color:#e2e8f0;margin:0}
+.inn-sub{color:#94a3b8;margin:.25rem 0 0}
+.inn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+.inn-card{background:#1e293b;border-radius:.75rem;padding:1.25rem;border:1px solid #334155}
+.inn-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+.inn-cat{font-size:.7rem;font-weight:700;padding:.2rem .5rem;border-radius:9999px;background:#0f172a;color:#94a3b8}
+.inn-progress-pct{font-size:1.2rem;font-weight:800;color:#cbd5e1}
+.inn-project-title{color:#e2e8f0;font-size:1rem;margin-bottom:.75rem}
+.inn-health-bar{height:.5rem;background:#0f172a;border-radius:9999px;overflow:hidden;margin-bottom:.75rem}
+.health-fill{height:100%;background:linear-gradient(90deg,#6366f1,#22c55e);border-radius:9999px}
+.inn-footer{display:flex;justify-content:space-between;font-size:.8rem;color:#475569}
+.no-data{text-align:center;color:#475569;padding:3rem;grid-column:1/-1}
+</style>
+{% endblock %}
