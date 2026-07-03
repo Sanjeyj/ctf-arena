@@ -166,3 +166,12 @@ from app.models.defense_alliance import DefenseAlliance
 from app.models.prediction_scenario import PredictionScenario
 from app.models.civilization_metric import CivilizationMetric
 
+# Phase 29 — Global Cyber Command Center
+from app.models.global_operation import GlobalOperation
+from app.models.command_center import CommandCenter
+from app.models.crisis_room import CrisisRoom
+from app.models.war_game import WarGame
+from app.models.cert_team import CertTeam
+from app.models.strategic_objective import StrategicObjective
+from app.models.threat_campaign_global import ThreatCampaignGlobal
+from app.models.command_metric import CommandMetric
