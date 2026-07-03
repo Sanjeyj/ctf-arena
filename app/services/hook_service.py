@@ -28,6 +28,9 @@ SUPPORTED_HOOKS = {
     'after_attack_event': 'Fired after an AI attack event is generated. kwargs: event, simulation.',
     'before_defense_action': 'Fired before a defensive/SOC action is simulated. kwargs: event, soc_level.',
     'after_incident_close': 'Fired after an incident is resolved. kwargs: incident.',
+    # Research and CTI lifecycle (Phase 19)
+    'before_research_request': 'Fired before CTI research AI query is sent. kwargs: query.',
+    'after_research_response': 'Fired after CTI research AI response is compiled. kwargs: query, response.',
 }
 
 
@@ -56,6 +59,11 @@ class HookService:
                 except Exception as e:
                     logger.error(f"[HookService] Error in hook '{hook_name}' callback '{callback.__name__}': {str(e)}", exc_info=True)
         return results
+
+    @classmethod
+    def fire(cls, hook_name, *args, **kwargs):
+        """Alias for trigger_hook."""
+        return cls.trigger_hook(hook_name, *args, **kwargs)
 
     @classmethod
     def remove_hook(cls, hook_name, callback):

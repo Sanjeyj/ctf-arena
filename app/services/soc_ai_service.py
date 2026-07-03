@@ -219,7 +219,7 @@ class SOCAIService:
         sev = alert.severity
         # Heuristic: brute-force / exploitation patterns upgrade severity
         desc = (alert.description or '').lower() + (alert.title or '').lower()
-        upgrade_keywords = ['brute force', 'exploit', 'ransomware', 'lateral', 'exfil', 'c2']
+        upgrade_keywords = ['brute force', 'exploit', 'ransomware', 'lateral', 'exfil', 'c2', 'injection', 'sql']
         if any(kw in desc for kw in upgrade_keywords):
             sev = _SEVERITY_UPGRADE.get(sev, sev)
         return sev

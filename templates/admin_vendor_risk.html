@@ -1,0 +1,97 @@
+{% extends "admin.html" %}
+{% block title %}Third-Party Vendor Risk Management — Admin{% endblock %}
+
+{% block content %}
+<div class="vendor-center">
+  <div class="vendor-header">
+    <div class="vendor-icon">🏢</div>
+    <div>
+      <h1 class="vendor-title">Third-Party Vendor Risk Register</h1>
+      <p class="vendor-subtitle">Monitor supply chain suppliers, assess security posture, and manage compliance audits for all vendors.</p>
+    </div>
+  </div>
+
+  <div class="card vendors-table-card">
+    <div class="table-header">
+      <h3 class="card-title" style="margin:0; border: none; padding: 0;">Registered Vendors</h3>
+      <button class="add-vendor-btn" onclick="addVendor()">+ Register Vendor</button>
+    </div>
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Vendor Name</th>
+            <th>Service Type</th>
+            <th>Risk Score</th>
+            <th>Risk Rating</th>
+            <th>Contract Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if vendors %}
+            {% for v in vendors %}
+            <tr>
+              <td><strong>{{ v.vendor_name }}</strong></td>
+              <td>{{ v.service_type or '—' }}</td>
+              <td>
+                <div class="risk-bar-container">
+                  <div class="risk-bar" style="width: {{ v.risk_score }}%; background: {% if v.risk_score >= 70 %}#ef4444{% elif v.risk_score >= 40 %}#f59e0b{% else %}#10b981{% endif %};"></div>
+                </div>
+                <span class="risk-num">{{ v.risk_score | round(1) }}</span>
+              </td>
+              <td>
+                <span class="badge {% if v.risk_score >= 70 %}badge-danger{% elif v.risk_score >= 40 %}badge-warning{% else %}badge-success{% endif %}">
+                  {% if v.risk_score >= 70 %}HIGH{% elif v.risk_score >= 40 %}MEDIUM{% else %}LOW{% endif %}
+                </span>
+              </td>
+              <td><span class="badge badge-{{ 'success' if v.contract_status == 'active' else 'danger' }}">{{ v.contract_status }}</span></td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="5" class="empty-state">No vendors registered yet.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+function addVendor() {
+  const name = prompt("Vendor Name:");
+  if (!name) return;
+  const risk = prompt("Initial Risk Score (0-100):", "30");
+  alert(`Vendor "${name}" registered with risk score ${risk}.`);
+}
+</script>
+
+<style>
+.vendor-center { padding-bottom: 2rem; }
+.vendor-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border-radius: 16px; border: 1px solid rgba(99,102,241,0.35); }
+.vendor-icon { font-size: 2.5rem; }
+.vendor-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #c7d2fe; }
+.vendor-subtitle { margin: 0; color: #a5b4fc; font-size: 0.9rem; }
+
+.card { background: #1e1b4b; border: 1px solid #312e81; border-radius: 16px; padding: 1.5rem; }
+.card-title { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #c7d2fe; }
+.table-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #312e81; padding-bottom: 0.75rem; margin-bottom: 1rem; }
+.add-vendor-btn { background: #6366f1; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+.table-container { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; text-align: left; }
+.data-table th { padding: 0.75rem 1rem; color: #6366f1; font-size: 0.8rem; text-transform: uppercase; border-bottom: 1px solid #312e81; }
+.data-table td { padding: 0.75rem 1rem; color: #c7d2fe; font-size: 0.9rem; border-bottom: 1px solid #1e1b4b; }
+
+.risk-bar-container { width: 80px; height: 6px; background: #312e81; border-radius: 4px; overflow: hidden; display: inline-block; margin-right: 0.5rem; vertical-align: middle; }
+.risk-bar { height: 100%; border-radius: 4px; }
+.risk-num { font-weight: bold; vertical-align: middle; }
+
+.badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+.badge-success { background: rgba(16,185,129,0.2); color: #34d399; }
+.badge-danger { background: rgba(239,68,68,0.2); color: #f87171; }
+.badge-warning { background: rgba(245,158,11,0.2); color: #fbbf24; }
+.empty-state { text-align: center; color: #818cf8; font-style: italic; padding: 2rem; }
+</style>
+{% endblock %}

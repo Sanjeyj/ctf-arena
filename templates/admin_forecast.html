@@ -1,0 +1,65 @@
+{% extends "admin.html" %}
+{% block title %}Threat Forecast Engine — Admin{% endblock %}
+
+{% block content %}
+<div class="forecast-center">
+  <div class="forecast-header">
+    <div class="forecast-icon">📡</div>
+    <div>
+      <h1 class="forecast-title">Threat Forecast Engine</h1>
+      <p class="forecast-sub">Probabilistic threat predictions from AI-driven prediction models</p>
+    </div>
+  </div>
+
+  <div class="forecast-stats-row">
+    <div class="forecast-stat"><div class="stat-num">{{ events | length }}</div><div class="stat-lbl">Total Forecasts</div></div>
+    <div class="forecast-stat crit"><div class="stat-num">{{ events | selectattr('impact', 'equalto', 'critical') | list | length }}</div><div class="stat-lbl">Critical Impact</div></div>
+    <div class="forecast-stat high"><div class="stat-num">{{ events | selectattr('impact', 'equalto', 'high') | list | length }}</div><div class="stat-lbl">High Impact</div></div>
+    <div class="forecast-stat ok">
+      <div class="stat-num">
+        {% if events %}{{ "%.0f%%" | format((events | sum(attribute='probability') / events | length) * 100) }}{% else %}—{% endif %}
+      </div>
+      <div class="stat-lbl">Avg Probability</div>
+    </div>
+  </div>
+
+  <div class="forecast-grid">
+    {% for e in events %}
+    <div class="forecast-card impact-{{ e.impact }}">
+      <div class="fc-top">
+        <span class="fc-impact">{{ e.impact | upper }}</span>
+        <span class="fc-prob">{{ "%.0f%%" | format(e.probability * 100) }}</span>
+      </div>
+      <p class="fc-prediction">{{ e.prediction }}</p>
+      <div class="fc-footer">
+        <span>Confidence: {{ "%.0f%%" | format(e.confidence * 100) }}</span>
+        <span>{{ e.created_at.strftime('%Y-%m-%d') if e.created_at else '—' }}</span>
+      </div>
+    </div>
+    {% else %}
+    <div class="no-data">No forecast events generated yet.</div>
+    {% endfor %}
+  </div>
+</div>
+<style>
+.forecast-center{padding:2rem;max-width:1200px;margin:0 auto}
+.forecast-header{display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem}
+.forecast-icon{font-size:3rem}
+.forecast-title{font-size:1.8rem;font-weight:700;color:#e2e8f0;margin:0}
+.forecast-sub{color:#94a3b8;margin:.25rem 0 0}
+.forecast-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.forecast-stat{background:#1e293b;border-radius:.75rem;padding:1.25rem;text-align:center;border:1px solid #334155}
+.forecast-stat.crit{border-color:#ef4444}.forecast-stat.high{border-color:#f97316}.forecast-stat.ok{border-color:#6366f1}
+.stat-num{font-size:2rem;font-weight:800;color:#e2e8f0}.stat-lbl{font-size:.8rem;color:#94a3b8;text-transform:uppercase}
+.forecast-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1rem}
+.forecast-card{background:#1e293b;border-radius:.75rem;padding:1.25rem;border:1px solid #334155}
+.forecast-card.impact-critical{border-color:#ef4444}.forecast-card.impact-high{border-color:#f97316}
+.forecast-card.impact-medium{border-color:#eab308}.forecast-card.impact-low{border-color:#22c55e}
+.fc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.fc-impact{font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:9999px;background:#0f172a;color:#94a3b8}
+.fc-prob{font-size:1.4rem;font-weight:800;color:#e2e8f0}
+.fc-prediction{color:#cbd5e1;font-size:.9rem;line-height:1.5;margin-bottom:.75rem}
+.fc-footer{display:flex;justify-content:space-between;font-size:.8rem;color:#475569}
+.no-data{text-align:center;color:#475569;padding:3rem;grid-column:1/-1}
+</style>
+{% endblock %}

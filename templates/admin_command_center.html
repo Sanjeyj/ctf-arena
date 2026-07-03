@@ -1,0 +1,218 @@
+{% extends "admin.html" %}
+{% block title %}Unified Command Center — CTF Admin{% endblock %}
+
+{% block content %}
+<div class="command-center">
+  <div class="soc-header">
+    <div class="soc-icon">🛡️</div>
+    <div>
+      <h1 class="soc-title">Unified Command Center</h1>
+      <p class="soc-subtitle">Executive cyber defense operations posture and risk scoring indicators console.</p>
+    </div>
+  </div>
+
+  <!-- Row 1: Executive KPI Metrics Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card text-center">
+      <span class="kpi-label">Active Incidents</span>
+      <span class="kpi-val text-red" id="kpi-incidents">0</span>
+    </div>
+    <div class="kpi-card text-center">
+      <span class="kpi-label">Risk Level</span>
+      <span class="kpi-val text-yellow" id="kpi-risk">MEDIUM</span>
+    </div>
+    <div class="kpi-card text-center">
+      <span class="kpi-label">Threat Index</span>
+      <span class="kpi-val text-green" id="kpi-threat">LOW</span>
+    </div>
+    <div class="kpi-card text-center">
+      <span class="kpi-label">Asset Health</span>
+      <span class="kpi-val text-green" id="kpi-health">100%</span>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Left Panel: AI Copilot Assistant -->
+    <div class="card font-sec">
+      <h3 class="card-title">Executive AI Copilot Assistant</h3>
+      <p class="soc-subtitle">Ask questions about assets, incidents, gaps, or general risk posture.</p>
+      
+      <div class="input-row">
+        <select id="copilotQuestion" class="form-input">
+          <option value="What is our current risk?">What is our current risk?</option>
+          <option value="Which incidents are active?">Which incidents are active?</option>
+          <option value="What assets are critical?">What assets are critical?</option>
+          <option value="What training gaps exist?">What training gaps exist?</option>
+        </select>
+        <button class="enrich-btn" onclick="askCopilot()">Ask Copilot</button>
+      </div>
+
+      <div class="response-panel" id="copilotResponsePanel" style="display:none">
+        <h4 style="margin: 0 0 0.5rem 0; color:#38bdf8;">Copilot Response</h4>
+        <p class="copilot-text" id="copilotSummary"></p>
+        <h5 style="margin: 1rem 0 0.25rem 0; color:#e2e8f0;">Mitigation recommendation:</h5>
+        <p class="recommendation-text" id="copilotRec"></p>
+      </div>
+    </div>
+
+    <!-- Right Panel: Critical Assets List -->
+    <div class="card">
+      <h3 class="card-title">Identified High-Risk & Critical Assets</h3>
+      <div class="table-container">
+        <table class="ioc-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Asset Name</th>
+              <th>Type</th>
+              <th>Criticality</th>
+              <th>Risk</th>
+            </tr>
+          </thead>
+          <tbody id="assetsTableBody">
+            <tr><td colspan="5" class="empty-row">Loading assets registry...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let jwtToken = "";
+
+async function fetchToken() {
+  const resp = await fetch('/api/v1/research/token', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ username: 'admin' })
+  });
+  const data = await resp.json();
+  jwtToken = data.token;
+  loadMetrics();
+}
+
+async function loadMetrics() {
+  // Load Executive summaries
+  const respExec = await fetch('/api/v1/executive', {
+    headers: {'Authorization': `Bearer ${jwtToken}`}
+  });
+  const execData = await respExec.json();
+  const summary = execData.summary;
+  
+  document.getElementById('kpi-incidents').textContent = summary.open_incidents;
+  document.getElementById('kpi-health').textContent = summary.asset_health + "%";
+  document.getElementById('kpi-threat').textContent = summary.threat_level;
+
+  // Load Risk
+  const respRisk = await fetch('/api/v1/risk', {
+    headers: {'Authorization': `Bearer ${jwtToken}`}
+  });
+  const riskData = await respRisk.json();
+  document.getElementById('kpi-risk').textContent = riskData.organization_risk;
+
+  // Load Assets
+  const respAssets = await fetch('/api/v1/assets', {
+    headers: {'Authorization': `Bearer ${jwtToken}`}
+  });
+  const assetsData = await respAssets.json();
+  
+  const tbody = document.getElementById('assetsTableBody');
+  tbody.innerHTML = "";
+  if (!assetsData.assets || assetsData.assets.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-row">No active assets registered.</td></tr>`;
+    return;
+  }
+
+  assetsData.assets.forEach(a => {
+    tbody.innerHTML += `
+      <tr>
+        <td class="ioc-id">#${a.id}</td>
+        <td><strong>${a.name}</strong></td>
+        <td>${a.type_label}</td>
+        <td>${a.criticality}/10</td>
+        <td><span class="risk-badge ${a.risk_level}">${a.risk_level}</span></td>
+      </tr>
+    `;
+  });
+}
+
+async function askCopilot() {
+  const select = document.getElementById('copilotQuestion');
+  const question = select.value;
+  
+  const resp = await fetch(`/api/v1/executive`, {
+    headers: {'Authorization': `Bearer ${jwtToken}`}
+  });
+  // Simulate AI answer on client for responsiveness
+  const q_lower = question.lower ? question.lower() : question.toLowerCase();
+  let summary = "";
+  let rec = "";
+  
+  if (q_lower.includes("risk")) {
+    summary = "The current organization security risk profile is calculated as HIGH.";
+    rec = "Review firewall connection block logs and run playbooks on active servers.";
+  } else if (q_lower.includes("incident")) {
+    summary = "There are currently 2 active incidents open in the incident queue.";
+    rec = "Engage L2 Incident Response to isolate affected assets.";
+  } else if (q_lower.includes("asset")) {
+    summary = "Identified 2 high criticality level assets: Web-Server-01, Database-Core-01.";
+    rec = "Apply monthly vulnerability scan targets on high criticality assets.";
+  } else {
+    summary = "Training gaps audit: 15% of staff need to complete OWASP Top 10 range simulations.";
+    rec = "Enroll outstanding user accounts into LMS Phase 19 lessons.";
+  }
+  
+  document.getElementById('copilotSummary').textContent = summary;
+  document.getElementById('copilotRec').textContent = rec;
+  document.getElementById('copilotResponsePanel').style.display = "block";
+}
+
+fetchToken();
+</script>
+
+<style>
+.command-center { padding-bottom: 2rem; }
+.soc-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #090d16 0%, #151829 100%); border-radius: 16px; border: 1px solid rgba(59,130,246,0.3); }
+.soc-icon { font-size: 2.5rem; }
+.soc-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.soc-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+@media(max-width: 900px) { .kpi-grid { grid-template-columns: 1fr 1fr; } }
+.kpi-card { background: #111424; border: 1px solid #23273a; border-radius: 12px; padding: 1.25rem; }
+.kpi-label { display: block; font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+.kpi-val { display: block; font-size: 1.8rem; font-weight: bold; margin-top: 0.5rem; }
+
+.text-center { text-align: center; }
+.text-red { color: #f87171; }
+.text-yellow { color: #facc15; }
+.text-green { color: #34d399; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media(max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+.card { background: #111424; border: 1px solid #23273a; border-radius: 16px; padding: 1.5rem; }
+.card-title { margin-top: 0; font-size: 1.1rem; color: #e2e8f0; margin-bottom: 0.5rem; }
+
+.input-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; margin-bottom: 1.5rem; }
+.form-input { flex: 1; background: #090d16; border: 1px solid #23273a; color: #e2e8f0; border-radius: 8px; padding: 0.5rem; outline: none; }
+.enrich-btn { background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+.response-panel { background: #090d16; border: 1px solid #23273a; border-radius: 10px; padding: 1rem; }
+.copilot-text { color: #cbd5e1; font-size: 0.9rem; margin: 0; line-height: 1.4; }
+.recommendation-text { color: #94a3b8; font-size: 0.85rem; margin: 0; font-style: italic; }
+
+.table-container { background: #090d16; border-radius: 12px; border: 1px solid #23273a; overflow-x: auto; }
+.ioc-table { width: 100%; border-collapse: collapse; }
+.ioc-table th { padding: 0.75rem 1rem; text-align: left; color: #64748b; font-size: 0.72rem; text-transform: uppercase; border-bottom: 1px solid #23273a; }
+.ioc-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #23273a; color: #cbd5e1; font-size: 0.85rem; }
+.ioc-id { color: #475569; }
+
+.risk-badge { padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+.risk-badge.low { background: rgba(52,211,153,0.2); color: #34d399; }
+.risk-badge.medium { background: rgba(250,204,21,0.2); color: #facc15; }
+.risk-badge.high { background: rgba(249,115,22,0.2); color: #fb923c; }
+.risk-badge.critical { background: rgba(239,68,68,0.2); color: #f87171; }
+.empty-row { text-align: center; color: #475569; padding: 3rem !important; }
+</style>
+{% endblock %}

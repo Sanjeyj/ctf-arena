@@ -125,9 +125,19 @@ class SigmaService:
                                 matched_keys.append(item)
             elif isinstance(val, dict):
                 for sub_k, sub_v in val.items():
-                    if sub_k in sample_event:
-                        matched = True
-                        matched_keys.append(sub_k)
+                    base_k = sub_k.split('|')[0]
+                    if base_k in sample_event:
+                        ev_val = sample_event[base_k]
+                        if isinstance(ev_val, str) and isinstance(sub_v, str):
+                            if '|contains' in sub_k.lower() and sub_v.lower() in ev_val.lower():
+                                matched = True
+                                matched_keys.append(sub_k)
+                            elif sub_v.lower() == ev_val.lower():
+                                matched = True
+                                matched_keys.append(sub_k)
+                        elif str(sub_v) in str(ev_val):
+                            matched = True
+                            matched_keys.append(sub_k)
 
         if matched:
             rule.hit_count += 1

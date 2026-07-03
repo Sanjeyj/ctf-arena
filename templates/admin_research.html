@@ -1,0 +1,119 @@
+{% extends "admin.html" %}
+{% block title %}Security Research & CTI — CTF Arena Admin{% endblock %}
+
+{% block content %}
+<div class="research-hub">
+  <div class="soc-header">
+    <div class="soc-header-left">
+      <div class="soc-icon">🔬</div>
+      <div>
+        <h1 class="soc-title">Security Research & CTI Hub</h1>
+        <p class="soc-subtitle">Threat Actor Intelligence, Malware Analysis, and Campaign Timelines</p>
+      </div>
+    </div>
+    <div class="soc-status-indicator">
+      <span class="pulse-dot"></span>
+      <span class="status-text">INTELLIGENCE PLATFORM ACTIVE</span>
+    </div>
+  </div>
+
+  <!-- Navigator Heatmap Coverage Summary -->
+  <div class="soc-section card m-bottom-2">
+    <h3 class="card-title">🗺️ MITRE ATT&CK Navigator Technique Coverage Matrix</h3>
+    <p class="card-sub">Global coverage metrics calculated across YARA repositories, Sigma detections, and hunt definitions.</p>
+    <div class="navigator-metrics">
+      <div class="nav-metric">
+        <span class="nm-value">{{ coverage.get('tactic_coverage_pct', 0) }}%</span>
+        <span class="nm-label">Tactic Coverage</span>
+      </div>
+      <div class="nav-metric">
+        <span class="nm-value">{{ coverage.get('detection_coverage_pct', 0) }}%</span>
+        <span class="nm-label">Detection Coverage</span>
+      </div>
+      <div class="nav-metric">
+        <span class="nm-value">{{ coverage.get('hunt_coverage_pct', 0) }}%</span>
+        <span class="nm-label">Hunt Coverage</span>
+      </div>
+      <div class="nav-metric">
+        <span class="nm-value">{{ coverage.get('yara_coverage_pct', 0) }}%</span>
+        <span class="nm-label">YARA Coverage</span>
+      </div>
+      <div class="nav-metric">
+        <span class="nm-value">{{ coverage.get('sigma_coverage_pct', 0) }}%</span>
+        <span class="nm-label">Sigma Coverage</span>
+      </div>
+    </div>
+
+    <!-- Interactive Tactic Grid -->
+    <div class="tactic-grid">
+      {% for tactic_name, info in coverage.get('heatmap', {}).items() %}
+      <div class="tactic-cell" style="border-left: 4px solid {{ info.color }}">
+        <div class="tactic-header">{{ tactic_name }}</div>
+        <div class="tactic-score">{{ info.score }}% Coverage</div>
+        <div class="tactic-rules">{{ info.rules_count }} detection rules</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- CTI Console Quick Links -->
+  <div class="soc-nav-grid m-bottom-2">
+    <a href="/admin/research/threat-actors" class="soc-nav-card">
+      <div class="nav-icon">👤</div>
+      <div class="nav-label">Threat Actors</div>
+      <div class="nav-sub">Profile motivations & origins</div>
+    </a>
+    <a href="/admin/research/campaigns" class="soc-nav-card">
+      <div class="nav-icon">📅</div>
+      <div class="nav-label">Campaign Timelines</div>
+      <div class="nav-sub">Track active multi-stage campaigns</div>
+    </a>
+    <a href="/admin/research/malware" class="soc-nav-card">
+      <div class="nav-icon">📁</div>
+      <div class="nav-label">Malware Analysis</div>
+      <div class="nav-sub">Static metadata & entropy uploader</div>
+    </a>
+    <a href="/admin/research/reports" class="soc-nav-card">
+      <div class="nav-icon">📄</div>
+      <div class="nav-label">Research Reports</div>
+      <div class="nav-sub">Create & export intelligence articles</div>
+    </a>
+  </div>
+</div>
+
+<style>
+.m-bottom-2 { margin-bottom: 2rem; }
+.soc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #090d16 0%, #151829 100%); border-radius: 16px; border: 1px solid rgba(16,185,129,0.3); }
+.soc-header-left { display: flex; align-items: center; gap: 1rem; }
+.soc-icon { font-size: 2.5rem; }
+.soc-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.soc-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+.soc-status-indicator { display: flex; align-items: center; gap: 0.5rem; }
+.pulse-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite; display: inline-block; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.3)} }
+.status-text { color: #10b981; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; }
+
+.card { background: #111424; border: 1px solid #23273a; border-radius: 16px; padding: 1.5rem; }
+.card-title { margin-top: 0; font-size: 1.1rem; color: #e2e8f0; margin-bottom: 0.25rem; }
+.card-sub { color: #64748b; font-size: 0.85rem; margin-top: 0; margin-bottom: 1.5rem; }
+
+.navigator-metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid #23273a; padding-bottom: 1.5rem; }
+.nav-metric { text-align: center; }
+.nm-value { display: block; font-size: 1.8rem; font-weight: 800; color: #10b981; }
+.nm-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; margin-top: 0.25rem; letter-spacing: 0.05em; }
+
+.tactic-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
+@media(max-width: 900px) { .tactic-grid { grid-template-columns: repeat(2, 1fr); } }
+.tactic-cell { background: #161a2e; border-radius: 8px; padding: 0.75rem; }
+.tactic-header { font-size: 0.85rem; font-weight: 600; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tactic-score { font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem; }
+.tactic-rules { font-size: 0.7rem; color: #64748b; }
+
+.soc-nav-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.soc-nav-card { background: #111424; border-radius: 12px; padding: 1.5rem; text-decoration: none; border: 1px solid #23273a; transition: all 0.2s; display: block; }
+.soc-nav-card:hover { border-color: rgba(16,185,129,0.5); background: #171c33; transform: translateY(-2px); }
+.nav-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.nav-label { font-size: 1rem; font-weight: 600; color: #e2e8f0; margin-bottom: 0.25rem; }
+.nav-sub { font-size: 0.8rem; color: #64748b; }
+</style>
+{% endblock %}

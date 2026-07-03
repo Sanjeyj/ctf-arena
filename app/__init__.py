@@ -97,12 +97,30 @@ def create_app(config_name="default"):
     from app.cyberrange import cyberrange_bp
     from app.lms import lms_bp
     from app.soc import soc_bp
+    from app.research import research_bp
+    from app.ecosystem import ecosystem_bp
+    from app.autonomous import autonomous_bp
+    from app.defense import defense_bp
+    from app.secos import secos_bp
+    from app.cloud import cloud_bp
+    from app.resilience import resilience_bp
+    from app.enterprise import enterprise_bp
+    from app.intelligence import intelligence_bp
     csrf.exempt(api_bp)
     csrf.exempt(ai_bp)
     csrf.exempt(org_bp)
     csrf.exempt(cyberrange_bp)
     csrf.exempt(lms_bp)
     csrf.exempt(soc_bp)
+    csrf.exempt(research_bp)
+    csrf.exempt(ecosystem_bp)
+    csrf.exempt(autonomous_bp)
+    csrf.exempt(defense_bp)
+    csrf.exempt(secos_bp)
+    csrf.exempt(cloud_bp)
+    csrf.exempt(resilience_bp)
+    csrf.exempt(enterprise_bp)
+    csrf.exempt(intelligence_bp)
 
 
 
@@ -260,6 +278,18 @@ def register_blueprints(app):
     from app.cyberrange import cyberrange_bp
     from app.lms import lms_bp
     from app.soc import soc_bp
+    from app.research import research_bp
+    from app.ecosystem import ecosystem_bp
+    
+    from app.research import research_bp
+    from app.ecosystem import ecosystem_bp
+    from app.autonomous import autonomous_bp
+    from app.defense import defense_bp
+    from app.secos import secos_bp
+    from app.cloud import cloud_bp
+    from app.resilience import resilience_bp
+    from app.enterprise import enterprise_bp
+    from app.intelligence import intelligence_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(challenges_bp)
@@ -272,6 +302,15 @@ def register_blueprints(app):
     app.register_blueprint(cyberrange_bp)
     app.register_blueprint(lms_bp)
     app.register_blueprint(soc_bp)
+    app.register_blueprint(research_bp)
+    app.register_blueprint(ecosystem_bp)
+    app.register_blueprint(autonomous_bp)
+    app.register_blueprint(defense_bp)
+    app.register_blueprint(secos_bp)
+    app.register_blueprint(cloud_bp)
+    app.register_blueprint(resilience_bp)
+    app.register_blueprint(enterprise_bp)
+    app.register_blueprint(intelligence_bp)
 
 
     

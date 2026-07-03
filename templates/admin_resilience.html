@@ -1,0 +1,147 @@
+{% extends "admin.html" %}
+{% block title %}Enterprise Cyber Resilience Scorecard — Admin{% endblock %}
+
+{% block content %}
+<div class="resilience-hub">
+  <div class="soc-header">
+    <div class="soc-icon">🛡️</div>
+    <div>
+      <h1 class="soc-title">Enterprise Cyber Resilience Scorecard</h1>
+      <p class="soc-subtitle">Review active defense controls ratings, incident handling latency, and security training completion.</p>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Score Breakdown Card -->
+    <div class="card">
+      <div class="card-header-flex">
+        <h3 class="card-title">Resilience Rating Breakdown</h3>
+        <button class="enrich-btn" onclick="recalculateResilience()">Recalculate</button>
+      </div>
+
+      <div class="score-display">
+        <div class="radial-score-container">
+          <span class="radial-val" id="resilience-rating">{{ score.resilience }}%</span>
+          <span class="radial-lbl">Aggregated Index</span>
+        </div>
+      </div>
+
+      <div class="kpis-vertical mt-1">
+        <div class="kpi-mini">
+          <span>Incident Response Time</span>
+          <strong id="metric-response">{{ score.response_time }}%</strong>
+        </div>
+        <div class="kpi-mini">
+          <span>Mitigated Risk Register</span>
+          <strong id="metric-risk">{{ score.risk }}%</strong>
+        </div>
+        <div class="kpi-mini">
+          <span>Active Controls Audited</span>
+          <strong id="metric-controls">{{ score.controls }}%</strong>
+        </div>
+        <div class="kpi-mini">
+          <span>LMS Training Progress</span>
+          <strong id="metric-training">{{ score.training }}%</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Panel -->
+    <div class="card">
+      <h3 class="card-title">Historical Evaluation Ranks</h3>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date Calculated</th>
+              <th>Resilience Index</th>
+            </tr>
+          </thead>
+          <tbody id="history-tbody">
+            {% for h in history %}
+            <tr>
+              <td>{{ h.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+              <td><strong class="text-green">{{ h.resilience }}%</strong></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let jwtToken = "";
+
+async function fetchToken() {
+  const resp = await fetch('/api/v1/research/token', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ username: 'admin' })
+  });
+  const data = await resp.json();
+  jwtToken = data.token;
+}
+
+async function recalculateResilience() {
+  await fetchToken();
+  const resp = await fetch('/api/v1/resilience/calculate', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${jwtToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ organization_id: {{ current_org_id or '1' }} })
+  });
+  const data = await resp.json();
+  if (data.resilience) {
+    document.getElementById('resilience-rating').textContent = data.resilience + "%";
+    document.getElementById('metric-response').textContent = data.response_time + "%";
+    document.getElementById('metric-risk').textContent = data.risk + "%";
+    document.getElementById('metric-controls').textContent = data.controls + "%";
+    document.getElementById('metric-training').textContent = data.training + "%";
+    
+    // Prepend to history table
+    const tbody = document.getElementById('history-tbody');
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>Just Now</td><td><strong class="text-green">${data.resilience}%</strong></td>`;
+    tbody.insertBefore(row, tbody.firstChild);
+  }
+}
+
+fetchToken();
+</script>
+
+<style>
+.resilience-hub { padding-bottom: 2rem; }
+.soc-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #090d16 0%, #151829 100%); border-radius: 16px; border: 1px solid rgba(59,130,246,0.3); }
+.soc-icon { font-size: 2.5rem; }
+.soc-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.soc-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media(max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+.card { background: #111424; border: 1px solid #23273a; border-radius: 16px; padding: 1.5rem; }
+.card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.card-title { margin: 0; font-size: 1.1rem; color: #e2e8f0; }
+.enrich-btn { background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+.score-display { display: flex; justify-content: center; margin: 1.5rem 0; }
+.radial-score-container { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 4px solid #10b981; border-radius: 50%; width: 140px; height: 140px; background: #090d16; }
+.radial-val { font-size: 1.8rem; font-weight: bold; color: #10b981; }
+.radial-lbl { font-size: 0.7rem; color: #64748b; text-transform: uppercase; margin-top: 0.25rem; }
+
+.kpis-vertical { display: flex; flex-direction: column; gap: 0.75rem; }
+.kpi-mini { display: flex; justify-content: space-between; background: #090d16; border: 1px solid #23273a; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem; color: #cbd5e1; }
+.kpi-mini strong { color: #3b82f6; }
+
+.table-container { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; text-align: left; }
+.data-table th, .data-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #23273a; }
+.data-table th { color: #64748b; font-size: 0.85rem; text-transform: uppercase; }
+.data-table td { color: #cbd5e1; font-size: 0.9rem; }
+.text-green { color: #10b981; }
+.mt-1 { margin-top: 1rem; }
+</style>
+{% endblock %}

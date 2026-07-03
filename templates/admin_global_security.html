@@ -1,0 +1,72 @@
+{% extends "admin.html" %}
+{% block title %}Global Security Command — Admin{% endblock %}
+
+{% block content %}
+<div class="global-center">
+  <div class="global-header">
+    <div class="global-icon">🛡️</div>
+    <div>
+      <h1 class="global-title">Global Security Command Center</h1>
+      <p class="global-sub">Unified view of the Global Security Intelligence Network</p>
+    </div>
+  </div>
+
+  <div class="global-metrics">
+    <div class="gm-card intel"><div class="gm-num">{{ report_count }}</div><div class="gm-lbl">Intelligence Reports</div><div class="gm-icon">📋</div></div>
+    <div class="gm-card forecast"><div class="gm-num">{{ forecast_count }}</div><div class="gm-lbl">Threat Forecasts</div><div class="gm-icon">📡</div></div>
+    <div class="gm-card obs"><div class="gm-num">{{ node_count }}</div><div class="gm-lbl">Observatory Nodes</div><div class="gm-icon">🔭</div></div>
+    <div class="gm-card trust"><div class="gm-num">{{ trust_count }}</div><div class="gm-lbl">Trust Relationships</div><div class="gm-icon">🤝</div></div>
+  </div>
+
+  <div class="global-sections">
+    <div class="gs-panel">
+      <div class="gs-panel-title">🧠 AI Recommendations</div>
+      {% for rec in recommendations %}
+      <div class="gs-rec sev-{{ rec.severity }}">
+        <span class="rec-sev">{{ rec.severity | upper }}</span>
+        <span class="rec-action">{{ rec.action }}</span>
+      </div>
+      {% else %}
+      <div class="no-data-sm">No active recommendations.</div>
+      {% endfor %}
+    </div>
+
+    <div class="gs-panel">
+      <div class="gs-panel-title">🌍 Observatory Status</div>
+      <div class="obs-types">
+        {% for otype in ['threat', 'intelligence', 'compliance', 'resilience', 'enterprise'] %}
+        <div class="obs-type-row">
+          <span class="obs-type-name">{{ otype | title }} Observatory</span>
+          <span class="obs-type-status online">● ONLINE</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+.global-center{padding:2rem;max-width:1200px;margin:0 auto}
+.global-header{display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem}
+.global-icon{font-size:3.5rem}
+.global-title{font-size:2rem;font-weight:800;color:#e2e8f0;margin:0;background:linear-gradient(135deg,#6366f1,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.global-sub{color:#94a3b8;margin:.25rem 0 0}
+.global-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.gm-card{background:#1e293b;border-radius:.75rem;padding:1.5rem;border:1px solid #334155;position:relative;overflow:hidden}
+.gm-card.intel{border-color:#6366f1}.gm-card.forecast{border-color:#f97316}
+.gm-card.obs{border-color:#22c55e}.gm-card.trust{border-color:#06b6d4}
+.gm-num{font-size:2.5rem;font-weight:900;color:#e2e8f0}.gm-lbl{font-size:.8rem;color:#94a3b8;text-transform:uppercase}
+.gm-icon{position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:2.5rem;opacity:.2}
+.global-sections{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.gs-panel{background:#1e293b;border-radius:.75rem;padding:1.5rem;border:1px solid #334155}
+.gs-panel-title{font-size:1rem;font-weight:700;color:#e2e8f0;margin-bottom:1rem}
+.gs-rec{display:flex;align-items:flex-start;gap:.75rem;padding:.75rem;border-radius:.5rem;margin-bottom:.5rem;background:#0f172a}
+.rec-sev{font-size:.65rem;font-weight:800;padding:.2rem .5rem;border-radius:9999px;white-space:nowrap;background:#334155;color:#94a3b8}
+.sev-critical .rec-sev{background:#450a0a;color:#ef4444}.sev-high .rec-sev{background:#431407;color:#f97316}
+.rec-action{font-size:.875rem;color:#cbd5e1;line-height:1.4}
+.obs-types{display:flex;flex-direction:column;gap:.6rem}
+.obs-type-row{display:flex;justify-content:space-between;align-items:center;padding:.6rem .75rem;background:#0f172a;border-radius:.5rem}
+.obs-type-name{color:#cbd5e1;font-size:.875rem}
+.obs-type-status.online{color:#22c55e;font-size:.75rem;font-weight:700}
+.no-data-sm{text-align:center;color:#475569;padding:1.5rem;font-size:.875rem}
+</style>
+{% endblock %}

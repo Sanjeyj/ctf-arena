@@ -1,0 +1,139 @@
+{% extends "admin.html" %}
+{% block title %}Knowledge Graph — CTF Admin{% endblock %}
+
+{% block content %}
+<div class="knowledge-hub">
+  <div class="soc-header">
+    <div class="soc-header-left">
+      <div class="soc-icon">🕸️</div>
+      <div>
+        <h1 class="soc-title">Security Knowledge Graph</h1>
+        <p class="soc-subtitle">Interactive visualization mapping Threat Actors → Campaigns → Malware → IOCs → Incidents.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Left Column: Graph Visual Mock -->
+    <div class="card" style="min-height: 400px; display:flex; flex-direction:column; justify-content:center; align-items:center; background:#090d16; position:relative; overflow:hidden;">
+      <div class="graph-nodes-container" id="nodesContainer" style="width:100%; height:100%; position:relative;">
+        <div style="text-align:center; color:#475569; padding-top:8rem;">Rendering interactive relations network...</div>
+      </div>
+    </div>
+
+    <!-- Right Column: Node details list -->
+    <div class="card">
+      <h3 class="card-title">Mapped Knowledge Graph Entities</h3>
+      <div class="table-container" style="max-height: 350px; overflow-y: auto;">
+        <table class="ioc-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody id="nodesTableBody">
+            <tr><td colspan="2" class="empty-row">Loading node details...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let jwtToken = "";
+
+async function fetchToken() {
+  const resp = await fetch('/api/v1/research/token', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ username: 'admin' })
+  });
+  const data = await resp.json();
+  jwtToken = data.token;
+  loadGraph();
+}
+
+async function loadGraph() {
+  const resp = await fetch('/api/v1/knowledge', {
+    headers: {'Authorization': `Bearer ${jwtToken}`}
+  });
+  const data = await resp.json();
+  const graph = data.graph;
+  
+  const tbody = document.getElementById('nodesTableBody');
+  tbody.innerHTML = "";
+  
+  const container = document.getElementById('nodesContainer');
+  container.innerHTML = "";
+  
+  if (!graph.nodes || graph.nodes.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="2" class="empty-row">No nodes registered in graph.</td></tr>`;
+    container.innerHTML = `<div style="text-align:center; color:#475569; padding-top:8rem;">No active entities mapped.</div>`;
+    return;
+  }
+
+  // List node details table
+  graph.nodes.forEach(n => {
+    tbody.innerHTML += `
+      <tr>
+        <td><span class="type-badge ${n.node_type}">${n.node_type}</span></td>
+        <td><strong>${n.name}</strong></td>
+      </tr>
+    `;
+    
+    // Random placement coordinate mock for force layout
+    const x = Math.floor(Math.random() * 60) + 20;
+    const y = Math.floor(Math.random() * 60) + 20;
+    
+    container.innerHTML += `
+      <div class="graph-node-mock ${n.node_type}" style="left:${x}%; top:${y}%;">
+        <span class="node-icon">${getNodeIcon(n.node_type)}</span>
+        <span class="node-label">${n.name}</span>
+      </div>
+    `;
+  });
+}
+
+function getNodeIcon(type) {
+  if (type === 'actor') return '👤';
+  if (type === 'campaign') return '📅';
+  if (type === 'malware') return '🦠';
+  if (type === 'ioc') return '🔬';
+  return '🚨';
+}
+
+fetchToken();
+</script>
+
+<style>
+.knowledge-hub { padding-bottom: 2rem; }
+.soc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #090d16 0%, #151829 100%); border-radius: 16px; border: 1px solid rgba(16,185,129,0.3); }
+.soc-header-left { display: flex; align-items: center; gap: 1rem; }
+.soc-icon { font-size: 2.5rem; }
+.soc-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.soc-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+
+.grid-2 { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 1.5rem; }
+@media(max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+.card { background: #111424; border: 1px solid #23273a; border-radius: 16px; padding: 1.5rem; }
+.card-title { margin-top: 0; font-size: 1.1rem; color: #e2e8f0; margin-bottom: 1rem; }
+
+.table-container { background: #090d16; border-radius: 12px; border: 1px solid #23273a; }
+.ioc-table { width: 100%; border-collapse: collapse; }
+.ioc-table th { padding: 0.75rem 1rem; text-align: left; color: #64748b; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #23273a; }
+.ioc-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #23273a; color: #cbd5e1; font-size: 0.85rem; }
+
+.type-badge { padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+.type-badge.actor { background: rgba(239,68,68,0.2); color: #f87171; }
+.type-badge.campaign { background: rgba(249,115,22,0.2); color: #fb923c; }
+.type-badge.malware { background: rgba(168,85,247,0.2); color: #c084fc; }
+.type-badge.ioc { background: rgba(56,189,248,0.2); color: #38bdf8; }
+
+.graph-node-mock { position: absolute; display: flex; flex-direction: column; align-items: center; cursor: pointer; transform: translate(-50%, -50%); }
+.node-icon { font-size: 1.5rem; background: #1f2937; border: 2px solid #3b82f6; border-radius: 50%; padding: 0.4rem; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+.node-label { font-size: 0.75rem; color: #cbd5e1; margin-top: 0.25rem; font-weight: bold; background: rgba(0,0,0,0.6); padding: 0.1rem 0.3rem; border-radius: 4px; }
+.empty-row { text-align: center; color: #475569; padding: 3rem !important; }
+</style>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "admin.html" %}
+{% block title %}Autonomous Decisions — Admin{% endblock %}
+
+{% block content %}
+<div class="enterprise-page">
+  <div class="enterprise-header">
+    <div class="header-icon">⚖️</div>
+    <div>
+      <h1 class="header-title">Autonomous Decision Ledger</h1>
+      <p class="header-subtitle">Review non-deterministic agent decisions and manage human-in-the-loop approvals.</p>
+    </div>
+  </div>
+
+  <div class="card decisions-table-card">
+    <div class="table-header">
+      <h3 class="card-title" style="margin:0; border: none; padding: 0;">Agent Decisions Ledger</h3>
+    </div>
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Decision Type</th>
+            <th>Confidence</th>
+            <th>Recommendation</th>
+            <th>Approval Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if decisions %}
+            {% for d in decisions %}
+            <tr>
+              <td><strong>{{ d.decision_type }}</strong></td>
+              <td>
+                <div class="confidence-bar-container">
+                  <div class="confidence-bar" style="width: {{ d.confidence * 100 }}%; background: {% if d.confidence >= 0.8 %}#10b981{% elif d.confidence >= 0.6 %}#f59e0b{% else %}#ef4444{% endif %};"></div>
+                </div>
+                <span class="confidence-num">{{ (d.confidence * 100) | round(1) }}%</span>
+              </td>
+              <td>{{ d.recommendation }}</td>
+              <td>
+                <span class="badge {% if d.approval_status == 'approved' %}badge-success{% elif d.approval_status == 'rejected' %}badge-danger{% else %}badge-warning{% endif %}">
+                  {{ d.approval_status | replace('_', ' ') | upper }}
+                </span>
+              </td>
+              <td>
+                {% if d.approval_status == 'pending_approval' %}
+                  <button class="approve-btn" onclick="approveDecision({{ d.id }})">Approve</button>
+                {% else %}
+                  <span style="color: #64748b;">—</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="5" class="empty-state">No decisions logged yet.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+function approveDecision(id) {
+  if (confirm(`Approve Decision ID: ${id}?`)) {
+    alert(`Decision ${id} approved. Remediation pipeline triggered.`);
+  }
+}
+</script>
+
+<style>
+.enterprise-page { padding-bottom: 2rem; }
+.enterprise-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #09090b 0%, #064e3b 100%); border-radius: 16px; border: 1px solid rgba(16, 185, 129, 0.3); }
+.header-icon { font-size: 2.5rem; }
+.header-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.header-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+
+.card { background: #0f172a; border: 1px solid #1e293b; border-radius: 16px; padding: 1.5rem; }
+.card-title { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #f8fafc; }
+.table-header { border-bottom: 1px solid #1e293b; padding-bottom: 0.75rem; margin-bottom: 1rem; }
+
+.table-container { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; text-align: left; }
+.data-table th { padding: 0.75rem 1rem; color: #10b981; font-size: 0.8rem; text-transform: uppercase; border-bottom: 1px solid #1e293b; }
+.data-table td { padding: 0.75rem 1rem; color: #cbd5e1; font-size: 0.9rem; border-bottom: 1px solid #0f172a; }
+
+.confidence-bar-container { width: 60px; height: 6px; background: #1e293b; border-radius: 4px; overflow: hidden; display: inline-block; margin-right: 0.5rem; vertical-align: middle; }
+.confidence-bar { height: 100%; border-radius: 4px; }
+.confidence-num { font-weight: bold; vertical-align: middle; font-size: 0.8rem; }
+
+.badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+.badge-success { background: rgba(16,185,129,0.2); color: #34d399; }
+.badge-danger { background: rgba(239,68,68,0.2); color: #f87171; }
+.badge-warning { background: rgba(245,158,11,0.2); color: #fbbf24; }
+
+.approve-btn { background: #10b981; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; transition: all 0.2s ease-in-out; }
+.approve-btn:hover { background: #059669; transform: translateY(-1px); }
+.empty-state { text-align: center; color: #64748b; font-style: italic; padding: 2rem; }
+</style>
+{% endblock %}

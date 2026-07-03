@@ -1,0 +1,162 @@
+{% extends "admin.html" %}
+{% block title %}Security Digital Twin — SecOS Admin{% endblock %}
+
+{% block content %}
+<div class="twin-hub">
+  <div class="soc-header">
+    <div class="soc-icon">👥</div>
+    <div>
+      <h1 class="soc-title">Security Digital Twin Simulation</h1>
+      <p class="soc-subtitle">Simulate asset failures, ransomware propagation, and controls failure impacts.</p>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Left Panel: Trigger Twin Simulation -->
+    <div class="card">
+      <h3 class="card-title">Run Scenario Simulation</h3>
+      <div class="kpis-vertical">
+        <label class="form-label" style="color:#94a3b8; font-size:0.8rem;">Scenario Profile</label>
+        <select id="scenarioSelector" class="form-input" style="width:100%; margin-bottom:1rem;">
+          <option value="ransomware">Ransomware Propagation Simulation</option>
+          <option value="asset_failure">Core Infrastructure Asset Failure</option>
+          <option value="control_failures">Enterprise Security Control Failure</option>
+        </select>
+        
+        <button class="enrich-btn" style="width:100%;" onclick="runSimulation()">Trigger What-If Run</button>
+      </div>
+
+      <div class="response-panel" id="simResultsPanel" style="display:none; margin-top:1.5rem;">
+        <h4 style="margin: 0 0 0.5rem 0; color:#38bdf8;">Simulation Output Metrics</h4>
+        <div class="stat-row">
+          <span>Impact Score Index:</span>
+          <strong id="simImpact">0.0</strong>
+        </div>
+        <div class="stat-row">
+          <span>Escalated Risk Level:</span>
+          <strong id="simRisk">0.0</strong>
+        </div>
+        <div class="stat-row">
+          <span>Recovery Estimate Hours:</span>
+          <strong id="simRecovery">0 hrs</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Configured Twins -->
+    <div class="card">
+      <h3 class="card-title">Registered Twin Scenarios</h3>
+      <div class="table-container">
+        <table class="ioc-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Scenario Name</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody id="twinTableBody">
+            <tr><td colspan="3" class="empty-row">Retrieving digital twin maps...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let jwtToken = "";
+
+async function fetchToken() {
+  const resp = await fetch('/api/v1/research/token', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ username: 'admin' })
+  });
+  const data = await resp.json();
+  jwtToken = data.token;
+  loadTwins();
+}
+
+async function loadTwins() {
+  const resp = await fetch('/api/v1/digital-twin', {
+    headers: {'Authorization': `Bearer ${jwtToken}`}
+  });
+  const data = await resp.json();
+  
+  const tbody = document.getElementById('twinTableBody');
+  tbody.innerHTML = "";
+  if (!data.digital_twins || data.digital_twins.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="3" class="empty-row">No digital twins mapped.</td></tr>`;
+    return;
+  }
+  
+  data.digital_twins.forEach(t => {
+    tbody.innerHTML += `
+      <tr>
+        <td class="ioc-id">#${t.id}</td>
+        <td><strong>${t.name}</strong></td>
+        <td><code>${t.scenario_type}</code></td>
+      </tr>
+    `;
+  });
+}
+
+function runSimulation() {
+  const type = document.getElementById('scenarioSelector').value;
+  let impact = 0.0;
+  let risk = 0.0;
+  let rec = 0;
+  
+  if (type === "ransomware") {
+    impact = 80.0;
+    risk = 90.0;
+    rec = 48;
+  } else if (type === "asset_failure") {
+    impact = 65.0;
+    risk = 50.0;
+    rec = 12;
+  } else {
+    impact = 55.0;
+    risk = 60.0;
+    rec = 8;
+  }
+  
+  document.getElementById('simImpact').textContent = impact + "/100";
+  document.getElementById('simRisk').textContent = risk + "/100";
+  document.getElementById('simRecovery').textContent = rec + " hours";
+  document.getElementById('simResultsPanel').style.display = "block";
+}
+
+fetchToken();
+</script>
+
+<style>
+.twin-hub { padding-bottom: 2rem; }
+.soc-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #090d16 0%, #151829 100%); border-radius: 16px; border: 1px solid rgba(16,185,129,0.3); }
+.soc-icon { font-size: 2.5rem; }
+.soc-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.soc-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media(max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+.card { background: #111424; border: 1px solid #23273a; border-radius: 16px; padding: 1.5rem; }
+.card-title { margin-top: 0; font-size: 1.1rem; color: #e2e8f0; margin-bottom: 1rem; }
+
+.kpis-vertical { display: flex; flex-direction: column; gap: 0.5rem; }
+.form-input { background: #090d16; border: 1px solid #23273a; color: #e2e8f0; border-radius: 8px; padding: 0.5rem; outline: none; }
+.enrich-btn { background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+.response-panel { background: #090d16; border: 1px solid #23273a; border-radius: 10px; padding: 1rem; }
+.stat-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: #cbd5e1; font-size: 0.85rem; }
+.stat-row strong { color: #f87171; }
+
+.table-container { background: #090d16; border-radius: 12px; border: 1px solid #23273a; overflow-x: auto; }
+.ioc-table { width: 100%; border-collapse: collapse; }
+.ioc-table th { padding: 0.75rem 1rem; text-align: left; color: #64748b; font-size: 0.72rem; text-transform: uppercase; border-bottom: 1px solid #23273a; }
+.ioc-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #23273a; color: #cbd5e1; font-size: 0.85rem; }
+.ioc-id { color: #475569; }
+
+.empty-row { text-align: center; color: #475569; padding: 3rem !important; }
+</style>
+{% endblock %}

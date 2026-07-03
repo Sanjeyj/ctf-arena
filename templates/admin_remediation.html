@@ -1,0 +1,91 @@
+{% extends "admin.html" %}
+{% block title %}Self-Healing Remediation — Admin{% endblock %}
+
+{% block content %}
+<div class="enterprise-page">
+  <div class="enterprise-header">
+    <div class="header-icon">🔧</div>
+    <div>
+      <h1 class="header-title">Self-Healing Remediation Console</h1>
+      <p class="header-subtitle">Track, simulate, and audit self-healing scripts and threat isolation blockades.</p>
+    </div>
+  </div>
+
+  <div class="card remediation-card">
+    <div class="table-header">
+      <h3 class="card-title" style="margin:0; border: none; padding: 0;">Remediation Logs</h3>
+      <button class="action-btn" onclick="triggerRemediation()">+ New Action</button>
+    </div>
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Action Type</th>
+            <th>Severity</th>
+            <th>Execution Time</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if actions %}
+            {% for a in actions %}
+            <tr>
+              <td><strong>{{ a.action_type }}</strong></td>
+              <td>
+                <span class="badge {% if a.severity == 'critical' or a.severity == 'high' %}badge-danger{% elif a.severity == 'medium' %}badge-warning{% else %}badge-success{% endif %}">
+                  {{ a.severity | upper }}
+                </span>
+              </td>
+              <td>{{ a.execution_time or '—' }}s</td>
+              <td>
+                <span class="badge {% if a.status == 'completed' %}badge-success{% elif a.status == 'failed' %}badge-danger{% else %}badge-warning{% endif %}">
+                  {{ a.status | upper }}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="4" class="empty-state">No remediation actions executed yet.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+function triggerRemediation() {
+  const type = prompt("Remediation Action Type (e.g. Block malicious IP, Rotate credential):");
+  if (type) {
+    alert(`Remediation action "${type}" initiated in simulation-only mode.`);
+  }
+}
+</script>
+
+<style>
+.enterprise-page { padding-bottom: 2rem; }
+.enterprise-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #09090b 0%, #7f1d1d 100%); border-radius: 16px; border: 1px solid rgba(239, 68, 68, 0.3); }
+.header-icon { font-size: 2.5rem; }
+.header-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.header-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+
+.card { background: #0f172a; border: 1px solid #1e293b; border-radius: 16px; padding: 1.5rem; }
+.card-title { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #f8fafc; }
+.table-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 0.75rem; margin-bottom: 1rem; }
+.action-btn { background: #ef4444; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s ease-in-out; }
+.action-btn:hover { background: #dc2626; transform: translateY(-1px); }
+
+.table-container { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; text-align: left; }
+.data-table th { padding: 0.75rem 1rem; color: #ef4444; font-size: 0.8rem; text-transform: uppercase; border-bottom: 1px solid #1e293b; }
+.data-table td { padding: 0.75rem 1rem; color: #cbd5e1; font-size: 0.9rem; border-bottom: 1px solid #0f172a; }
+
+.badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+.badge-success { background: rgba(16,185,129,0.2); color: #34d399; }
+.badge-danger { background: rgba(239,68,68,0.2); color: #f87171; }
+.badge-warning { background: rgba(245,158,11,0.2); color: #fbbf24; }
+.empty-state { text-align: center; color: #64748b; font-style: italic; padding: 2rem; }
+</style>
+{% endblock %}

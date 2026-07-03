@@ -1,0 +1,89 @@
+{% extends "admin.html" %}
+{% block title %}Autonomous Agents — Admin{% endblock %}
+
+{% block content %}
+<div class="enterprise-page">
+  <div class="enterprise-header">
+    <div class="header-icon">🤖</div>
+    <div>
+      <h1 class="header-title">Autonomous Agents Registry</h1>
+      <p class="header-subtitle">Deploy, monitor, and scale AI-driven security agents across the orchestration mesh.</p>
+    </div>
+  </div>
+
+  <div class="card agents-table-card">
+    <div class="table-header">
+      <h3 class="card-title" style="margin:0; border: none; padding: 0;">Active AI Agents</h3>
+      <button class="action-btn" onclick="deployAgent()">+ Deploy Agent</button>
+    </div>
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Agent Name</th>
+            <th>Role</th>
+            <th>Confidence Target</th>
+            <th>LLM Model</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if agents %}
+            {% for a in agents %}
+            <tr>
+              <td><strong>{{ a.name }}</strong></td>
+              <td>{{ a.role }}</td>
+              <td>{{ (a.confidence * 100) | round(1) }}%</td>
+              <td><code>{{ a.model or 'gpt-4' }}</code></td>
+              <td>
+                <span class="status-badge status-{{ a.status }}">
+                  {{ a.status | upper }}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="5" class="empty-state">No autonomous agents registered yet.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+function deployAgent() {
+  const name = prompt("Agent Name:");
+  if (!name) return;
+  const role = prompt("Agent Role (SOC Agent / CTI Agent / Compliance Agent / Resilience Agent / Executive Agent):", "SOC Agent");
+  alert(`AI Agent "${name}" initialized with role ${role}. Deployment queued.`);
+}
+</script>
+
+<style>
+.enterprise-page { padding-bottom: 2rem; }
+.enterprise-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #09090b 0%, #1e1b4b 100%); border-radius: 16px; border: 1px solid rgba(99, 102, 241, 0.3); }
+.header-icon { font-size: 2.5rem; }
+.header-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.header-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+
+.card { background: #0f172a; border: 1px solid #1e293b; border-radius: 16px; padding: 1.5rem; }
+.card-title { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #f8fafc; }
+.table-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 0.75rem; margin-bottom: 1rem; }
+.action-btn { background: #6366f1; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s ease-in-out; }
+.action-btn:hover { background: #4f46e5; transform: translateY(-1px); }
+
+.table-container { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; text-align: left; }
+.data-table th { padding: 0.75rem 1rem; color: #6366f1; font-size: 0.8rem; text-transform: uppercase; border-bottom: 1px solid #1e293b; }
+.data-table td { padding: 0.75rem 1rem; color: #cbd5e1; font-size: 0.9rem; border-bottom: 1px solid #0f172a; }
+
+.status-badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+.status-idle { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+.status-running { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+.status-offline { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+.empty-state { text-align: center; color: #64748b; font-style: italic; padding: 2rem; }
+</style>
+{% endblock %}

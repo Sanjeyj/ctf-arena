@@ -1,0 +1,84 @@
+{% extends "admin.html" %}
+{% block title %}Cyber Marketplace — CTF Arena Admin{% endblock %}
+
+{% block content %}
+<div class="marketplace-hub">
+  <div class="soc-header">
+    <div class="soc-header-left">
+      <div class="soc-icon">🛍️</div>
+      <div>
+        <h1 class="soc-title">Cyber Marketplace catalog</h1>
+        <p class="soc-subtitle">Curate courses, virtual labs, Docker plugins, templates, and CTI reports.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="marketplace-grid" id="marketplaceItemsGrid">
+    <div class="empty-state">Loading marketplace catalog...</div>
+  </div>
+</div>
+
+<script>
+let jwtToken = "";
+
+async function fetchToken() {
+  const resp = await fetch('/api/v1/research/token', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ username: 'admin' })
+  });
+  const data = await resp.json();
+  jwtToken = data.token;
+  loadItems();
+}
+
+async function loadItems() {
+  const resp = await fetch('/api/v1/marketplace', {
+    headers: {'Authorization': `Bearer ${jwtToken}`}
+  });
+  const data = await resp.json();
+  const grid = document.getElementById('marketplaceItemsGrid');
+  grid.innerHTML = "";
+  
+  if (!data.marketplace_items || data.marketplace_items.length === 0) {
+    grid.innerHTML = `<div class="empty-state">No marketplace items configured yet.</div>`;
+    return;
+  }
+
+  data.marketplace_items.forEach(i => {
+    grid.innerHTML += `
+      <div class="item-card">
+        <span class="item-badge">${i.asset_type}</span>
+        <h3 class="item-title">${i.name}</h3>
+        <p class="item-desc">${i.description || 'No description provided.'}</p>
+        <div class="item-footer">
+          <span class="item-price">🪙 ${i.price} credits</span>
+          <button class="buy-btn" onclick="alert('Item successfully licensed!')">License Asset</button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+fetchToken();
+</script>
+
+<style>
+.marketplace-hub { padding-bottom: 2rem; }
+.soc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #090d16 0%, #151829 100%); border-radius: 16px; border: 1px solid rgba(16,185,129,0.3); }
+.soc-header-left { display: flex; align-items: center; gap: 1rem; }
+.soc-icon { font-size: 2.5rem; }
+.soc-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.soc-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+
+.marketplace-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+.item-card { background: #111424; border: 1px solid #23273a; border-radius: 16px; padding: 1.5rem; position: relative; }
+.item-badge { position: absolute; top: 1rem; right: 1rem; background: rgba(16,185,129,0.15); color: #34d399; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 6px; }
+.item-title { margin-top: 0.5rem; font-size: 1.1rem; color: #e2e8f0; margin-bottom: 0.5rem; }
+.item-desc { color: #94a3b8; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1.5rem; min-height: 48px; }
+.item-footer { display: flex; justify-content: space-between; align-items: center; }
+.item-price { font-size: 0.95rem; font-weight: bold; color: #38bdf8; }
+.buy-btn { background: linear-gradient(135deg, #10b981, #059669); border: none; color: #fff; padding: 0.45rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+.empty-state { text-align: center; color: #475569; padding: 3rem; grid-column: 1 / -1; }
+</style>
+{% endblock %}

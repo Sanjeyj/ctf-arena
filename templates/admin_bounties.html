@@ -1,0 +1,107 @@
+{% extends "admin.html" %}
+{% block title %}Bug Bounty Platform — CTF Arena Admin{% endblock %}
+
+{% block content %}
+<div class="bounties-hub">
+  <div class="soc-header">
+    <div class="soc-header-left">
+      <div class="soc-icon">🐛</div>
+      <div>
+        <h1 class="soc-title">Bug Bounty Program Control</h1>
+        <p class="soc-subtitle">Review incoming vulnerability submissions, triage severity, and authorize rewards.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table class="ioc-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>CVSS</th>
+          <th>Severity</th>
+          <th>Status</th>
+          <th>Points</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="bountiesTableBody">
+        <tr><td colspan="7" class="empty-row">Loading reports queue...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+let jwtToken = "";
+
+async function fetchToken() {
+  const resp = await fetch('/api/v1/research/token', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ username: 'admin' })
+  });
+  const data = await resp.json();
+  jwtToken = data.token;
+  loadBounties();
+}
+
+async function loadBounties() {
+  const resp = await fetch('/api/v1/bounties', {
+    headers: {'Authorization': `Bearer ${jwtToken}`}
+  });
+  const data = await resp.json();
+  const tbody = document.getElementById('bountiesTableBody');
+  tbody.innerHTML = "";
+  
+  if (!data.vulnerability_reports || data.vulnerability_reports.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty-row">No vulnerabilities submitted yet.</td></tr>`;
+    return;
+  }
+
+  data.vulnerability_reports.forEach(r => {
+    tbody.innerHTML += `
+      <tr>
+        <td class="ioc-id">#${r.id}</td>
+        <td><strong>${r.title}</strong></td>
+        <td>${r.cvss_score}</td>
+        <td><span class="type-badge ${r.severity}">${r.severity}</span></td>
+        <td><span class="status-badge">${r.status}</span></td>
+        <td>${r.reputation_points}</td>
+        <td>
+          <button class="enrich-btn" onclick="alert('Vulnerability triaged!')">Triage</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+fetchToken();
+</script>
+
+<style>
+.bounties-hub { padding-bottom: 2rem; }
+.soc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #090d16 0%, #151829 100%); border-radius: 16px; border: 1px solid rgba(16,185,129,0.3); }
+.soc-header-left { display: flex; align-items: center; gap: 1rem; }
+.soc-icon { font-size: 2.5rem; }
+.soc-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.soc-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+
+.table-container { background: #111424; border-radius: 12px; border: 1px solid #23273a; overflow-x: auto; }
+.ioc-table { width: 100%; border-collapse: collapse; }
+.ioc-table th { padding: 0.75rem 1rem; text-align: left; color: #64748b; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #23273a; }
+.ioc-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #23273a; color: #cbd5e1; font-size: 0.85rem; }
+.ioc-id { color: #475569; }
+
+.type-badge { padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+.type-badge.critical { background: rgba(239,68,68,0.2); color: #f87171; }
+.type-badge.high { background: rgba(249,115,22,0.2); color: #fb923c; }
+.type-badge.medium { background: rgba(234,179,8,0.2); color: #facc15; }
+.type-badge.low { background: rgba(148,163,184,0.2); color: #94a3b8; }
+
+.status-badge { background: #1e293b; color: #94a3b8; padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.75rem; }
+.enrich-btn { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); padding: 0.25rem 0.5rem; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
+.empty-row { text-align: center; color: #475569; padding: 3rem !important; }
+</style>
+{% endblock %}

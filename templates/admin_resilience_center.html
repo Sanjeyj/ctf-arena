@@ -1,0 +1,60 @@
+{% extends "admin.html" %}
+{% block title %}Executive Cyber Resilience Center — Admin{% endblock %}
+
+{% block content %}
+<div class="resilience-center">
+  <div class="resilience-header">
+    <div class="resilience-icon">🛡️</div>
+    <div>
+      <h1 class="resilience-title">Executive Cyber Resilience Center</h1>
+      <p class="resilience-subtitle">Assess real-time organizational safety postures, failover capabilities, and business process RTO/RPO objectives.</p>
+    </div>
+  </div>
+
+  <div class="grid-layout">
+    <!-- Score Widget -->
+    <div class="card score-card">
+      <h3 class="card-title">Resilience Score</h3>
+      <div class="score-display">
+        <span class="score-number">{{ score }}</span>
+        <span class="score-total">/100</span>
+      </div>
+      <div class="components-breakdown">
+        <p>Exercises: <strong>{{ score_components.exercise_score }}%</strong></p>
+        <p>Process Alignment: <strong>{{ score_components.process_alignment }}%</strong></p>
+        <p>Vendor Resilience: <strong>{{ score_components.vendor_resilience }}%</strong></p>
+      </div>
+    </div>
+
+    <!-- Forecast Widget -->
+    <div class="card forecast-card">
+      <h3 class="card-title">Failure Modes Forecast</h3>
+      <div class="forecast-status">
+        <p>Simulation Failure Risk: <strong style="color: #ef4444;">{{ forecast.failure_probability_pct }}%</strong></p>
+        <p>Simulated Downtime Loss: <strong>${{ "{:,.2f}".format(forecast.estimated_downtime_loss_usd) }}</strong></p>
+      </div>
+      <p class="forecast-summary">{{ forecast.forecast_summary }}</p>
+    </div>
+  </div>
+</div>
+
+<style>
+.resilience-center { padding-bottom: 2rem; }
+.resilience-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 16px; border: 1px solid rgba(59,130,246,0.3); }
+.resilience-icon { font-size: 2.5rem; }
+.resilience-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #f1f5f9; }
+.resilience-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+
+.grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 1.5rem; }
+.card-title { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #f1f5f9; border-bottom: 1px solid #334155; padding-bottom: 0.5rem; }
+
+.score-display { display: flex; align-items: baseline; justify-content: center; margin: 1.5rem 0; }
+.score-number { font-size: 3.5rem; font-weight: 800; color: #10b981; }
+.score-total { font-size: 1.5rem; color: #94a3b8; }
+.components-breakdown p { margin: 0.5rem 0; color: #cbd5e1; }
+
+.forecast-status p { margin: 0.5rem 0; font-size: 1rem; color: #cbd5e1; }
+.forecast-summary { margin-top: 1rem; font-style: italic; color: #94a3b8; font-size: 0.9rem; }
+</style>
+{% endblock %}

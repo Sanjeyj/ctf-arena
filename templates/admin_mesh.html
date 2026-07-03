@@ -1,0 +1,92 @@
+{% extends "admin.html" %}
+{% block title %}Security Mesh Federation & Routing — Admin{% endblock %}
+
+{% block content %}
+<div class="mesh-hub">
+  <div class="soc-header">
+    <div class="soc-icon">🕸️</div>
+    <div>
+      <h1 class="soc-title">Security Mesh Federation</h1>
+      <p class="soc-subtitle">Configure secure cross-region trust tunnels and route path metrics.</p>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Left Panel: Federation Mesh links -->
+    <div class="card">
+      <h3 class="card-title">Federated Trust Tunnels</h3>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Tunnel Path</th>
+              <th>Trust Level</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in meshes %}
+            <tr>
+              <td><strong>{{ m.source_region }}</strong> ➔ <strong>{{ m.destination_region }}</strong></td>
+              <td><span class="badge badge-info">{{ m.trust_level }}</span></td>
+              <td><span class="badge {% if m.status == 'active' %}badge-success{% else %}badge-danger{% endif %}">{{ m.status }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right Panel: Node Router links -->
+    <div class="card">
+      <h3 class="card-title">Latency Routing Weights</h3>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Link Path</th>
+              <th>Weight</th>
+              <th>Latency</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in routes %}
+            <tr>
+              <td><code>{{ r.source_node }}</code> ➔ <code>{{ r.destination_node }}</code></td>
+              <td>{{ r.weight }}</td>
+              <td>{{ r.latency }} ms</td>
+              <td><span class="badge {% if r.status == 'active' %}badge-success{% else %}badge-danger{% endif %}">{{ r.status }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.mesh-hub { padding-bottom: 2rem; }
+.soc-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #090d16 0%, #151829 100%); border-radius: 16px; border: 1px solid rgba(59,130,246,0.3); }
+.soc-icon { font-size: 2.5rem; }
+.soc-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.soc-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media(max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+.card { background: #111424; border: 1px solid #23273a; border-radius: 16px; padding: 1.5rem; }
+.card-title { margin-top: 0; font-size: 1.1rem; color: #e2e8f0; margin-bottom: 1rem; }
+
+.table-container { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; text-align: left; }
+.data-table th, .data-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #23273a; }
+.data-table th { color: #64748b; font-size: 0.85rem; text-transform: uppercase; }
+.data-table td { color: #cbd5e1; font-size: 0.9rem; }
+
+.badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+.badge-info { background: rgba(59,130,246,0.2); color: #3b82f6; }
+.badge-success { background: rgba(16,185,129,0.2); color: #10b981; }
+.badge-danger { background: rgba(239,68,68,0.2); color: #ef4444; }
+</style>
+{% endblock %}

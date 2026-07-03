@@ -1,0 +1,111 @@
+{% extends "admin.html" %}
+{% block title %}Cyber Reputation — CTF Arena Admin{% endblock %}
+
+{% block content %}
+<div class="reputation-hub">
+  <div class="soc-header">
+    <div class="soc-header-left">
+      <div class="soc-icon">🏆</div>
+      <div>
+        <h1 class="soc-title">Cyber Reputation & Tier Matrix</h1>
+        <p class="soc-subtitle">Consolidate training achievements, bug bounty counts, and operational performance.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card font-sec">
+    <h3 class="card-title">Check Researcher Reputation Tier</h3>
+    <p class="card-sub">Aggregates SOC cases, cert points, and reports.</p>
+    
+    <div style="display:flex; gap:1rem; margin-bottom:1.5rem;">
+      <input type="number" id="target-userid" class="form-input" placeholder="Enter User ID (e.g. 1)" style="max-width:240px;">
+      <button class="enrich-btn" onclick="queryReputation()" style="padding: 0.625rem 1.25rem;">Verify Tier</button>
+    </div>
+
+    <!-- Reputation Output Console -->
+    <div id="reputConsole" style="display:none;" class="console-box">
+      <div class="metadata-strip">
+        <div class="meta-item">
+          <span class="mi-label">Total Points</span>
+          <span class="mi-value" id="rep-total"></span>
+        </div>
+        <div class="meta-item">
+          <span class="mi-label">Tier Status</span>
+          <span class="mi-value" id="rep-tier" style="font-weight:bold; text-transform:uppercase;"></span>
+        </div>
+      </div>
+      
+      <div class="details-list">
+        <div class="det-item">🐞 Bug Bounty Points: <span id="rep-bounties"></span></div>
+        <div class="det-item">📝 Research Report Points: <span id="rep-reports"></span></div>
+        <div class="det-item">🛡️ SOC Case Points: <span id="rep-soc"></span></div>
+        <div class="det-item">🎖️ Badge/Certification Points: <span id="rep-badges"></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let jwtToken = "";
+
+async function fetchToken() {
+  const resp = await fetch('/api/v1/research/token', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ username: 'admin' })
+  });
+  const data = await resp.json();
+  jwtToken = data.token;
+}
+
+async function queryReputation() {
+  const uid = document.getElementById('target-userid').value;
+  if (!uid) return;
+  
+  try {
+    const resp = await fetch(`/api/v1/reputation?user_id=${uid}`, {
+      headers: {'Authorization': `Bearer ${jwtToken}`}
+    });
+    if (!resp.ok) throw new Error();
+    const data = await resp.json();
+    
+    document.getElementById('reputConsole').style.display = 'block';
+    document.getElementById('rep-total').textContent = data.reputation.total_points + " pts";
+    document.getElementById('rep-tier').textContent = data.reputation.tier;
+    document.getElementById('rep-bounties').textContent = data.reputation.bounty_points + " pts";
+    document.getElementById('rep-reports').textContent = data.reputation.report_points + " pts";
+    document.getElementById('rep-soc').textContent = data.reputation.soc_points + " pts";
+    document.getElementById('rep-badges').textContent = data.reputation.badge_points + " pts";
+  } catch (err) {
+    alert('Failed to retrieve reputation details. Ensure user exists.');
+  }
+}
+
+fetchToken();
+</script>
+
+<style>
+.reputation-hub { padding-bottom: 2rem; }
+.soc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #090d16 0%, #151829 100%); border-radius: 16px; border: 1px solid rgba(16,185,129,0.3); }
+.soc-header-left { display: flex; align-items: center; gap: 1rem; }
+.soc-icon { font-size: 2.5rem; }
+.soc-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.soc-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+
+.card { background: #111424; border: 1px solid #23273a; border-radius: 16px; padding: 1.5rem; }
+.card-title { margin-top: 0; font-size: 1.1rem; color: #e2e8f0; margin-bottom: 0.25rem; }
+.card-sub { color: #64748b; font-size: 0.85rem; margin-top: 0; margin-bottom: 1.5rem; }
+
+.form-input { width: 100%; background: #090d16; border: 1px solid #23273a; color: #e2e8f0; padding: 0.625rem; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box; }
+.enrich-btn { background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+
+.console-box { border-radius: 12px; padding: 1.25rem; background: #090d16; border: 1px solid #23273a; margin-top: 1rem; }
+.metadata-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid #23273a; padding-bottom: 1rem; }
+.meta-item { display: flex; flex-direction: column; }
+.mi-label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; }
+.mi-value { font-size: 1.2rem; color: #10b981; margin-top: 0.25rem; }
+
+.details-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.det-item { padding: 0.5rem; background: rgba(255,255,255,0.02); border-radius: 6px; color: #cbd5e1; font-size: 0.9rem; }
+</style>
+{% endblock %}

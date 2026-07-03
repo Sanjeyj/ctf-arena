@@ -1,0 +1,103 @@
+{% extends "admin.html" %}
+{% block title %}Ecosystem Federation — CTF Arena Admin{% endblock %}
+
+{% block content %}
+<div class="federation-hub">
+  <div class="soc-header">
+    <div class="soc-header-left">
+      <div class="soc-icon">🌐</div>
+      <div>
+        <h1 class="soc-title">Ecosystem Trust Federation</h1>
+        <p class="soc-subtitle">Configure organization trust links, bridge scoreboards, and enable challenge sharing.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table class="ioc-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Source Org ID</th>
+          <th>Target Org ID</th>
+          <th>Relationship Status</th>
+          <th>Capabilities Granted</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="federationTableBody">
+        <tr><td colspan="6" class="empty-row">Loading trust bridges catalog...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+let jwtToken = "";
+
+async function fetchToken() {
+  const resp = await fetch('/api/v1/research/token', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ username: 'admin' })
+  });
+  const data = await resp.json();
+  jwtToken = data.token;
+  loadFederations();
+}
+
+async function loadFederations() {
+  const resp = await fetch('/api/v1/federation', {
+    headers: {'Authorization': `Bearer ${jwtToken}`}
+  });
+  const data = await resp.json();
+  const tbody = document.getElementById('federationTableBody');
+  tbody.innerHTML = "";
+  
+  if (!data.federation_links || data.federation_links.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-row">No trust bridges registered.</td></tr>`;
+    return;
+  }
+
+  data.federation_links.forEach(f => {
+    tbody.innerHTML += `
+      <tr>
+        <td class="ioc-id">#${f.id}</td>
+        <td>Org #${f.source_org_id}</td>
+        <td>Org #${f.target_org_id}</td>
+        <td><span class="status-badge ${f.relationship}">${f.relationship}</span></td>
+        <td>${f.capabilities.join(', ') || 'None'}</td>
+        <td>
+          <button class="enrich-btn" onclick="alert('Bridge capabilities updated!')">Configure</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+fetchToken();
+</script>
+
+<style>
+.federation-hub { padding-bottom: 2rem; }
+.soc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #090d16 0%, #151829 100%); border-radius: 16px; border: 1px solid rgba(16,185,129,0.3); }
+.soc-header-left { display: flex; align-items: center; gap: 1rem; }
+.soc-icon { font-size: 2.5rem; }
+.soc-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.soc-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+
+.table-container { background: #111424; border-radius: 12px; border: 1px solid #23273a; overflow-x: auto; }
+.ioc-table { width: 100%; border-collapse: collapse; }
+.ioc-table th { padding: 0.75rem 1rem; text-align: left; color: #64748b; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #23273a; }
+.ioc-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #23273a; color: #cbd5e1; font-size: 0.85rem; }
+.ioc-id { color: #475569; }
+
+.status-badge { padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+.status-badge.trusted { background: rgba(16,185,129,0.2); color: #34d399; }
+.status-badge.blocked { background: rgba(239,68,68,0.2); color: #f87171; }
+.status-badge.pending { background: rgba(234,179,8,0.2); color: #facc15; }
+
+.enrich-btn { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); padding: 0.25rem 0.5rem; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
+.empty-row { text-align: center; color: #475569; padding: 3rem !important; }
+</style>
+{% endblock %}

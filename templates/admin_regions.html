@@ -1,0 +1,78 @@
+{% extends "admin.html" %}
+{% block title %}Cloud Regions Registry — Admin{% endblock %}
+
+{% block content %}
+<div class="regions-hub">
+  <div class="soc-header">
+    <div class="soc-icon">🗺️</div>
+    <div>
+      <h1 class="soc-title">Cloud Regions Registry</h1>
+      <p class="soc-subtitle">Configure geographical region endpoints and verify connectivity status.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header-flex">
+      <h3 class="card-title">Geographical Regions</h3>
+      <button class="enrich-btn" onclick="addNewRegion()">Add Region</button>
+    </div>
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Region Name</th>
+            <th>Slug</th>
+            <th>Region Code</th>
+            <th>Location</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in regions %}
+          <tr>
+            <td><strong>{{ r.name }}</strong></td>
+            <td><code>{{ r.slug }}</code></td>
+            <td>{{ r.region_code or 'N/A' }}</td>
+            <td>{{ r.location or 'Global Edge' }}</td>
+            <td><span class="badge {% if r.status == 'active' %}badge-success{% else %}badge-danger{% endif %}">{{ r.status }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+function addNewRegion() {
+  const name = prompt("Enter region name:");
+  if (!name) return;
+  const slug = prompt("Enter region slug (e.g. us-east):");
+  if (!slug) return;
+  alert("Region creation logic stub. Will register: " + name + " (" + slug + ")");
+}
+</script>
+
+<style>
+.regions-hub { padding-bottom: 2rem; }
+.soc-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #090d16 0%, #151829 100%); border-radius: 16px; border: 1px solid rgba(59,130,246,0.3); }
+.soc-icon { font-size: 2.5rem; }
+.soc-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.soc-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+
+.card { background: #111424; border: 1px solid #23273a; border-radius: 16px; padding: 1.5rem; }
+.card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.card-title { margin: 0; font-size: 1.1rem; color: #e2e8f0; }
+.enrich-btn { background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+.table-container { margin-top: 1rem; overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; text-align: left; }
+.data-table th, .data-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #23273a; }
+.data-table th { color: #64748b; font-size: 0.85rem; text-transform: uppercase; }
+.data-table td { color: #cbd5e1; font-size: 0.9rem; }
+
+.badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+.badge-success { background: rgba(16,185,129,0.2); color: #10b981; }
+.badge-danger { background: rgba(239,68,68,0.2); color: #ef4444; }
+</style>
+{% endblock %}

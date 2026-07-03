@@ -42,7 +42,7 @@ class HuntService:
 
     @staticmethod
     def list_hunts(org_id: int = None, status: str = None):
-        q = Hunt.query
+        q = db.session.query(Hunt)
         if org_id:
             q = q.filter_by(organization_id=org_id)
         if status:

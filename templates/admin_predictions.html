@@ -1,0 +1,106 @@
+{% extends "admin.html" %}
+{% block title %}Threat Prediction — CTF Admin{% endblock %}
+
+{% block content %}
+<div class="prediction-hub">
+  <div class="soc-header">
+    <div class="soc-header-left">
+      <div class="soc-icon">🔮</div>
+      <div>
+        <h1 class="soc-title">Threat Prediction Engine</h1>
+        <p class="soc-subtitle">Analyze historical solves, logs, and CTI profiles to forecast targets.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Left Column: Forecast Summary -->
+    <div class="card font-sec">
+      <h3 class="card-title">Forecast Analysis Dashboard</h3>
+      <div class="metadata-strip">
+        <div class="meta-item">
+          <span class="mi-label">Forecasted Adversary Group</span>
+          <span class="mi-value" id="pred-adversary" style="color:#f87171;"></span>
+        </div>
+        <div class="meta-item">
+          <span class="mi-label">Engine Confidence</span>
+          <span class="mi-value" id="pred-confidence"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Trending Details -->
+    <div class="card">
+      <h3 class="card-title">Trending TTPs & High-Risk Assets</h3>
+      <h4 class="sub-title">Estimated Adversary Techniques</h4>
+      <ul class="details-list" id="pred-techniques"></ul>
+
+      <h4 class="sub-title">Identified High-Risk Assets</h4>
+      <ul class="details-list" id="pred-assets"></ul>
+    </div>
+  </div>
+</div>
+
+<script>
+let jwtToken = "";
+
+async function fetchToken() {
+  const resp = await fetch('/api/v1/research/token', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ username: 'admin' })
+  });
+  const data = await resp.json();
+  jwtToken = data.token;
+  loadPredictions();
+}
+
+async function loadPredictions() {
+  const resp = await fetch('/api/v1/predictions', {
+    headers: {'Authorization': `Bearer ${jwtToken}`}
+  });
+  const data = await resp.json();
+  const preds = data.predictions;
+  
+  document.getElementById('pred-adversary').textContent = preds.forecasted_adversary;
+  document.getElementById('pred-confidence').textContent = preds.confidence_percentage + "%";
+  
+  const techList = document.getElementById('pred-techniques');
+  techList.innerHTML = "";
+  preds.trending_techniques.forEach(t => {
+    techList.innerHTML += `<li>${t}</li>`;
+  });
+  
+  const assetList = document.getElementById('pred-assets');
+  assetList.innerHTML = "";
+  preds.high_risk_assets.forEach(a => {
+    assetList.innerHTML += `<li>${a}</li>`;
+  });
+}
+
+fetchToken();
+</script>
+
+<style>
+.prediction-hub { padding-bottom: 2rem; }
+.soc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #090d16 0%, #151829 100%); border-radius: 16px; border: 1px solid rgba(16,185,129,0.3); }
+.soc-header-left { display: flex; align-items: center; gap: 1rem; }
+.soc-icon { font-size: 2.5rem; }
+.soc-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.soc-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media(max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+.card { background: #111424; border: 1px solid #23273a; border-radius: 16px; padding: 1.5rem; }
+.card-title { margin-top: 0; font-size: 1.1rem; color: #e2e8f0; margin-bottom: 0.25rem; }
+
+.metadata-strip { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1rem; }
+.meta-item { display: flex; flex-direction: column; }
+.mi-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; }
+.mi-value { font-size: 1.4rem; color: #10b981; margin-top: 0.25rem; font-weight: bold; }
+
+.sub-title { font-size: 0.85rem; text-transform: uppercase; color: #94a3b8; margin-top: 1rem; margin-bottom: 0.5rem; letter-spacing: 0.05em; }
+.details-list { padding-left: 1.25rem; color: #cbd5e1; font-size: 0.9rem; margin-bottom: 1.5rem; }
+.details-list li { margin-bottom: 0.5rem; }
+</style>
+{% endblock %}

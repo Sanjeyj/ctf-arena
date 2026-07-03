@@ -1,0 +1,112 @@
+{% extends "admin.html" %}
+{% block title %}Crisis Response Coordination Room — Admin{% endblock %}
+
+{% block content %}
+<div class="crisis-room">
+  <div class="crisis-header">
+    <div class="crisis-icon">🔥</div>
+    <div>
+      <h1 class="crisis-title">Crisis Response Room</h1>
+      <p class="crisis-subtitle">Declare organizational crisis alerts, coordinate mitigation activities, and track impact resolution status.</p>
+    </div>
+  </div>
+
+  <div class="grid-layout">
+    <!-- Active Crisis Log -->
+    <div class="card active-crisis-card">
+      <h3 class="card-title">Active Crisis Incidents</h3>
+      <div class="crisis-list">
+        {% if active_crises %}
+          {% for c in active_crises %}
+          <div class="crisis-item">
+            <div class="crisis-meta">
+              <strong>{{ c.event_name }}</strong>
+              <span class="badge badge-danger">{{ c.severity }}</span>
+            </div>
+            <p>Impact Score: <strong>{{ c.impact_score }}</strong></p>
+            <p>Started: {{ c.start_time.strftime('%Y-%m-%d %H:%M:%S') if c.start_time else 'N/A' }}</p>
+            <div class="actions-row">
+              <button class="action-btn" onclick="coordinateCrisis({{ c.id }})">Coordinate Update</button>
+              <button class="action-btn resolve-btn" onclick="resolveCrisis({{ c.id }})">Resolve Crisis</button>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p class="empty-state">No active crisis events registered.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Declare Crisis -->
+    <div class="card declare-card">
+      <h3 class="card-title">Declare Incident</h3>
+      <div class="form-group">
+        <label for="crisis-name">Event Name</label>
+        <input type="text" id="crisis-name" placeholder="e.g. Ransomware attack on CRM database" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="crisis-severity">Severity</label>
+        <select id="crisis-severity" class="form-input">
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="critical">Critical</option>
+        </select>
+      </div>
+      <button class="submit-btn" onclick="submitCrisis()">Declare Active Crisis</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function submitCrisis() {
+  const name = document.getElementById('crisis-name').value;
+  const severity = document.getElementById('crisis-severity').value;
+  if (!name) {
+    alert("Event Name is required.");
+    return;
+  }
+  alert(`Incident declared: ${name} (${severity})`);
+}
+
+function coordinateCrisis(id) {
+  const note = prompt("Enter coordination updates:");
+  if (note) {
+    alert(`Crisis ID ${id} coordination logged: ${note}`);
+  }
+}
+
+function resolveCrisis(id) {
+  if (confirm("Are you sure you want to resolve this crisis?")) {
+    alert(`Crisis ID ${id} set to resolved.`);
+  }
+}
+</script>
+
+<style>
+.crisis-room { padding-bottom: 2rem; }
+.crisis-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #450a0a 0%, #1e1b4b 100%); border-radius: 16px; border: 1px solid rgba(239,68,68,0.3); }
+.crisis-icon { font-size: 2.5rem; }
+.crisis-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #fecdd3; }
+.crisis-subtitle { margin: 0; color: #fda4af; font-size: 0.9rem; }
+
+.grid-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 1.5rem; }
+.card { background: #1e1b4b; border: 1px solid #312e81; border-radius: 16px; padding: 1.5rem; }
+.card-title { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #fecdd3; border-bottom: 1px solid #312e81; padding-bottom: 0.5rem; }
+
+.crisis-list { display: flex; flex-direction: column; gap: 1rem; }
+.crisis-item { padding: 1rem; background: #312e81; border-radius: 8px; border: 1px solid #4338ca; }
+.crisis-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+.badge-danger { background: rgba(239,68,68,0.2); color: #fca5a5; }
+
+.actions-row { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+.action-btn { background: #4338ca; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
+.resolve-btn { background: #10b981; }
+
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; margin-bottom: 0.25rem; font-size: 0.85rem; color: #fda4af; }
+.form-input { width: 100%; padding: 0.5rem; border: 1px solid #312e81; background: #0f172a; color: white; border-radius: 6px; }
+.submit-btn { width: 100%; background: #e11d48; color: white; border: none; padding: 0.6rem; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; }
+.empty-state { color: #94a3b8; font-style: italic; text-align: center; margin: 2rem 0; }
+</style>
+{% endblock %}

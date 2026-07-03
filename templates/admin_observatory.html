@@ -1,0 +1,63 @@
+{% extends "admin.html" %}
+{% block title %}Global Observatory — Admin{% endblock %}
+
+{% block content %}
+<div class="obs-center">
+  <div class="obs-header">
+    <div class="obs-icon">🔭</div>
+    <div>
+      <h1 class="obs-title">Global Cyber Observatory</h1>
+      <p class="obs-sub">Real-time health monitoring of worldwide security observatory nodes</p>
+    </div>
+  </div>
+
+  <div class="obs-stats-row">
+    <div class="obs-stat online"><div class="stat-num">{{ nodes | selectattr('status', 'equalto', 'online') | list | length }}</div><div class="stat-lbl">Online</div></div>
+    <div class="obs-stat degraded"><div class="stat-num">{{ nodes | selectattr('status', 'equalto', 'degraded') | list | length }}</div><div class="stat-lbl">Degraded</div></div>
+    <div class="obs-stat offline"><div class="stat-num">{{ nodes | selectattr('status', 'equalto', 'offline') | list | length }}</div><div class="stat-lbl">Offline</div></div>
+    <div class="obs-stat total"><div class="stat-num">{{ nodes | length }}</div><div class="stat-lbl">Total Nodes</div></div>
+  </div>
+
+  <div class="obs-grid">
+    {% for n in nodes %}
+    <div class="obs-card status-{{ n.status }}">
+      <div class="obs-top">
+        <span class="obs-region">{{ n.region }}</span>
+        <span class="obs-status">{{ n.status | upper }}</span>
+      </div>
+      <div class="obs-type">{{ n.node_type | title }} Observatory</div>
+      <div class="obs-health-bar">
+        <div class="health-fill" style="width:{{ (n.health * 100) | round | int }}%"></div>
+      </div>
+      <div class="obs-health-val">Health: {{ "%.0f%%" | format(n.health * 100) }}</div>
+    </div>
+    {% else %}
+    <div class="no-data">No observatory nodes registered yet.</div>
+    {% endfor %}
+  </div>
+</div>
+<style>
+.obs-center{padding:2rem;max-width:1200px;margin:0 auto}
+.obs-header{display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem}
+.obs-icon{font-size:3rem}
+.obs-title{font-size:1.8rem;font-weight:700;color:#e2e8f0;margin:0}
+.obs-sub{color:#94a3b8;margin:.25rem 0 0}
+.obs-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.obs-stat{background:#1e293b;border-radius:.75rem;padding:1.25rem;text-align:center;border:1px solid #334155}
+.obs-stat.online{border-color:#22c55e}.obs-stat.degraded{border-color:#eab308}
+.obs-stat.offline{border-color:#ef4444}.obs-stat.total{border-color:#6366f1}
+.stat-num{font-size:2rem;font-weight:800;color:#e2e8f0}.stat-lbl{font-size:.8rem;color:#94a3b8;text-transform:uppercase}
+.obs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
+.obs-card{background:#1e293b;border-radius:.75rem;padding:1.25rem;border:1px solid #334155}
+.obs-card.status-online{border-color:#22c55e}.obs-card.status-degraded{border-color:#eab308}
+.obs-card.status-offline{border-color:#ef4444}
+.obs-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+.obs-region{color:#e2e8f0;font-weight:600;font-size:.9rem}
+.obs-status{font-size:.7rem;font-weight:700;padding:.2rem .5rem;border-radius:9999px;background:#0f172a;color:#94a3b8}
+.obs-type{color:#94a3b8;font-size:.85rem;margin-bottom:.75rem}
+.obs-health-bar{height:.5rem;background:#0f172a;border-radius:9999px;overflow:hidden;margin-bottom:.4rem}
+.health-fill{height:100%;background:linear-gradient(90deg,#6366f1,#22c55e);border-radius:9999px}
+.obs-health-val{font-size:.8rem;color:#64748b}
+.no-data{text-align:center;color:#475569;padding:3rem;grid-column:1/-1}
+</style>
+{% endblock %}

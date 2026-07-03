@@ -1,0 +1,94 @@
+{% extends "admin.html" %}
+{% block title %}Cyber Insurance Coverage Modeler — Admin{% endblock %}
+
+{% block content %}
+<div class="insurance-center">
+  <div class="insurance-header">
+    <div class="insurance-icon">💰</div>
+    <div>
+      <h1 class="insurance-title">Cyber Insurance Coverage Modeler</h1>
+      <p class="insurance-subtitle">Analyze financial downtime exposures, existing coverage limits, and gap recommendations.</p>
+    </div>
+  </div>
+
+  <div class="grid-layout">
+    <!-- Financial Summary -->
+    <div class="card summary-card">
+      <h3 class="card-title">Financial Exposure Analysis</h3>
+      <div class="metric-row">
+        <div class="metric">
+          <span class="metric-label">Estimated Loss Exposure</span>
+          <span class="metric-value loss">${{ "{:,.2f}".format(rec.estimated_losses) }}</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Active Coverage</span>
+          <span class="metric-value coverage">${{ "{:,.2f}".format(rec.current_coverage) }}</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Coverage Gap</span>
+          <span class="metric-value {% if rec.coverage_gap > 0 %}gap-negative{% else %}gap-ok{% endif %}">
+            ${{ "{:,.2f}".format(rec.coverage_gap) }}
+          </span>
+        </div>
+      </div>
+      <div class="recommendations-block">
+        <h4>Recommendations</h4>
+        <ul class="rec-list">
+          {% for r in rec.recommendations %}
+            <li>{{ r }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Active Policies -->
+    <div class="card policies-card">
+      <h3 class="card-title">Active Insurance Policies</h3>
+      {% if policies %}
+        {% for p in policies %}
+          <div class="policy-item">
+            <strong>{{ p.provider }}</strong>
+            <div class="policy-meta">
+              <span>Coverage: ${{ "{:,.2f}".format(p.coverage) }}</span>
+              <span>Deductible: ${{ "{:,.2f}".format(p.deductible) }}</span>
+              <span>Renewal: {{ p.renewal_date.strftime('%Y-%m-%d') if p.renewal_date else 'N/A' }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="empty-state">No cyber insurance policies on record.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+.insurance-center { padding-bottom: 2rem; }
+.insurance-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #422006 0%, #1c1917 100%); border-radius: 16px; border: 1px solid rgba(234,179,8,0.35); }
+.insurance-icon { font-size: 2.5rem; }
+.insurance-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #fef08a; }
+.insurance-subtitle { margin: 0; color: #fde047; font-size: 0.9rem; }
+
+.grid-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 1.5rem; }
+.card { background: #1c1917; border: 1px solid #292524; border-radius: 16px; padding: 1.5rem; }
+.card-title { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #fef08a; border-bottom: 1px solid #292524; padding-bottom: 0.5rem; }
+
+.metric-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.metric { flex: 1; min-width: 120px; padding: 1rem; background: #292524; border-radius: 12px; text-align: center; }
+.metric-label { display: block; font-size: 0.75rem; color: #a8a29e; text-transform: uppercase; margin-bottom: 0.5rem; }
+.metric-value { display: block; font-size: 1.3rem; font-weight: 800; }
+.loss { color: #f87171; }
+.coverage { color: #34d399; }
+.gap-negative { color: #f87171; }
+.gap-ok { color: #34d399; }
+
+.recommendations-block h4 { margin-top: 0; margin-bottom: 0.5rem; color: #d6d3d1; font-size: 0.9rem; }
+.rec-list { margin: 0; padding-left: 1.25rem; }
+.rec-list li { margin-bottom: 0.5rem; font-size: 0.85rem; color: #a8a29e; }
+
+.policy-item { padding: 1rem; background: #292524; border-radius: 10px; margin-bottom: 0.75rem; }
+.policy-item strong { color: #fef08a; display: block; margin-bottom: 0.5rem; }
+.policy-meta { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.8rem; color: #a8a29e; }
+.empty-state { text-align: center; color: #78716c; font-style: italic; padding: 2rem; }
+</style>
+{% endblock %}

@@ -64,6 +64,105 @@ from app.models.detection import Detection
 from app.models.case import Case
 from app.models.hunt import Hunt
 
+# Phase 19 — Security Research & CTI Platform
+from app.models.threat_actor import ThreatActor
+from app.models.campaign import Campaign
+from app.models.malware_family import MalwareFamily
+from app.models.malware_sample import MalwareSample
+from app.models.research_report import ResearchReport
+from app.models.yara_repository import YaraRepository
+from app.models.sigma_repository import SigmaRepository
+from app.models.attack_navigator import AttackNavigator
 
+# Phase 20 — Global Cybersecurity Ecosystem
+from app.models.program import Program
+from app.models.vulnerability_report import VulnerabilityReport
+from app.models.bounty_reward import BountyReward
+from app.models.disclosure import Disclosure
+from app.models.researcher_profile import ResearcherProfile
+from app.models.marketplace_category import MarketplaceCategory
+from app.models.marketplace_item import MarketplaceItem
+from app.models.marketplace_purchase import MarketplacePurchase
+from app.models.organization_trust import OrganizationTrust
 
+# Phase 21 — Autonomous Security Operations Platform
+from app.models.soc_agent import SocAgent
+from app.models.threat_hunt_session import ThreatHuntSession
+from app.models.incident_commander import IncidentCommander
+from app.models.knowledge_node import KnowledgeNode
+from app.models.knowledge_edge import KnowledgeEdge
+from app.models.playbook import Playbook
+from app.models.playbook_execution import PlaybookExecution
+
+# Phase 22 — Cyber Defense Operating System
+from app.models.security_event import SecurityEvent
+from app.models.event_source import EventSource
+from app.models.asset import Asset
+from app.models.asset_group import AssetGroup
+from app.models.asset_tag import AssetTag
+from app.models.executive_report import ExecutiveReport
+from app.models.knowledge_article import KnowledgeArticle
+from app.models.runbook import Runbook
+
+# Phase 23 — Security Operating System (SecOS)
+from app.models.governance_framework import GovernanceFramework
+from app.models.compliance_control import ComplianceControl
+from app.models.audit_finding import AuditFinding
+from app.models.risk_register import RiskRegister
+from app.models.policy import Policy
+from app.models.policy_acknowledgement import PolicyAcknowledgement
+from app.models.shared_ioc import SharedIOC
+from app.models.warehouse_event import WarehouseEvent
+from app.models.warehouse_metric import WarehouseMetric
+from app.models.digital_twin import DigitalTwin
+
+# Phase 24 — Global Cyber Security Cloud
+from app.models.cloud_region import CloudRegion
+from app.models.cloud_node import CloudNode
+from app.models.security_mesh import SecurityMesh
+from app.models.mesh_route import MeshRoute
+from app.models.threat_reputation import ThreatReputation
+from app.models.agent_node import AgentNode
+from app.models.resilience_score import ResilienceScore
+from app.models.cloud_service import CloudService
+
+# Phase 25 — Cyber Resilience Platform
+from app.models.business_process import BusinessProcess
+from app.models.disaster_recovery_plan import DisasterRecoveryPlan
+from app.models.business_impact_analysis import BusinessImpactAnalysis
+from app.models.crisis_event import CrisisEvent
+from app.models.third_party_vendor import ThirdPartyVendor
+from app.models.vendor_assessment import VendorAssessment
+from app.models.insurance_policy import InsurancePolicy
+from app.models.resilience_exercise import ResilienceExercise
+
+# Phase 26 — Autonomous Cyber Enterprise
+from app.models.autonomous_agent import AutonomousAgent
+from app.models.agent_task import AgentTask
+from app.models.autonomous_decision import AutonomousDecision
+from app.models.remediation_action import RemediationAction
+from app.models.compliance_monitor import ComplianceMonitor
+from app.models.security_workflow import SecurityWorkflow
+from app.models.enterprise_goal import EnterpriseGoal
+from app.models.digital_worker import DigitalWorker
+
+# Phase 27 — Global Security Intelligence Network
+from app.models.global_threat_feed import GlobalThreatFeed
+from app.models.intelligence_report import IntelligenceReport
+from app.models.intelligence_source import IntelligenceSource
+from app.models.prediction_model import PredictionModel
+from app.models.forecast_event import ForecastEvent
+from app.models.observatory_node import ObservatoryNode
+from app.models.trust_network import TrustNetwork
+from app.models.intelligence_graph import IntelligenceGraph
+
+# Phase 28 — Cyber Civilization Platform
+from app.models.cyber_nation import CyberNation
+from app.models.defense_grid import DefenseGrid
+from app.models.innovation_project import InnovationProject
+from app.models.security_economy import SecurityEconomy
+from app.models.workforce_profile import WorkforceProfile
+from app.models.defense_alliance import DefenseAlliance
+from app.models.prediction_scenario import PredictionScenario
+from app.models.civilization_metric import CivilizationMetric
 

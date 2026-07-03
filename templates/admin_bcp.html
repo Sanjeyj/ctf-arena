@@ -1,0 +1,122 @@
+{% extends "admin.html" %}
+{% block title %}Business Continuity & Disaster Recovery — Admin{% endblock %}
+
+{% block content %}
+<div class="bcp-center">
+  <div class="bcp-header">
+    <div class="bcp-icon">📈</div>
+    <div>
+      <h1 class="bcp-title">Business Continuity & RTO/RPO Hub</h1>
+      <p class="bcp-subtitle">Analyze critical process recovery compliance limits and document disaster recovery steps.</p>
+    </div>
+  </div>
+
+  <div class="grid-layout">
+    <!-- RTO compliance check -->
+    <div class="card check-card">
+      <h3 class="card-title">Recovery Time Objective (RTO) Compliance</h3>
+      <div class="stat-row-resilience">
+        <p>Compliance Rate: <strong style="font-size: 1.5rem; color: #10b981;">{{ rto_eval.compliance_rate_pct }}%</strong></p>
+        <p>Total Evaluated: <strong>{{ rto_eval.total_processes }}</strong></p>
+      </div>
+      <div class="violations-list">
+        {% if rto_eval.violations %}
+          <h4 style="color: #f87171; margin-top: 1rem;">Violations (Unmet Target RTOs)</h4>
+          {% for v in rto_eval.violations %}
+            <div class="violation-item">
+              <strong>{{ v.name }}</strong> requires RTO of {{ v.rto_target_hours }} hrs. <br>
+              <span class="warning-reason">{{ v.reason }}</span>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="success-state">All processes compliant with RTO parameters.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- RPO compliance check -->
+    <div class="card check-card">
+      <h3 class="card-title">Recovery Point Objective (RPO) Compliance</h3>
+      <div class="stat-row-resilience">
+        <p>Compliance Rate: <strong style="font-size: 1.5rem; color: #10b981;">{{ rpo_eval.compliance_rate_pct }}%</strong></p>
+        <p>Total Evaluated: <strong>{{ rpo_eval.total_processes }}</strong></p>
+      </div>
+      <div class="violations-list">
+        {% if rpo_eval.violations %}
+          <h4 style="color: #f87171; margin-top: 1rem;">Violations (Unmet Target RPOs)</h4>
+          {% for v in rpo_eval.violations %}
+            <div class="violation-item">
+              <strong>{{ v.name }}</strong> requires RPO of {{ v.rpo_target_hours }} hrs. <br>
+              <span class="warning-reason">{{ v.reason }}</span>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="success-state">All processes compliant with RPO parameters.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card plans-card" style="margin-top: 1.5rem;">
+    <div class="plans-header">
+      <h3 class="card-title" style="margin: 0; border: none; padding: 0;">Disaster Recovery Plans</h3>
+      <button class="add-plan-btn" onclick="addNewPlan()">Generate BCP Plan</button>
+    </div>
+    <div class="plans-grid">
+      {% if plans %}
+        {% for p in plans %}
+          <div class="plan-item">
+            <h4>{{ p.plan_name }}</h4>
+            <p><strong>Strategy:</strong> {{ p.strategy }}</p>
+            <p><strong>Priority:</strong> Level {{ p.priority }}</p>
+            <span class="badge badge-success">{{ p.approval_status }}</span>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="empty-state" style="width: 100%; grid-column: span 3;">No BCP plans compiled.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+function addNewPlan() {
+  const name = prompt("Enter plan name:");
+  if (!name) return;
+  const strategy = prompt("Enter strategy:");
+  if (!strategy) return;
+  alert(`Compiled plan: ${name} with strategy: ${strategy}`);
+}
+</script>
+
+<style>
+.bcp-center { padding-bottom: 2rem; }
+.bcp-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%); border-radius: 16px; border: 1px solid rgba(16,185,129,0.3); }
+.bcp-icon { font-size: 2.5rem; }
+.bcp-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #a7f3d0; }
+.bcp-subtitle { margin: 0; color: #6ee7b7; font-size: 0.9rem; }
+
+.grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.card { background: #064e3b; border: 1px solid #065f46; border-radius: 16px; padding: 1.5rem; }
+.card-title { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #a7f3d0; border-bottom: 1px solid #065f46; padding-bottom: 0.5rem; }
+
+.stat-row-resilience { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.stat-row-resilience p { margin: 0; color: #d1fae5; }
+
+.violation-item { padding: 0.75rem; background: rgba(220,38,38,0.1); border: 1px solid rgba(220,38,38,0.3); border-radius: 8px; margin-bottom: 0.5rem; color: #fecaca; font-size: 0.85rem; }
+.warning-reason { color: #f87171; font-style: italic; }
+
+.success-state { color: #34d399; font-weight: bold; text-align: center; padding: 1rem; }
+
+.plans-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #065f46; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+.add-plan-btn { background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+.plans-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+.plan-item { padding: 1rem; background: #065f46; border: 1px solid #047857; border-radius: 12px; }
+.plan-item h4 { margin-top: 0; margin-bottom: 0.5rem; color: #a7f3d0; }
+.plan-item p { margin: 0.25rem 0; font-size: 0.85rem; color: #d1fae5; }
+.badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-top: 0.5rem; }
+.badge-success { background: rgba(52,211,153,0.2); color: #34d399; }
+.empty-state { color: #d1fae5; font-style: italic; text-align: center; }
+</style>
+{% endblock %}

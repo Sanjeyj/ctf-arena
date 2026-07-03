@@ -1247,3 +1247,324 @@ def admin_cyberrange_timeline(sim_id):
     )
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 18 — Enterprise SOC & Threat Intelligence Admin Routes
+# ─────────────────────────────────────────────────────────────────────────────
+
+@admin_bp.route("/admin/soc", methods=["GET"])
+@require_admin
+def admin_soc():
+    """SOC Operations Center dashboard."""
+    from app.models.alert import Alert
+    from app.models.case import Case
+    from app.models.ioc import IOC
+    from app.models.hunt import Hunt
+
+    # Seed mock data if empty
+    from app.services.siem_service import SIEMService
+    from app.services.threat_intelligence_service import ThreatIntelligenceService
+    from app.services.hunt_service import HuntService
+    
+    if not Alert.query.first():
+        # Create some demo alerts
+        SIEMService.generate_alert("Brute force attack on admin portal", "high", {"source_ip": "198.51.100.42", "event_type": "authentication"})
+        SIEMService.generate_alert("SQL injection attempt in query string", "critical", {"source_ip": "203.0.113.15", "event_type": "web"})
+        SIEMService.generate_alert("Anomalous high outbound data transfer", "medium", {"source_ip": "192.168.1.50", "event_type": "network"})
+    if not IOC.query.first():
+        ThreatIntelligenceService.create_ioc("ip", "198.51.100.42", "high", 90, "OSINT", tags="c2,bruteforce")
+        ThreatIntelligenceService.create_ioc("domain", "evil-c2-malware.com", "critical", 95, "ISAC", tags="c2")
+    if not db.session.query(Hunt).first():
+        HuntService.create_hunt("C2 Server Indicator Hunt", "ioc", "Look for compromised outbound traffic patterns")
+
+    alerts = Alert.query.all()
+    alert_counts = {'critical': 0, 'high': 0, 'medium': 0, 'low': 0, 'info': 0}
+    for a in alerts:
+        if a.severity in alert_counts:
+            alert_counts[a.severity] += 1
+
+    open_cases = Case.query.filter(Case.status.in_(['open', 'investigating', 'contained'])).count()
+    active_iocs = IOC.query.filter_by(is_active=True).count()
+    active_hunts = db.session.query(Hunt).filter(Hunt.status.in_(['planned', 'active'])).count()
+    recent_alerts = Alert.query.order_by(Alert.created_at.desc()).limit(5).all()
+
+    return render_template(
+        "admin_soc.html",
+        alert_counts=alert_counts,
+        open_cases=open_cases,
+        active_iocs=active_iocs,
+        active_hunts=active_hunts,
+        recent_alerts=recent_alerts
+    )
+
+
+@admin_bp.route("/admin/alerts", methods=["GET"])
+@require_admin
+def admin_alerts():
+    """Alert Queue overview."""
+    from app.models.alert import Alert
+    alerts = Alert.query.order_by(Alert.created_at.desc()).all()
+    
+    summary = {'critical': 0, 'high': 0, 'medium': 0, 'low': 0, 'info': 0}
+    for a in alerts:
+        if a.severity in summary:
+            summary[a.severity] += 1
+
+    return render_template(
+        "admin_alerts.html",
+        alerts=alerts,
+        severity_summary=summary
+    )
+
+
+@admin_bp.route("/admin/cases", methods=["GET"])
+@require_admin
+def admin_cases():
+    """Incident Case Queue board."""
+    from app.models.case import Case
+    from app.models.alert import Alert
+    from app.services.case_service import CaseService
+
+    # Create dummy case if none
+    if not Case.query.first():
+        alert = Alert.query.first()
+        CaseService.create_case(
+            "Investigate Brute Force Attempt",
+            "Continuous SSH authentication failure events detected from unknown external IP address.",
+            "high",
+            alert_id=alert.id if alert else None
+        )
+
+    cases = Case.query.order_by(Case.created_at.desc()).all()
+    by_status = {'open': [], 'investigating': [], 'contained': [], 'resolved': [], 'closed': []}
+    for c in cases:
+        if c.status in by_status:
+            by_status[c.status].append(c)
+
+    return render_template(
+        "admin_cases.html",
+        cases_by_status=by_status
+    )
+
+
+@admin_bp.route("/admin/cases/<int:case_id>", methods=["GET"])
+@require_admin
+def admin_case_detail(case_id):
+    """Detailed case investigation page."""
+    from app.models.case import Case, CASE_TRANSITIONS
+    from app.services.case_service import CaseService
+    
+    case = Case.query.get_or_404(case_id)
+    allowed = CASE_TRANSITIONS.get(case.status, [])
+    timeline = CaseService.get_timeline(case_id)
+
+    return render_template(
+        "admin_case_detail.html",
+        case=case,
+        allowed_transitions=allowed,
+        timeline=timeline
+    )
+
+
+@admin_bp.route("/admin/hunts", methods=["GET"])
+@require_admin
+def admin_hunts():
+    """Threat Hunting Console."""
+    from app.models.hunt import Hunt
+    hunts = db.session.query(Hunt).order_by(Hunt.created_at.desc()).all()
+    return render_template("admin_hunts.html", hunts=hunts)
+
+
+@admin_bp.route("/admin/threat-intel", methods=["GET"])
+@require_admin
+def admin_threat_intel():
+    """Threat Intelligence & IOCs."""
+    from app.models.ioc import IOC
+    from app.models.threat_feed import ThreatFeed
+    from app.services.threat_intelligence_service import ThreatIntelligenceService
+
+    # Seed feeds if empty
+    if not ThreatFeed.query.first():
+        ThreatIntelligenceService.create_feed("AlienVault OTX", feed_type="open_source")
+        ThreatIntelligenceService.create_feed("Abuse.ch URLHaus", feed_type="open_source")
+
+    iocs = IOC.query.order_by(IOC.created_at.desc()).all()
+    feeds = ThreatFeed.query.all()
+
+    counts = {'ip': 0, 'domain': 0, 'url': 0, 'hash': 0, 'email': 0}
+    blocked_count = 0
+    for i in iocs:
+        if i.type in counts:
+            counts[i.type] += 1
+        if i.is_blocked:
+            blocked_count += 1
+
+    return render_template(
+        "admin_threat_intel.html",
+        iocs=iocs,
+        feeds=feeds,
+        ioc_counts=counts,
+        blocked_count=blocked_count
+    )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 19 — Security Research & CTI Platform Admin Routes
+# ─────────────────────────────────────────────────────────────────────────────
+
+@admin_bp.route("/admin/research", methods=["GET"])
+@require_admin
+def admin_research():
+    """Security Research & CTI dashboard."""
+    from app.services.navigator_service import NavigatorService
+    # Generate coverage matrix on the fly
+    coverage = NavigatorService.compute_coverage()
+    return render_template("admin_research.html", coverage=coverage)
+
+
+@admin_bp.route("/admin/research/threat-actors", methods=["GET"])
+@require_admin
+def admin_threat_actors():
+    """Threat Actors profile intelligence curation view."""
+    return render_template("admin_threat_actors.html")
+
+
+@admin_bp.route("/admin/research/campaigns", methods=["GET"])
+@require_admin
+def admin_campaigns():
+    """Campaign timeline view."""
+    return render_template("admin_campaigns.html")
+
+
+@admin_bp.route("/admin/research/malware", methods=["GET"])
+@require_admin
+def admin_malware():
+    """Malware static analysis workspace uploader."""
+    return render_template("admin_malware.html")
+
+
+@admin_bp.route("/admin/research/reports", methods=["GET"])
+@require_admin
+def admin_reports():
+    """Research Reports creator and workspace."""
+    return render_template("admin_reports.html")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 20 — Global Cybersecurity Ecosystem Admin Routes
+# ─────────────────────────────────────────────────────────────────────────────
+
+@admin_bp.route("/admin/bounties", methods=["GET"])
+@require_admin
+def admin_bounties():
+    """Bug Bounty program and submissions queue panel."""
+    return render_template("admin_bounties.html")
+
+
+@admin_bp.route("/admin/researchers", methods=["GET"])
+@require_admin
+def admin_researchers():
+    """Researcher profiles catalog and rankings page."""
+    return render_template("admin_researchers.html")
+
+
+@admin_bp.route("/admin/marketplace", methods=["GET"])
+@require_admin
+def admin_marketplace():
+    """Digital cybersecurity marketplace assets catalog."""
+    return render_template("admin_marketplace.html")
+
+
+@admin_bp.route("/admin/reputation", methods=["GET"])
+@require_admin
+def admin_reputation():
+    """Cyber reputation and tiers consolidation workspace."""
+    return render_template("admin_reputation.html")
+
+
+@admin_bp.route("/admin/federation", methods=["GET"])
+@require_admin
+def admin_federation():
+    """Tenant federation and trust bridges bridge panel."""
+    return render_template("admin_federation.html")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 21 — Autonomous Security Operations Platform Admin Routes
+# ─────────────────────────────────────────────────────────────────────────────
+
+@admin_bp.route("/admin/agents", methods=["GET"])
+@require_admin
+def admin_agents():
+    """AI SOC analyst controls page."""
+    return render_template("admin_agents.html")
+
+
+@admin_bp.route("/admin/playbooks", methods=["GET"])
+@require_admin
+def admin_playbooks():
+    """Automated SOAR playbooks orchestration console."""
+    return render_template("admin_playbooks.html")
+
+
+@admin_bp.route("/admin/predictions", methods=["GET"])
+@require_admin
+def admin_predictions():
+    """Threat Prediction forecasting logs page."""
+    return render_template("admin_predictions.html")
+
+
+@admin_bp.route("/admin/knowledge", methods=["GET"])
+@require_admin
+def admin_knowledge():
+    """Security Knowledge Graph visualization workspace."""
+    return render_template("admin_knowledge.html")
+
+
+@admin_bp.route("/admin/command-center", methods=["GET"])
+@require_admin
+def admin_command_center():
+    """Unified Command Center Executive Dashboard."""
+    return render_template("admin_command_center.html")
+
+
+@admin_bp.route("/admin/compliance", methods=["GET"])
+@require_admin
+def admin_compliance():
+    """GRC Compliance scoring status overview."""
+    return render_template("admin_compliance.html")
+
+
+@admin_bp.route("/admin/governance", methods=["GET"])
+@require_admin
+def admin_governance():
+    """Corporate policies and Governance dashboard."""
+    return render_template("admin_governance.html")
+
+
+@admin_bp.route("/admin/exchange", methods=["GET"])
+@require_admin
+def admin_exchange():
+    """Threat indicator feed exchange workspace."""
+    return render_template("admin_exchange.html")
+
+
+@admin_bp.route("/admin/audits", methods=["GET"])
+@require_admin
+def admin_audits():
+    """Compliance Gaps Audits list panel."""
+    return render_template("admin_audits.html")
+
+
+@admin_bp.route("/admin/digital-twin", methods=["GET"])
+@require_admin
+def admin_digital_twin():
+    """Security Digital Twin simulation platform."""
+    return render_template("admin_digital_twin.html")
+
+
+
+
+
+
+
+

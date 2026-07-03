@@ -1,0 +1,95 @@
+{% extends "admin.html" %}
+{% block title %}Cyber Researchers — CTF Arena Admin{% endblock %}
+
+{% block content %}
+<div class="researchers-hub">
+  <div class="soc-header">
+    <div class="soc-header-left">
+      <div class="soc-icon">🎓</div>
+      <div>
+        <h1 class="soc-title">Researcher Rankings & Profiles</h1>
+        <p class="soc-subtitle">Analyze certified cybersecurity researchers, global standings, and reputation levels.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table class="ioc-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Username</th>
+          <th>Bio</th>
+          <th>Country</th>
+          <th>Reputation</th>
+          <th>Socials</th>
+        </tr>
+      </thead>
+      <tbody id="researcherTableBody">
+        <tr><td colspan="6" class="empty-row">Loading researcher profiles database...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+let jwtToken = "";
+
+async function fetchToken() {
+  const resp = await fetch('/api/v1/research/token', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ username: 'admin' })
+  });
+  const data = await resp.json();
+  jwtToken = data.token;
+  loadResearchers();
+}
+
+async function loadResearchers() {
+  const resp = await fetch('/api/v1/researchers', {
+    headers: {'Authorization': `Bearer ${jwtToken}`}
+  });
+  const data = await resp.json();
+  const tbody = document.getElementById('researcherTableBody');
+  tbody.innerHTML = "";
+  
+  if (!data.researchers || data.researchers.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-row">No researcher profiles registered yet.</td></tr>`;
+    return;
+  }
+
+  data.researchers.forEach(r => {
+    tbody.innerHTML += `
+      <tr>
+        <td class="ioc-id">#${r.ranking}</td>
+        <td><strong>${r.username}</strong></td>
+        <td>${r.bio || '—'}</td>
+        <td>${r.country || '—'}</td>
+        <td><span class="reput-val">${r.reputation} pts</span></td>
+        <td>${JSON.stringify(r.social_links) !== '{}' ? JSON.stringify(r.social_links) : '—'}</td>
+      </tr>
+    `;
+  });
+}
+
+fetchToken();
+</script>
+
+<style>
+.researchers-hub { padding-bottom: 2rem; }
+.soc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #090d16 0%, #151829 100%); border-radius: 16px; border: 1px solid rgba(16,185,129,0.3); }
+.soc-header-left { display: flex; align-items: center; gap: 1rem; }
+.soc-icon { font-size: 2.5rem; }
+.soc-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.soc-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+
+.table-container { background: #111424; border-radius: 12px; border: 1px solid #23273a; overflow-x: auto; }
+.ioc-table { width: 100%; border-collapse: collapse; }
+.ioc-table th { padding: 0.75rem 1rem; text-align: left; color: #64748b; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #23273a; }
+.ioc-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #23273a; color: #cbd5e1; font-size: 0.85rem; }
+.ioc-id { color: #475569; font-weight: bold; }
+.reput-val { color: #10b981; font-weight: bold; }
+.empty-row { text-align: center; color: #475569; padding: 3rem !important; }
+</style>
+{% endblock %}

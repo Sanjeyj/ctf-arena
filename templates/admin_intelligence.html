@@ -1,0 +1,79 @@
+{% extends "admin.html" %}
+{% block title %}Global Intelligence Reports — Admin{% endblock %}
+
+{% block content %}
+<div class="intel-center">
+  <div class="intel-header">
+    <div class="intel-icon">🌐</div>
+    <div>
+      <h1 class="intel-title">Global Security Intelligence</h1>
+      <p class="intel-sub">Ingested intelligence reports from worldwide sources</p>
+    </div>
+  </div>
+
+  <div class="intel-stats-row">
+    <div class="intel-stat critical">
+      <div class="stat-num">{{ reports | selectattr('severity', 'equalto', 'critical') | list | length }}</div>
+      <div class="stat-lbl">Critical</div>
+    </div>
+    <div class="intel-stat high">
+      <div class="stat-num">{{ reports | selectattr('severity', 'equalto', 'high') | list | length }}</div>
+      <div class="stat-lbl">High</div>
+    </div>
+    <div class="intel-stat medium">
+      <div class="stat-num">{{ reports | selectattr('severity', 'equalto', 'medium') | list | length }}</div>
+      <div class="stat-lbl">Medium</div>
+    </div>
+    <div class="intel-stat feeds">
+      <div class="stat-num">{{ feeds | length }}</div>
+      <div class="stat-lbl">Active Feeds</div>
+    </div>
+  </div>
+
+  <div class="intel-table-wrap">
+    <table class="intel-table">
+      <thead>
+        <tr>
+          <th>#</th><th>Title</th><th>Severity</th><th>Source</th><th>Confidence</th><th>Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in reports %}
+        <tr>
+          <td>{{ r.id }}</td>
+          <td>{{ r.title }}</td>
+          <td><span class="badge-sev sev-{{ r.severity }}">{{ r.severity | upper }}</span></td>
+          <td>{{ r.source }}</td>
+          <td>{{ "%.0f%%" | format(r.confidence * 100) }}</td>
+          <td>{{ r.created_at.strftime('%Y-%m-%d') if r.created_at else '—' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="no-data">No intelligence reports ingested yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<style>
+.intel-center{padding:2rem;max-width:1200px;margin:0 auto}
+.intel-header{display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem}
+.intel-icon{font-size:3rem}
+.intel-title{font-size:1.8rem;font-weight:700;color:#e2e8f0;margin:0}
+.intel-sub{color:#94a3b8;margin:.25rem 0 0}
+.intel-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.intel-stat{background:#1e293b;border-radius:.75rem;padding:1.25rem;text-align:center;border:1px solid #334155}
+.intel-stat.critical{border-color:#ef4444}.intel-stat.high{border-color:#f97316}
+.intel-stat.medium{border-color:#eab308}.intel-stat.feeds{border-color:#6366f1}
+.stat-num{font-size:2rem;font-weight:800;color:#e2e8f0}
+.stat-lbl{font-size:.8rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
+.intel-table-wrap{background:#1e293b;border-radius:.75rem;overflow:hidden;border:1px solid #334155}
+.intel-table{width:100%;border-collapse:collapse}
+.intel-table th{background:#0f172a;padding:.85rem 1rem;text-align:left;color:#94a3b8;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
+.intel-table td{padding:.75rem 1rem;border-top:1px solid #1e293b;color:#cbd5e1;font-size:.9rem}
+.intel-table tr:hover td{background:#0f172a}
+.badge-sev{padding:.2rem .6rem;border-radius:9999px;font-size:.7rem;font-weight:700}
+.sev-critical{background:#450a0a;color:#ef4444}.sev-high{background:#431407;color:#f97316}
+.sev-medium{background:#422006;color:#eab308}.sev-low{background:#052e16;color:#22c55e}
+.no-data{text-align:center;color:#475569;padding:2rem}
+</style>
+{% endblock %}

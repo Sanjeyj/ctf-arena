@@ -1,0 +1,71 @@
+{% extends "admin.html" %}
+{% block title %}Trust Network — Admin{% endblock %}
+
+{% block content %}
+<div class="trust-center">
+  <div class="trust-header">
+    <div class="trust-icon">🤝</div>
+    <div>
+      <h1 class="trust-title">Intelligence Trust Network</h1>
+      <p class="trust-sub">Bilateral trust relationships between intelligence-sharing organizations</p>
+    </div>
+  </div>
+
+  <div class="trust-stats-row">
+    <div class="trust-stat active"><div class="stat-num">{{ relationships | selectattr('status', 'equalto', 'active') | list | length }}</div><div class="stat-lbl">Active</div></div>
+    <div class="trust-stat pending"><div class="stat-num">{{ relationships | selectattr('status', 'equalto', 'pending') | list | length }}</div><div class="stat-lbl">Pending</div></div>
+    <div class="trust-stat suspended"><div class="stat-num">{{ relationships | selectattr('status', 'equalto', 'suspended') | list | length }}</div><div class="stat-lbl">Suspended</div></div>
+    <div class="trust-stat total"><div class="stat-num">{{ relationships | length }}</div><div class="stat-lbl">Total</div></div>
+  </div>
+
+  <div class="trust-table-wrap">
+    <table class="trust-table">
+      <thead>
+        <tr><th>#</th><th>Source Org</th><th>Target Org</th><th>Trust Score</th><th>Status</th><th>Since</th></tr>
+      </thead>
+      <tbody>
+        {% for r in relationships %}
+        <tr>
+          <td>{{ r.id }}</td>
+          <td>{{ r.source_org }}</td>
+          <td>{{ r.target_org }}</td>
+          <td>
+            <div class="trust-bar-wrap">
+              <div class="trust-bar" style="width:{{ (r.trust_score * 100) | round | int }}%"></div>
+              <span class="trust-score-val">{{ "%.2f" | format(r.trust_score) }}</span>
+            </div>
+          </td>
+          <td><span class="badge-status status-{{ r.status }}">{{ r.status | upper }}</span></td>
+          <td>{{ r.created_at.strftime('%Y-%m-%d') if r.created_at else '—' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="no-data">No trust relationships established yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<style>
+.trust-center{padding:2rem;max-width:1200px;margin:0 auto}
+.trust-header{display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem}
+.trust-icon{font-size:3rem}
+.trust-title{font-size:1.8rem;font-weight:700;color:#e2e8f0;margin:0}
+.trust-sub{color:#94a3b8;margin:.25rem 0 0}
+.trust-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.trust-stat{background:#1e293b;border-radius:.75rem;padding:1.25rem;text-align:center;border:1px solid #334155}
+.trust-stat.active{border-color:#22c55e}.trust-stat.pending{border-color:#eab308}
+.trust-stat.suspended{border-color:#ef4444}.trust-stat.total{border-color:#6366f1}
+.stat-num{font-size:2rem;font-weight:800;color:#e2e8f0}.stat-lbl{font-size:.8rem;color:#94a3b8;text-transform:uppercase}
+.trust-table-wrap{background:#1e293b;border-radius:.75rem;overflow:hidden;border:1px solid #334155}
+.trust-table{width:100%;border-collapse:collapse}
+.trust-table th{background:#0f172a;padding:.85rem 1rem;text-align:left;color:#94a3b8;font-size:.8rem;text-transform:uppercase}
+.trust-table td{padding:.75rem 1rem;border-top:1px solid #0f172a;color:#cbd5e1;font-size:.9rem}
+.trust-bar-wrap{display:flex;align-items:center;gap:.5rem}
+.trust-bar{height:.4rem;background:linear-gradient(90deg,#6366f1,#22c55e);border-radius:9999px;min-width:4px}
+.trust-score-val{font-size:.8rem;color:#94a3b8}
+.badge-status{padding:.2rem .6rem;border-radius:9999px;font-size:.7rem;font-weight:700}
+.status-active{background:#052e16;color:#22c55e}.status-pending{background:#422006;color:#eab308}
+.status-suspended{background:#450a0a;color:#ef4444}.status-revoked{background:#1c0a0a;color:#7f1d1d}
+.no-data{text-align:center;color:#475569;padding:2rem}
+</style>
+{% endblock %}

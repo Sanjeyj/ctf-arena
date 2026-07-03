@@ -1,0 +1,147 @@
+{% extends "admin.html" %}
+{% block title %}Global Cyber Security Cloud — Admin{% endblock %}
+
+{% block content %}
+<div class="cloud-hub">
+  <div class="soc-header">
+    <div class="soc-icon">🌐</div>
+    <div>
+      <h1 class="soc-title">Global Cyber Security Cloud</h1>
+      <p class="soc-subtitle">Monitor regional deployments, node health, and replicate configurations.</p>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="kpi-box">
+      <span class="kb-label">Total Regions</span>
+      <span class="kb-val text-blue" id="kpi-regions">{{ regions|length }}</span>
+    </div>
+    <div class="kpi-box">
+      <span class="kb-label">Active Nodes</span>
+      <span class="kb-val text-green" id="kpi-nodes">{{ nodes|length }}</span>
+    </div>
+    <div class="kpi-box">
+      <span class="kb-label">Global Services</span>
+      <span class="kb-val text-purple" id="kpi-services">{{ services|length }}</span>
+    </div>
+  </div>
+
+  <div class="card mt-2">
+    <div class="card-header-flex">
+      <h3 class="card-title">Deployed Service Instances</h3>
+      <button class="enrich-btn" onclick="syncGlobalConfig()">Replicate Config</button>
+    </div>
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Service Name</th>
+            <th>Type</th>
+            <th>Running Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="services-tbody">
+          {% for s in services %}
+          <tr>
+            <td>{{ s.name }}</td>
+            <td><span class="badge badge-info">{{ s.service_type }}</span></td>
+            <td>
+              {% if s.status == 'running' %}
+              <span class="badge badge-success" id="status-{{ s.id }}">Running</span>
+              {% elif s.status == 'maintenance' %}
+              <span class="badge badge-warning" id="status-{{ s.id }}">Maintenance</span>
+              {% else %}
+              <span class="badge badge-danger" id="status-{{ s.id }}">Paused</span>
+              {% endif %}
+            </td>
+            <td>
+              <select class="form-input-compact" onchange="changeServiceStatus({{ s.id }}, this.value)">
+                <option value="running" {% if s.status == 'running' %}selected{% endif %}>Running</option>
+                <option value="paused" {% if s.status == 'paused' %}selected{% endif %}>Pause</option>
+                <option value="maintenance" {% if s.status == 'maintenance' %}selected{% endif %}>Maintenance</option>
+              </select>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+let jwtToken = "";
+
+async function fetchToken() {
+  const resp = await fetch('/api/v1/research/token', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ username: 'admin' })
+  });
+  const data = await resp.json();
+  jwtToken = data.token;
+}
+
+async function syncGlobalConfig() {
+  await fetchToken();
+  const resp = await fetch('/api/v1/cloud/sync', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${jwtToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ organization_id: {{ current_org_id or 'null' }} })
+  });
+  const data = await resp.json();
+  if (data.success) {
+    alert(`Configuration synced across regions! status: ${data.status}`);
+  }
+}
+
+async function changeServiceStatus(serviceId, status) {
+  // Normally would invoke an API endpoint to update status
+  alert(`Updating service status to: ${status}`);
+}
+
+fetchToken();
+</script>
+
+<style>
+.cloud-hub { padding-bottom: 2rem; }
+.soc-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #090d16 0%, #151829 100%); border-radius: 16px; border: 1px solid rgba(59,130,246,0.3); }
+.soc-icon { font-size: 2.5rem; }
+.soc-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #e2e8f0; }
+.soc-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
+@media(max-width: 900px) { .grid-3 { grid-template-columns: 1fr; } }
+.kpi-box { background: #090d16; border: 1px solid #23273a; padding: 1.25rem; border-radius: 12px; }
+.kb-label { display: block; font-size: 0.75rem; color: #64748b; text-transform: uppercase; }
+.kb-val { display: block; font-size: 1.6rem; font-weight: bold; margin-top: 0.25rem; }
+
+.text-blue { color: #3b82f6; }
+.text-green { color: #10b981; }
+.text-purple { color: #a855f7; }
+
+.card { background: #111424; border: 1px solid #23273a; border-radius: 16px; padding: 1.5rem; }
+.card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.card-title { margin: 0; font-size: 1.1rem; color: #e2e8f0; }
+.enrich-btn { background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+.table-container { margin-top: 1rem; overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; text-align: left; }
+.data-table th, .data-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #23273a; }
+.data-table th { color: #64748b; font-size: 0.85rem; text-transform: uppercase; }
+.data-table td { color: #cbd5e1; font-size: 0.9rem; }
+
+.badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+.badge-info { background: rgba(59,130,246,0.2); color: #3b82f6; }
+.badge-success { background: rgba(16,185,129,0.2); color: #10b981; }
+.badge-warning { background: rgba(245,158,11,0.2); color: #f59e0b; }
+.badge-danger { background: rgba(239,68,68,0.2); color: #ef4444; }
+
+.form-input-compact { background: #090d16; border: 1px solid #23273a; color: #e2e8f0; border-radius: 4px; padding: 0.25rem 0.5rem; outline: none; font-size: 0.8rem; }
+.mt-2 { margin-top: 2rem; }
+</style>
+{% endblock %}
