@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Logical Services & Dependencies</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #38bdf8; border-bottom: 2px solid #38bdf833; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .col { background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 18px; }
+        h2 { color: #38bdf8; margin-top: 0; }
+        .item { padding: 8px; border-bottom: 1px solid #1e293b; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h1>🗃 Services registry & Dependencies Map</h1>
+    <div class="grid">
+        <div class="col">
+            <h2>Registered logical Services ({{ services|length }})</h2>
+            {% for s in services %}
+            <div class="item">
+                <strong>{{ s.service_name }}</strong> (v{{ s.version }})
+                <div style="color:#64748b; font-size:12px">Type: {{ s.service_type }} | Status: {{ s.status.upper() }} | Owner: {{ s.owner or '—' }}</div>
+            </div>
+            {% else %}
+            <p style="color:#64748b">No services configured.</p>
+            {% endfor %}
+        </div>
+        <div class="col">
+            <h2>Dependencies ({{ dependencies|length }})</h2>
+            {% for d in dependencies %}
+            <div class="item">
+                Service #{{ d.source_service_id }} &rarr; Service #{{ d.target_service_id }}
+                <div style="color:#64748b; font-size:12px">Type: {{ d.dependency_type }} | Impact: {{ d.health_impact }} | Criticality: {{ d.criticality.upper() }}</div>
+            </div>
+            {% else %}
+            <p style="color:#64748b">No active service dependency mappings registered.</p>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

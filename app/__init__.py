@@ -108,6 +108,10 @@ def create_app(config_name="default"):
     from app.intelligence import intelligence_bp
     from app.civilization import civilization_bp
     from app.command import command_bp
+    from app.universe import universe_bp
+    from app.control_plane import control_plane_bp
+    from app.assurance import assurance_bp
+    from app.operations import operations_bp
     csrf.exempt(api_bp)
     csrf.exempt(ai_bp)
     csrf.exempt(org_bp)
@@ -125,6 +129,10 @@ def create_app(config_name="default"):
     csrf.exempt(intelligence_bp)
     csrf.exempt(civilization_bp)
     csrf.exempt(command_bp)
+    csrf.exempt(universe_bp)
+    csrf.exempt(control_plane_bp)
+    csrf.exempt(assurance_bp)
+    csrf.exempt(operations_bp)
 
 
 
@@ -296,6 +304,10 @@ def register_blueprints(app):
     from app.intelligence import intelligence_bp
     from app.civilization import civilization_bp
     from app.command import command_bp
+    from app.universe import universe_bp
+    from app.control_plane import control_plane_bp
+    from app.assurance import assurance_bp
+    from app.operations import operations_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(challenges_bp)
@@ -319,6 +331,10 @@ def register_blueprints(app):
     app.register_blueprint(intelligence_bp)
     app.register_blueprint(civilization_bp)
     app.register_blueprint(command_bp)
+    app.register_blueprint(universe_bp)
+    app.register_blueprint(control_plane_bp)
+    app.register_blueprint(assurance_bp)
+    app.register_blueprint(operations_bp)
 
 
     

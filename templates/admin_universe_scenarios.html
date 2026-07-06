@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Universe Strategic Scenarios</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #f59e0b; border-bottom: 2px solid #f59e0b33; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+        .card { background: #111827; border: 1px solid #78350f; border-radius: 10px; padding: 18px; }
+        .card h3 { color: #f59e0b; margin: 0 0 10px; }
+        .critical { color: #ef4444; } .high { color: #f97316; } .medium { color: #f59e0b; } .low { color: #10b981; }
+    </style>
+</head>
+<body>
+    <h1>⚔ Strategic Scenarios: {{ universe.name }}</h1>
+    <div class="grid">
+        {% for s in scenarios %}
+        <div class="card">
+            <h3>{{ s.scenario_name }}</h3>
+            <div>Type: <span>{{ s.scenario_type }}</span></div>
+            <div>Severity: <span class="{{ s.severity }}">{{ s.severity.upper() }}</span></div>
+            <div>Probability: <span>{{ s.probability }}</span></div>
+            <div>Impact score: <span>{{ s.impact_score }}</span></div>
+        </div>
+        {% else %}
+        <div class="card"><p style="color:#64748b">No active scenarios configured.</p></div>
+        {% endfor %}
+    </div>
+</body>
+</html>

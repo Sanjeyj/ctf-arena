@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Software Supply Chain</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #ec4899; border-bottom: 2px solid #ec489933; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .col { background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 18px; }
+        h2 { color: #ec4899; margin-top: 0; }
+        .item { padding: 8px; border-bottom: 1px solid #1e293b; font-size: 14px; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; }
+        .valid { background: #052e16; color: #34d399; }
+        .invalid { background: #450a0a; color: #f87171; }
+    </style>
+</head>
+<body>
+    <h1>📦 Software Supply Chain Attestations & SBOMs</h1>
+    <div class="grid">
+        <div class="col">
+            <h2>Attestations ({{ attestations|length }})</h2>
+            {% for a in attestations %}
+            <div class="item">
+                <strong>{{ a.artifact_name }}</strong> (v{{ a.artifact_version }})
+                <span class="badge {{ a.verification_status }}">{{ a.verification_status.upper() }}</span>
+                <div style="color:#64748b; font-size:12px">Digest: <code style="color:#ec4899">{{ a.artifact_digest[:16] }}...</code></div>
+                <div style="color:#64748b; font-size:11px">Builder: {{ a.builder_identity or '—' }} | Env: {{ a.build_environment or '—' }}</div>
+            </div>
+            {% else %}
+            <p style="color:#64748b">No attestations registered.</p>
+            {% endfor %}
+        </div>
+        <div class="col">
+            <h2>SBOM documents ({{ sboms|length }})</h2>
+            {% for s in sboms %}
+            <div class="item">
+                <strong>{{ s.artifact_name }}</strong> (v{{ s.artifact_version }})
+                <div style="color:#64748b; font-size:12px">Format: {{ s.format_type }} | Hash: <code>{{ s.document_hash[:16] }}...</code></div>
+                <div style="color:#64748b; font-size:11px">Components: {{ s.component_count }} | Dependencies: {{ s.dependency_count }} | Risks: <strong style="color:#f87171">{{ s.known_risk_count }}</strong></div>
+            </div>
+            {% else %}
+            <p style="color:#64748b">No SBOMs registered.</p>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

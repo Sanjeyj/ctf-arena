@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Model Governance Registry</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #a855f7; border-bottom: 2px solid #a855f733; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 20px; }
+        .card { background: #111827; border: 1px solid #3b0764; border-radius: 10px; padding: 18px; }
+        .card h3 { color: #a855f7; margin: 0 0 8px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .approved { background: #052e16; color: #34d399; }
+        .restricted { background: #422006; color: #fbbf24; }
+        .retired { background: #1f2937; color: #9ca3af; }
+        .draft { background: #1e293b; color: #64748b; }
+        .stat { margin: 6px 0; font-size: 14px; color: #94a3b8; }
+        .stat span { color: #e0e6f0; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🤖 AI Model Governance Registry</h1>
+    <div class="grid">
+        {% for r in records %}
+        <div class="card">
+            <h3>{{ r.model_name }}</h3>
+            <span class="badge {{ r.approval_status }}">{{ r.approval_status.upper() }}</span>
+            <div class="stat">Provider: <span>{{ r.provider.upper() }}</span></div>
+            <div class="stat">Risk Level: <span>{{ r.risk_level.upper() }}</span></div>
+            <div class="stat">Evaluation Score: <span>{{ (r.evaluation_score * 100)|round(1) }}%</span></div>
+            <div style="font-size: 11px; color: #4b5563; margin-top: 8px">Last reviewed: {{ r.last_reviewed_at.strftime('%Y-%m-%d') if r.last_reviewed_at else '—' }}</div>
+        </div>
+        {% else %}
+        <div class="card"><p style="color:#64748b">No AI models registered in catalog.</p></div>
+        {% endfor %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cyber Platform Control Plane</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #38bdf8; border-bottom: 2px solid #38bdf833; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+        .card { background: #111827; border: 1px solid #1e3a8a; border-radius: 10px; padding: 18px; }
+        .card h3 { color: #38bdf8; margin: 0 0 8px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .healthy { background: #064e3b; color: #34d399; }
+        .degraded { background: #78350f; color: #fbbf24; }
+        .unavailable { background: #450a0a; color: #f87171; }
+        .stat { margin: 6px 0; font-size: 14px; color: #94a3b8; }
+        .stat span { color: #e0e6f0; font-weight: bold; }
+        .btn-link { color: #38bdf8; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h1>🎛 Cyber Platform Control Plane Dashboard</h1>
+    <div style="margin: 20px 0; padding: 15px; background: #111827; border: 1px solid #1e3a8a; border-radius: 8px;">
+        <p>Centralized operational observability, reliability tracking, policy enforcement, and AI model governance registry.</p>
+        <p>
+            <a class="btn-link" href="/admin/control-plane/services">Platform Services Catalog</a>
+            <a class="btn-link" href="/admin/control-plane/reliability">Reliability SLOs</a>
+            <a class="btn-link" href="/admin/control-plane/policies">Governance Policies</a>
+            <a class="btn-link" href="/admin/control-plane/models">Model Governance</a>
+            <a class="btn-link" href="/admin/control-plane/evidence">Evidence Catalog</a>
+            <a class="btn-link" href="/admin/control-plane/changes">Rollout Change Logs</a>
+        </p>
+    </div>
+
+    <h2>Logical Services registry Overview</h2>
+    <div class="grid">
+        {% for s in services %}
+        <div class="card">
+            <h3>{{ s.service_name }}</h3>
+            <span class="badge {{ s.status }}">{{ s.status.upper() }}</span>
+            <div class="stat">Type: <span>{{ s.service_type }}</span></div>
+            <div class="stat">Health Score: <span>{{ (s.health_score * 100)|round(1) }}%</span></div>
+            <div class="stat">Criticality: <span>{{ s.criticality.upper() }}</span></div>
+            <div style="font-size:11px; color:#4b5563; margin-top:8px">Last heartbeat: {{ s.last_heartbeat.strftime('%H:%M:%S') if s.last_heartbeat else '—' }}</div>
+        </div>
+        {% else %}
+        <div class="card"><p style="color:#64748b">No active services registered.</p></div>
+        {% endfor %}
+    </div>
+</body>
+</html>

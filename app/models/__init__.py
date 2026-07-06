@@ -175,3 +175,43 @@ from app.models.cert_team import CertTeam
 from app.models.strategic_objective import StrategicObjective
 from app.models.threat_campaign_global import ThreatCampaignGlobal
 from app.models.command_metric import CommandMetric
+
+# Phase 30 — Unified Cyber Defense Universe
+from app.models.defense_universe import DefenseUniverse
+from app.models.defense_domain import DefenseDomain
+from app.models.universe_node import UniverseNode
+from app.models.universe_link import UniverseLink
+from app.models.universe_scenario import UniverseScenario
+from app.models.universe_simulation import UniverseSimulation
+from app.models.universe_event import UniverseEvent
+from app.models.universe_metric import UniverseMetric
+
+# Phase 31 — Cyber Platform Control Plane
+from app.models.platform_service import PlatformService
+from app.models.service_dependency import ServiceDependency
+from app.models.reliability_objective import ReliabilityObjective
+from app.models.platform_feature_flag import PlatformFeatureFlag
+from app.models.control_policy import ControlPolicy
+from app.models.model_governance_record import ModelGovernanceRecord
+from app.models.evidence_record import EvidenceRecord
+from app.models.change_record import ChangeRecord
+
+# Phase 32 — Cyber Trust, Assurance & Verification Fabric
+from app.models.trust_identity import TrustIdentity
+from app.models.device_posture import DevicePosture
+from app.models.trust_decision import TrustDecision
+from app.models.assurance_case import AssuranceCase
+from app.models.assurance_evidence_link import AssuranceEvidenceLink
+from app.models.software_attestation import SoftwareAttestation
+from app.models.sbom_record import SBOMRecord
+from app.models.control_validation import ControlValidation
+
+# Phase 33 — Cyber Platform Observability, Reliability & Operations Fabric
+from app.models.telemetry_source import TelemetrySource
+from app.models.telemetry_metric import TelemetryMetric
+from app.models.trace_record import TraceRecord
+from app.models.service_health_snapshot import ServiceHealthSnapshot
+from app.models.error_budget_record import ErrorBudgetRecord
+from app.models.operational_incident import OperationalIncident
+from app.models.chaos_experiment import ChaosExperiment
+from app.models.operations_timeline_event import OperationsTimelineEvent

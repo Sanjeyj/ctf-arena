@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Posture Fusion Metrics</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #ec4899; border-bottom: 2px solid #ec489933; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #1e293b; color: #94a3b8; padding: 10px; text-align: left; font-size: 13px; }
+        td { padding: 10px; border-bottom: 1px solid #1e293b; font-size: 14px; }
+        tr:hover td { background: #111827; }
+    </style>
+</head>
+<body>
+    <h1>📊 Posture Fusion: {{ universe.name }}</h1>
+    <table>
+        <thead>
+            <tr><th>Metric Type</th><th>Metric Value</th><th>Domain</th><th>Measured At</th></tr>
+        </thead>
+        <tbody>
+            {% for m in metrics %}
+            <tr>
+                <td>{{ m.metric_type.upper() }}</td>
+                <td>{{ m.metric_value }}</td>
+                <td>{{ m.domain or 'Global' }}</td>
+                <td>{{ m.measured_at.strftime('%Y-%m-%d %H:%M:%S') if m.measured_at else '—' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" style="color:#64748b;text-align:center">No measurement trends recorded.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

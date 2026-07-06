@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulation Timeline Playback</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #a855f7; border-bottom: 2px solid #a855f733; padding-bottom: 10px; }
+        .timeline { max-width: 600px; margin: 20px auto; border-left: 2px solid #a855f733; padding-left: 20px; }
+        .event { position: relative; margin-bottom: 20px; background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 12px 16px; }
+        .event::before { content: ''; position: absolute; left: -27px; top: 18px; width: 12px; height: 12px; border-radius: 50%; background: #a855f7; }
+        .critical::before { background: #ef4444; }
+        .title { font-weight: bold; color: #a855f7; }
+        .desc { margin-top: 4px; font-size: 14px; color: #94a3b8; }
+        .score { font-size: 12px; color: #10b981; margin-top: 6px; }
+        .negative { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <h1>🎬 Playback: Simulation #{{ simulation.id }}</h1>
+    <div class="timeline">
+        {% for e in events %}
+        <div class="event {% if e.severity == 'critical' %}critical{% endif %}">
+            <div class="title">{{ e.event_type.upper() }} - Severity: {{ e.severity.upper() }}</div>
+            <div class="desc">{{ e.description }}</div>
+            <div class="score">Score delta: <span class="{% if e.score_delta < 0 %}negative{% endif %}">{{ e.score_delta }}</span></div>
+            <div style="font-size:11px; color:#4b5563; margin-top:4px">{{ e.event_time.strftime('%H:%M:%S') if e.event_time else '—' }}</div>
+        </div>
+        {% else %}
+        <p style="color:#64748b">No chronological events logged.</p>
+        {% endfor %}
+    </div>
+</body>
+</html>

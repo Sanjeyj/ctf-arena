@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chaos Simulation Workspace</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #f59e0b; border-bottom: 2px solid #f59e0b33; padding-bottom: 10px; }
+        .btn-link { color: #f59e0b; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+        .card { background: #111827; border: 1px solid #78350f; border-radius: 10px; padding: 18px; }
+        .card h3 { color: #f59e0b; margin: 0 0 8px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .completed { background: #064e3b; color: #34d399; }
+        .running { background: #7c2d12; color: #ff7e5f; }
+        .scheduled { background: #1e3a8a; color: #93c5fd; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Chaos Engineering Simulations</h1>
+    <p><a class="btn-link" href="/admin/operations-fabric">← Back to Overview</a></p>
+
+    <h2>Simulation Scenarios & Results</h2>
+    <div class="grid">
+        {% for e in experiments %}
+        <div class="card" style="border-color: {% if e.status == 'completed' %}#065f46{% elif e.status == 'running' %}#7c2d12{% else %}#1e3a8a{% endif %};">
+            <h3>{{ e.name }}</h3>
+            <span class="badge {{ e.status }}">{{ e.status.upper() }}</span>
+            <div style="margin: 8px 0; font-size: 14px;">Target: <strong>{{ e.target_service }}</strong></div>
+            <div style="font-size: 12px; color:#a1a1aa">Hypothesis: {{ e.hypothesis }}</div>
+            <div style="font-size: 12px; color:#64748b; margin-top: 5px;">Baseline: {{ e.baseline_score }}% | Result: {{ e.result_score }}%</div>
+            <div style="font-size: 11px; color:#64748b; margin-top: 5px;">Summary: {{ e.result_summary or 'Awaiting execution...' }}</div>
+        </div>
+        {% else %}
+        <div class="card" style="border-color: #1e3a8a;"><p style="color:#64748b">No active chaos experiments scheduled.</p></div>
+        {% endfor %}
+    </div>
+</body>
+</html>

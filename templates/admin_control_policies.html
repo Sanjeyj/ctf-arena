@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Operational & Governance Policies</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #f59e0b; border-bottom: 2px solid #f59e0b33; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 20px; }
+        .card { background: #111827; border: 1px solid #78350f; border-radius: 10px; padding: 18px; }
+        .card h3 { color: #f59e0b; margin: 0 0 8px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .observe { background: #1e293b; color: #94a3b8; }
+        .warn { background: #422006; color: #fbbf24; }
+        .require_approval { background: #1e3a5f; color: #60a5fa; }
+        .deny_simulation { background: #450a0a; color: #f87171; }
+    </style>
+</head>
+<body>
+    <h1>⚖ Governance Control Policies</h1>
+    <div class="grid">
+        {% for p in policies %}
+        <div class="card">
+            <h3>{{ p.policy_name }}</h3>
+            <span class="badge {{ p.enforcement_mode }}">{{ p.enforcement_mode.upper() }}</span>
+            <div style="margin-top: 8px; font-size: 14px; color: #94a3b8">Type: <strong>{{ p.policy_type.upper() }}</strong></div>
+            <div style="font-size: 13px; color: #4b5563">Version: v{{ p.version }}</div>
+        </div>
+        {% else %}
+        <div class="card"><p style="color:#64748b">No governance policy rules declared.</p></div>
+        {% endfor %}
+    </div>
+</body>
+</html>

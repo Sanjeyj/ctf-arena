@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Universe Topology Map</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #10b981; border-bottom: 2px solid #10b98133; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .col { background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 18px; }
+        h2 { color: #10b981; margin-top: 0; }
+        .item { padding: 8px; border-bottom: 1px solid #1e293b; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h1>🛡 Topology Map: {{ universe.name }}</h1>
+    <div class="grid">
+        <div class="col">
+            <h2>Nodes ({{ nodes|length }})</h2>
+            {% for n in nodes %}
+            <div class="item">
+                <strong>{{ n.node_name }}</strong> ({{ n.node_type }}) - Region: {{ n.region or 'Global' }}
+                <div style="color:#64748b; font-size:12px">Health: {{ n.health_score }} | Criticality: {{ n.criticality }}</div>
+            </div>
+            {% else %}
+            <p style="color:#64748b">No infrastructure nodes registered.</p>
+            {% endfor %}
+        </div>
+        <div class="col">
+            <h2>Dependency Links ({{ links|length }})</h2>
+            {% for l in links %}
+            <div class="item">
+                Node #{{ l.source_node_id }} &rarr; Node #{{ l.target_node_id }}
+                <div style="color:#64748b; font-size:12px">Type: {{ l.relationship_type }} | Trust: {{ l.trust_score }}</div>
+            </div>
+            {% else %}
+            <p style="color:#64748b">No topological links registered.</p>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

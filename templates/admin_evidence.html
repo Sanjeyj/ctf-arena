@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Evidence hashes Registry</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #ec4899; border-bottom: 2px solid #ec489933; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #1e293b; color: #94a3b8; padding: 10px; text-align: left; font-size: 13px; }
+        td { padding: 10px; border-bottom: 1px solid #1e293b; font-size: 14px; }
+        tr:hover td { background: #111827; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; }
+        .valid { background: #052e16; color: #34d399; }
+        .tampered { background: #450a0a; color: #f87171; }
+    </style>
+</head>
+<body>
+    <h1>📜 Compliance Evidence hash Registry</h1>
+    <table>
+        <thead>
+            <tr><th>Evidence Type</th><th>Source Module</th><th>Resource Type/ID</th><th>Integrity Hash</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+            {% for e in evidence %}
+            <tr>
+                <td>{{ e.evidence_type.upper() }}</td>
+                <td>{{ e.source_module }}</td>
+                <td>{{ e.resource_type }} #{{ e.resource_id }}</td>
+                <td><code style="color:#f472b6">{{ e.integrity_hash[:16] }}...</code></td>
+                <td><span class="badge {{ e.status }}">{{ e.status.upper() }}</span></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" style="color:#64748b;text-align:center">No compliance hashes collected.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Identity Trust Workspace</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #38bdf8; border-bottom: 2px solid #38bdf833; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+        .card { background: #111827; border: 1px solid #1e3a8a; border-radius: 10px; padding: 18px; }
+        .card h3 { color: #38bdf8; margin: 0 0 8px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .verified { background: #064e3b; color: #34d399; }
+        .restricted { background: #78350f; color: #fbbf24; }
+        .unverified { background: #4b5563; color: #d1d5db; }
+        .stat { margin: 6px 0; font-size: 14px; color: #94a3b8; }
+        .stat span { color: #e0e6f0; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>👤 Identity Trust Workspace</h1>
+    <div class="grid">
+        {% for i in identities %}
+        <div class="card">
+            <h3>User #{{ i.user_id }}</h3>
+            <span class="badge {{ i.verification_status }}">{{ i.verification_status.upper() }}</span>
+            <div class="stat">Type: <span>{{ i.identity_type }}</span></div>
+            <div class="stat">Authentication Strength: <span>{{ (i.authentication_strength * 100)|round(1) }}%</span></div>
+            <div class="stat">Risk Score: <span>{{ (i.risk_score * 100)|round(1) }}%</span></div>
+            <div class="stat">Trust Score: <span>{{ i.trust_score }}</span></div>
+        </div>
+        {% else %}
+        <div class="card"><p style="color:#64748b">No identities registered.</p></div>
+        {% endfor %}
+    </div>
+</body>
+</html>

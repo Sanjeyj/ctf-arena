@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reliability Objectives & SLOs</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #10b981; border-bottom: 2px solid #10b98133; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 20px; }
+        .card { background: #111827; border: 1px solid #064e3b; border-radius: 10px; padding: 18px; }
+        .card h3 { color: #10b981; margin: 0 0 8px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .compliant { background: #052e16; color: #34d399; }
+        .breaching { background: #450a0a; color: #f87171; }
+        .stat { margin: 6px 0; font-size: 14px; color: #94a3b8; }
+        .stat span { color: #e0e6f0; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>📉 Reliability SLO Objectives & Error Budgets</h1>
+    <div class="grid">
+        {% for o in objectives %}
+        <div class="card">
+            <h3>{{ o.metric_name.replace('_', ' ').upper() }}</h3>
+            <span class="badge {{ o.status }}">{{ o.status.upper() }}</span>
+            <div class="stat">Target: <span>{{ (o.target_value * 100)|round(2) }}%</span></div>
+            <div class="stat">Current: <span>{{ (o.current_value * 100)|round(2) }}%</span></div>
+            <div class="stat">Error Budget: <span>{{ (o.error_budget * 100)|round(2) }}% remaining</span></div>
+            <div class="stat">Window: <span>{{ o.measurement_window }}</span></div>
+        </div>
+        {% else %}
+        <div class="card"><p style="color:#64748b">No active reliability targets defined.</p></div>
+        {% endfor %}
+    </div>
+</body>
+</html>

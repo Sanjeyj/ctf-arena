@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Defense Universes Overview</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #38bdf8; border-bottom: 2px solid #38bdf833; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 20px; }
+        .card { background: #111827; border: 1px solid #1e3a8a; border-radius: 10px; padding: 18px; }
+        .card h3 { color: #38bdf8; margin: 0 0 8px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .active { background: #064e3b; color: #34d399; }
+        .draft { background: #1e293b; color: #94a3b8; }
+        .paused { background: #78350f; color: #fbbf24; }
+        .completed { background: #1f2937; color: #e2e8f0; }
+        .stat { margin: 6px 0; font-size: 14px; color: #94a3b8; }
+        .stat span { color: #e0e6f0; font-weight: bold; }
+        a { color: #38bdf8; text-decoration: none; font-size: 14px; display: inline-block; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🌌 Unified Cyber Defense Universes</h1>
+    <div class="grid">
+        {% for u in universes %}
+        <div class="card">
+            <h3>{{ u.name }}</h3>
+            <span class="badge {{ u.status }}">{{ u.status.upper() }}</span>
+            <div class="stat">Readiness: <span>{{ (u.readiness_score * 100)|round(1) }}%</span></div>
+            <div class="stat">Risk Score: <span>{{ (u.risk_score * 100)|round(1) }}%</span></div>
+            <div class="stat">Resilience: <span>{{ (u.resilience_score * 100)|round(1) }}%</span></div>
+            <a href="/admin/universe/{{ u.id }}">View Details &rarr;</a>
+        </div>
+        {% else %}
+        <div class="card"><p style="color:#64748b">No universes configured.</p></div>
+        {% endfor %}
+    </div>
+</body>
+</html>
