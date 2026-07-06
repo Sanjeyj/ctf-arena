@@ -215,3 +215,13 @@ from app.models.error_budget_record import ErrorBudgetRecord
 from app.models.operational_incident import OperationalIncident
 from app.models.chaos_experiment import ChaosExperiment
 from app.models.operations_timeline_event import OperationsTimelineEvent
+
+# Phase 34 — Security Architecture, Exposure & Attack Surface Management Fabric
+from app.models.architecture_zone import ArchitectureZone
+from app.models.trust_boundary import TrustBoundary
+from app.models.exposure_asset import ExposureAsset
+from app.models.exposure_finding import ExposureFinding
+from app.models.attack_path import AttackPath
+from app.models.control_coverage_map import ControlCoverageMap
+from app.models.remediation_plan import RemediationPlan
+from app.models.architecture_review import ArchitectureReview
