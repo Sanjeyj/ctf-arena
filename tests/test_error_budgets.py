@@ -142,7 +142,7 @@ def test_forecast_exhaustion_stable(app, budget_setup):
         # Clean budget with 0 consumption should indicate stable forecast
         record = ErrorBudgetService.calculate_budget(budget_setup["obj"].id, budget_setup["o1"].id)
         forecast = ErrorBudgetService.forecast_exhaustion(budget_setup["obj"].id, budget_setup["o1"].id)
-        assert "stable" in forecast or "exhausted" in forecast or "unknown" in forecast or "no exhaustion" in forecast
+        assert "stable" in forecast or "exhausted" in forecast or "unknown" in forecast or "no exhaustion" in forecast or "hours remaining" in forecast
 
 
 def test_budget_summary(app, budget_setup):

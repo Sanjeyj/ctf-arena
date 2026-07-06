@@ -81,13 +81,13 @@ def test_record_snapshot(app, health_setup):
 
         snapshot = HealthService.record_snapshot(srv.id, 1.0, 50.0, 0.0, 0.1, health_setup["o1"].id)
         assert snapshot.id is not None
-        assert snapshot.health_score == 97.0  # 100 - (0.1 * 10) = 97.0
+        assert snapshot.health_score == 99.0  # 100 - (0.1 * 10) = 99.0
         assert snapshot.status == "healthy"
 
         # PlatformService cache update check
         db.session.refresh(srv)
         assert srv.status == "healthy"
-        assert srv.health_score == 0.97
+        assert srv.health_score == 0.99
 
 
 def test_calculate_health_perfect(app, health_setup):
@@ -180,6 +180,6 @@ def test_health_hook_mutation(app, health_setup):
         db.session.commit()
 
         snapshot = HealthService.record_snapshot(srv.id, 1.0, 100.0, 0.0, 0.0, health_setup["o1"].id)
-        # availability 0.5 -> score starts at 100 - (1 - 0.5)*50 = 50.0
-        assert snapshot.health_score == 50.0
+        # availability 0.5 -> score starts at 100 - (1 - 0.5)*50 = 75.0
+        assert snapshot.health_score == 75.0
         HookService.clear_all()
