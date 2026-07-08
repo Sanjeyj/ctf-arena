@@ -35,10 +35,11 @@ class FindingService:
             source_type=source_type,
             org_id=org_id
         )
-        if hook_results:
-            title = hook_results.get('title', title)
-            severity = hook_results.get('severity', severity)
-            likelihood = hook_results.get('likelihood', likelihood)
+        for res in hook_results:
+            if isinstance(res, dict):
+                title = res.get('title', title)
+                severity = res.get('severity', severity)
+                likelihood = res.get('likelihood', likelihood)
 
         finding = ExposureFinding(
             exposure_asset_id=exposure_asset_id,

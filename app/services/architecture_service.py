@@ -67,7 +67,7 @@ class ArchitectureService:
         for req in reqs:
             # Look up validation for this control reference
             val = ControlValidation.query.filter_by(control_reference=req, organization_id=org_id).order_by(ControlValidation.id.desc()).first()
-            if not val or val.status != 'valid':
+            if not val or val.status != 'passed':
                 gaps.append(req)
 
         status = "valid" if not gaps else "violated"

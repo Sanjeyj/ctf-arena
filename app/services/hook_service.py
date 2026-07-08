@@ -59,6 +59,81 @@ SUPPORTED_HOOKS = {
     'after_chaos_simulation': 'Fired after chaos simulation. kwargs: experiment.',
     'before_incident_correlation': 'Fired before incident correlation. kwargs: title, severity, source_module, affected_services_list, root_cause_summary, impact_summary, org_id.',
     'after_incident_correlation': 'Fired after incident correlation. kwargs: incident.',
+
+    # Security Architecture & Exposure Fabric (Phase 34)
+    'before_zone_create': 'Fired before architecture zone creation. kwargs: name, zone_type, org_id.',
+    'after_zone_create': 'Fired after architecture zone creation. kwargs: zone.',
+    'before_exposure_evaluation': 'Fired before exposure score evaluation. kwargs: exposure_asset_id, finding_type, title, severity, likelihood, impact_score, confidence, status, source_type, org_id.',
+    'after_exposure_evaluation': 'Fired after exposure score evaluation. kwargs: finding.',
+    'before_attack_path_analysis': 'Fired before critical attack path evaluation. kwargs: source_id, target_id, path, risk_score, org_id.',
+    'after_attack_path_analysis': 'Fired after critical attack path evaluation. kwargs: path_record.',
+    'before_control_coverage_evaluation': 'Fired before control coverage mapping evaluation. kwargs: control_ref, resource_type, resource_id, coverage_score, effectiveness_score, status, org_id.',
+    'after_control_coverage_evaluation': 'Fired after control coverage mapping evaluation. kwargs: map_record.',
+    'before_remediation_prioritization': 'Fired before remediation plan prioritization. kwargs: title, finding_id, recommended_action, priority_score, org_id.',
+    'after_remediation_prioritization': 'Fired after remediation plan prioritization. kwargs: plan_record.',
+
+    # Continuous Security Validation & Defense Effectiveness Fabric (Phase 35)
+    'before_validation_campaign': 'Fired before validation campaign creation. kwargs: name, description, campaign_type, scope, priority, scheduled_at, org_id.',
+    'after_validation_campaign': 'Fired after validation campaign creation. kwargs: campaign_id, org_id.',
+    'before_validation_execution': 'Fired before validation scenario execution. kwargs: scenario_id, org_id.',
+    'after_validation_execution': 'Fired after validation scenario execution. kwargs: execution_id, org_id.',
+    'before_detection_validation': 'Fired before detection validation runs. kwargs: execution_id, detection_type, detection_reference, synthetic_signal_type, expected_detection, org_id.',
+    'after_detection_validation': 'Fired after detection validation runs. kwargs: validation_id, org_id.',
+    'before_regression_evaluation': 'Fired before validation regression evaluation. kwargs: resource_type, resource_id, previous_score, current_score, org_id.',
+    'after_regression_evaluation': 'Fired after validation regression evaluation. kwargs: regression_id, org_id.',
+
+    # Cyber Risk Quantification (Phase 36)
+    'before_risk_quantification': 'Fired before risk quantification starts. kwargs: scenario_id, org_id.',
+    'after_risk_quantification': 'Fired after risk quantification finishes. kwargs: scenario_id, org_id, inherent_risk_score.',
+    'before_loss_simulation': 'Fired before loss simulation run starts. kwargs: run_id, org_id.',
+    'after_loss_simulation': 'Fired after loss simulation run ends. kwargs: run_id, org_id, expected_loss.',
+    'before_investment_evaluation': 'Fired before security investment evaluation. kwargs: title, investment_category, cost, expected_loss_reduction, expected_risk_reduction, org_id.',
+    'after_investment_evaluation': 'Fired after security investment evaluation. kwargs: investment_id, org_id, rosi_score.',
+    'before_risk_appetite_check': 'Fired before appetite boundaries evaluation. kwargs: appetite_id, org_id.',
+    'after_risk_appetite_check': 'Fired after appetite boundaries evaluation. kwargs: appetite_id, org_id, is_breached.',
+
+    # Strategic Resilience Decision (Phase 37)
+    'before_stress_test': 'Fired before resilience stress test run. kwargs: scenario_id, org_id.',
+    'after_stress_test': 'Fired after resilience stress test run. kwargs: run_id, org_id.',
+    'before_portfolio_optimization': 'Fired before portfolio optimization run. kwargs: plan_id, org_id.',
+    'after_portfolio_optimization': 'Fired after portfolio optimization run. kwargs: plan_id, org_id.',
+    'before_strategic_decision': 'Fired before strategic decision record evaluation. kwargs: title, org_id.',
+    'after_strategic_decision': 'Fired after strategic decision record evaluation. kwargs: decision_id, org_id.',
+    'before_resilience_plan_approval': 'Fired before resilience plan approval action. kwargs: plan_id, org_id.',
+    'after_resilience_plan_approval': 'Fired after resilience plan approval action. kwargs: plan_id, org_id.',
+
+    # Phase 38 — Enterprise Security Decision Intelligence,
+    # Adaptive Policy Optimization & Governance Fabric
+    'before_decision_recommendation': 'Fired before decision recommendation generation. kwargs: context_id, org_id.',
+    'after_decision_recommendation': 'Fired after decision recommendation generation. kwargs: recommendation_id, org_id.',
+    'before_policy_optimization': 'Fired before policy optimization run. kwargs: run_id, org_id.',
+    'after_policy_optimization': 'Fired after policy optimization run. kwargs: run_id, org_id.',
+    'before_governance_scoring': 'Fired before governance scoring. kwargs: org_id.',
+    'after_governance_scoring': 'Fired after governance scoring. kwargs: scorecard_id, org_id.',
+    'before_governance_drift_detection': 'Fired before governance drift detection. kwargs: org_id.',
+    'after_governance_drift_detection': 'Fired after governance drift detection. kwargs: org_id.',
+
+    # Phase 39 — Systemic Cyber Risk, Collective Resilience
+    # & Federated Governance Fabric
+    'before_systemic_risk_analysis': 'Fired before systemic risk analysis starts. kwargs: org_id.',
+    'after_systemic_risk_analysis': 'Fired after systemic risk analysis completes. kwargs: org_id, metrics.',
+    'before_contagion_simulation': 'Fired before contagion simulation starts. kwargs: scenario_id, org_id.',
+    'after_contagion_simulation': 'Fired after contagion simulation completes. kwargs: run_id, org_id.',
+    'before_collective_resilience_evaluation': 'Fired before collective resilience plan evaluation. kwargs: plan_id, org_id.',
+    'after_collective_resilience_evaluation': 'Fired after collective resilience plan evaluation. kwargs: plan_id, org_id.',
+    'before_federation_governance_decision': 'Fired before federation governance decision action. kwargs: record_id, org_id.',
+    'after_federation_governance_decision': 'Fired after federation governance decision action. kwargs: record_id, org_id.',
+
+    # Phase 40 — Platform Convergence, Certification,
+    # Mission Control & Release Readiness
+    'before_platform_certification': 'Fired before platform certification starts. kwargs: org_id, run_id.',
+    'after_platform_certification': 'Fired after platform certification completes. kwargs: org_id, run_id, score.',
+    'before_release_baseline': 'Fired before release baseline creation. kwargs: org_id, version, metrics.',
+    'after_release_baseline': 'Fired after release baseline creation. kwargs: org_id, version, baseline_id.',
+    'before_readiness_evaluation': 'Fired before readiness evaluation starts. kwargs: org_id, metric_type.',
+    'after_readiness_evaluation': 'Fired after readiness evaluation completes. kwargs: org_id, metric_id, overall_score.',
+    'before_release_gate_decision': 'Fired before release gate decision is registered. kwargs: org_id, baseline_id, gate_type.',
+    'after_release_gate_decision': 'Fired after release gate decision is registered. kwargs: org_id, baseline_id, decision_id, decision.',
 }
 
 

@@ -112,6 +112,13 @@ def create_app(config_name="default"):
     from app.control_plane import control_plane_bp
     from app.assurance import assurance_bp
     from app.operations import operations_bp
+    from app.exposure import exposure_bp
+    from app.validation_fabric import validation_fabric_bp
+    from app.risk_quantification import risk_quantification_bp
+    from app.strategic_resilience import strategic_resilience_bp
+    from app.governance_intelligence import governance_intelligence_bp
+    from app.systemic_resilience import systemic_resilience_bp
+    from app.mission_control import mission_control_bp
     csrf.exempt(api_bp)
     csrf.exempt(ai_bp)
     csrf.exempt(org_bp)
@@ -133,6 +140,13 @@ def create_app(config_name="default"):
     csrf.exempt(control_plane_bp)
     csrf.exempt(assurance_bp)
     csrf.exempt(operations_bp)
+    csrf.exempt(exposure_bp)
+    csrf.exempt(validation_fabric_bp)
+    csrf.exempt(risk_quantification_bp)
+    csrf.exempt(strategic_resilience_bp)
+    csrf.exempt(governance_intelligence_bp)
+    csrf.exempt(systemic_resilience_bp)
+    csrf.exempt(mission_control_bp)
 
 
 
@@ -308,7 +322,14 @@ def register_blueprints(app):
     from app.control_plane import control_plane_bp
     from app.assurance import assurance_bp
     from app.operations import operations_bp
-    
+    from app.exposure import exposure_bp
+    from app.validation_fabric import validation_fabric_bp
+    from app.risk_quantification import risk_quantification_bp
+    from app.strategic_resilience import strategic_resilience_bp
+    from app.governance_intelligence import governance_intelligence_bp
+    from app.systemic_resilience import systemic_resilience_bp
+    from app.mission_control import mission_control_bp
+
     app.register_blueprint(auth_bp)
     app.register_blueprint(challenges_bp)
     app.register_blueprint(scoreboard_bp)
@@ -335,6 +356,13 @@ def register_blueprints(app):
     app.register_blueprint(control_plane_bp)
     app.register_blueprint(assurance_bp)
     app.register_blueprint(operations_bp)
+    app.register_blueprint(exposure_bp)
+    app.register_blueprint(validation_fabric_bp)
+    app.register_blueprint(risk_quantification_bp)
+    app.register_blueprint(strategic_resilience_bp)
+    app.register_blueprint(governance_intelligence_bp)
+    app.register_blueprint(systemic_resilience_bp)
+    app.register_blueprint(mission_control_bp)
 
 
     

@@ -225,3 +225,68 @@ from app.models.attack_path import AttackPath
 from app.models.control_coverage_map import ControlCoverageMap
 from app.models.remediation_plan import RemediationPlan
 from app.models.architecture_review import ArchitectureReview
+
+# Phase 35 — Continuous Security Validation & Defense Effectiveness Fabric
+from app.models.validation_campaign import ValidationCampaign
+from app.models.validation_scenario import ValidationScenario
+from app.models.validation_execution import ValidationExecution
+from app.models.validation_check import ValidationCheck
+from app.models.detection_validation import DetectionValidation
+from app.models.playbook_readiness import PlaybookReadiness
+from app.models.defense_effectiveness_metric import DefenseEffectivenessMetric
+from app.models.validation_regression import ValidationRegression
+
+# Phase 36 — Cyber Risk Quantification, Loss Modeling & Security Investment Optimization Fabric
+from app.models.quantitative_risk_scenario import QuantitativeRiskScenario
+from app.models.risk_frequency_estimate import RiskFrequencyEstimate
+from app.models.loss_magnitude_estimate import LossMagnitudeEstimate
+from app.models.risk_simulation_run import RiskSimulationRun
+from app.models.risk_treatment_option import RiskTreatmentOption
+from app.models.security_investment import SecurityInvestment
+from app.models.risk_appetite_profile import RiskAppetiteProfile
+from app.models.risk_portfolio_metric import RiskPortfolioMetric
+
+# Phase 37 — Cyber Resilience Investment Planning, Scenario Stress Testing & Strategic Risk Decision Fabric
+from app.models.stress_test_scenario import StressTestScenario
+from app.models.stress_test_run import StressTestRun
+from app.models.resilience_investment_plan import ResilienceInvestmentPlan
+from app.models.investment_plan_item import InvestmentPlanItem
+from app.models.control_investment_option import ControlInvestmentOption
+from app.models.business_dependency_risk import BusinessDependencyRisk
+from app.models.strategic_decision_record import StrategicDecisionRecord
+from app.models.resilience_portfolio_metric import ResiliencePortfolioMetric
+
+# Phase 38 — Enterprise Security Decision Intelligence,
+# Adaptive Policy Optimization & Governance Fabric
+from app.models.decision_context import DecisionContext
+from app.models.decision_recommendation import DecisionRecommendation
+from app.models.policy_optimization_run import PolicyOptimizationRun
+from app.models.policy_conflict import PolicyConflict
+from app.models.governance_objective import GovernanceObjective
+from app.models.governance_scorecard import GovernanceScorecard
+from app.models.decision_outcome import DecisionOutcome
+from app.models.governance_drift_record import GovernanceDriftRecord
+
+
+
+# Phase 39 - Systemic Cyber Risk, Collective Resilience
+# & Federated Governance Fabric
+from app.models.systemic_risk_node import SystemicRiskNode
+from app.models.systemic_dependency import SystemicDependency
+from app.models.contagion_scenario import ContagionScenario
+from app.models.contagion_simulation_run import ContagionSimulationRun
+from app.models.contagion_event import ContagionEvent
+from app.models.collective_resilience_plan import CollectiveResiliencePlan
+from app.models.mutual_aid_simulation import MutualAidSimulation
+from app.models.federation_governance_record import FederationGovernanceRecord
+
+# Phase 40 — Platform Convergence, Certification,
+# Mission Control & Release Readiness
+from app.models.platform_capability import PlatformCapability
+from app.models.capability_dependency import CapabilityDependency
+from app.models.platform_certification_run import PlatformCertificationRun
+from app.models.certification_check import CertificationCheck
+from app.models.release_baseline import ReleaseBaseline
+from app.models.architecture_decision_record import ArchitectureDecisionRecord
+from app.models.platform_readiness_metric import PlatformReadinessMetric
+from app.models.release_gate_decision import ReleaseGateDecision
