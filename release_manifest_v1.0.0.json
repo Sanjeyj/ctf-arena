@@ -1,0 +1,30 @@
+{
+  "ai_safety_status": "VERIFIED",
+  "blueprint_count": 50,
+  "documentation_count": 106,
+  "known_limitations": [
+    "8 route collisions due to legacy blueprint path overlaps (unreachable shadowed routes)",
+    "2696 pytest warnings (datetime.utcnow deprecation, SQLAlchemy Query.get legacy API)",
+    "SQLite lacks native ALTER TABLE DROP COLUMN support in migrations without Alembic batch Mode",
+    "SQLite foreign-key CASCADE requires manual application-level sweeps or explicit configuration setup"
+  ],
+  "manifest_hash": "5bf6ac0e0442d769dafd1d49cce65e73162f6086e317aaf8f43f8aa05c446824",
+  "migration_head": "8bce79803ffc",
+  "operating_mode": "OFFLINE_SIMULATION_ONLY",
+  "product_name": "Cyber Defense Platform",
+  "rc_source_version": "v1.0.0-rc1",
+  "release_gates": {
+    "ai_safety_gate": "passed",
+    "documentation_gate": "passed",
+    "migration_gate": "passed",
+    "security_gate": "passed",
+    "tenant_isolation_gate": "passed",
+    "test_gate": "passed"
+  },
+  "release_version": "v1.0.0",
+  "route_count": 574,
+  "source_commit": "072efa24a3c26cbdf6fa6fe557f33db359424074",
+  "tenant_isolation_status": "VERIFIED",
+  "test_result": "passed",
+  "total_test_count": 1609
+}
