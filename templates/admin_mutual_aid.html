@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mutual Aid Simulations</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #a78bfa; border-bottom: 2px solid #a78bfa33; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #1e1b4b; color: #a78bfa; padding: 10px 14px; text-align: left; font-size: 13px; text-transform: uppercase; }
+        td { padding: 10px 14px; border-bottom: 1px solid #1e1b4b; font-size: 13px; }
+        tr:hover td { background: #111827; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .approved { background: #064e3b; color: #34d399; }
+        .pending { background: #1e3a5f; color: #60a5fa; }
+        .back { color: #a78bfa; text-decoration: none; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <a class="back" href="/admin/systemic-resilience">← Back to Overview</a>
+    <h1>🤝 Simulated Mutual Aid Allocations</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Provider Node</th>
+                <th>Recipient Node</th>
+                <th>Assistance Type</th>
+                <th>Capacity Allocated</th>
+                <th>Recovery Gain</th>
+                <th>Allocation Score</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in records %}
+            <tr>
+                <td>{{ r.id }}</td>
+                <td>Node #{{ r.provider_node_id }}</td>
+                <td>Node #{{ r.recipient_node_id }}</td>
+                <td>{{ r.assistance_type }}</td>
+                <td>{{ r.capacity_allocated | round(1) }}</td>
+                <td>{{ r.estimated_recovery_gain | round(1) }}</td>
+                <td>{{ r.allocation_score | round(1) }}</td>
+                <td><span class="badge {{ r.approval_status }}">{{ r.approval_status.upper() }}</span></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" style="color:#64748b; text-align:center;">No mutual aid allocations simulated.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

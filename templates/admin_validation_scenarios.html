@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Validation Scenarios</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0b0f19; color: #e2e8f0; margin: 0; padding: 20px; }
+        h1 { color: #38bdf8; border-bottom: 2px solid #38bdf833; padding-bottom: 10px; }
+        .btn-link { color: #38bdf8; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
+        .btn-link:hover { text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111827; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #1f2937; }
+        th { background-color: #151f32; color: #38bdf8; }
+    </style>
+</head>
+<body>
+    <h1>🎯 Validation Scenarios</h1>
+    <p><a class="btn-link" href="/admin/validation-fabric">← Back to Overview</a></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Scenario ID</th>
+                <th>Campaign ID</th>
+                <th>Name</th>
+                <th>Scenario Type</th>
+                <th>Severity</th>
+                <th>Expected Outcome</th>
+                <th>Status</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in scenarios %}
+            <tr>
+                <td>{{ s.id }}</td>
+                <td>{{ s.campaign_id }}</td>
+                <td><strong>{{ s.name }}</strong></td>
+                <td>{{ s.scenario_type.upper() }}</td>
+                <td>{{ s.severity.upper() }}</td>
+                <td><code>{{ s.expected_outcome }}</code></td>
+                <td>{{ s.status.upper() }}</td>
+                <td>{{ s.description or 'N/A' }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center; color: #64748b;">No validation scenarios mapped.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

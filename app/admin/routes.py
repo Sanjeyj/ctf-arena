@@ -1,5 +1,5 @@
 import os
-from flask import render_template, request, redirect, jsonify, url_for, current_app, flash
+from flask import render_template, request, redirect, jsonify, url_for, current_app, flash, g
 from flask_login import login_user, logout_user, current_user
 from app.admin import admin_bp
 from app.services.auth_service import AuthService
@@ -11,7 +11,7 @@ from app.services.category_service import CategoryService
 from app.services.flag_service import FlagService
 from app.services.hint_service import HintService
 from app.services.file_service import FileService
-from app.extensions import limiter
+from app.extensions import limiter, db
 from app.utils.decorators import require_admin
 
 def get_login_limit():

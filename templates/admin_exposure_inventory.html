@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Exposed Assets Inventory</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #f43f5e; border-bottom: 2px solid #f43f5e33; padding-bottom: 10px; }
+        .btn-link { color: #f43f5e; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111827; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #1f2937; }
+        th { background-color: #1f2937; color: #f43f5e; }
+    </style>
+</head>
+<body>
+    <h1>🖥 Exposed Assets Inventory Ledger</h1>
+    <p><a class="btn-link" href="/admin/exposure-fabric">← Back to Overview</a></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Asset ID</th>
+                <th>Display Name</th>
+                <th>Reference Type</th>
+                <th>Reference ID</th>
+                <th>Exposure Type</th>
+                <th>Internet Exposed</th>
+                <th>Criticality</th>
+                <th>Business Impact Score</th>
+                <th>Zone ID</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for a in assets %}
+            <tr>
+                <td>{{ a.id }}</td>
+                <td><strong>{{ a.display_name }}</strong></td>
+                <td>{{ a.asset_reference_type }}</td>
+                <td>{{ a.asset_reference_id }}</td>
+                <td>{{ a.exposure_type.upper() }}</td>
+                <td>{{ 'YES' if a.internet_exposed else 'NO' }}</td>
+                <td>{{ a.criticality.upper() }}</td>
+                <td>{{ a.business_impact_score }}</td>
+                <td>{{ a.architecture_zone_id or 'UNASSIGNED' }}</td>
+                <td>{{ a.status.upper() }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="10" style="text-align: center; color: #64748b;">No assets registered in the exposure inventory.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

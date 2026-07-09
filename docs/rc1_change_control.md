@@ -47,4 +47,53 @@ The following changes were introduced after the `v1.0.0-rc1` tag:
 
 ## Change Risk Summary
 
-All post-RC changes are classified as low-risk integration alignment and minor bug-fixing. No new features or tables were added. The full 1609-test regression suite passes successfully on the post-RC commit `072efa2`.
+- All post-RC changes are classified as low-risk integration alignment and minor bug-fixing. No new features or tables were added. The full 1609-test regression suite passes successfully.
+
+---
+
+### Change 3 — Flask Proxy g Import Fix in Admin Routes
+
+- **Changed Files**:
+  - `app/admin/routes.py`
+- **Classification**: **Defect Fix**
+- **Reason**: Added `g` to Flask imports to fix a `NameError: name 'g' is not defined` when checking `g.current_org` in `admin_cyberrange` route.
+- **Risk**: ⚪ **Low** — adds standard Flask import.
+- **Tests Executed**: `tests/test_cyberrange.py`, full 1609 regression suite.
+- **Approval Requirement**: Approved by release engineer.
+
+---
+
+### Change 4 — Database Instance db Import Fix in Admin Routes
+
+- **Changed Files**:
+  - `app/admin/routes.py`
+- **Classification**: **Defect Fix**
+- **Reason**: Added `db` to `app.extensions` import to fix `NameError: name 'db' is not defined` when calling `db.session.query(Hunt)` in `admin_hunts` route.
+- **Risk**: ⚪ **Low** — adds standard SQLAlchemy database container import.
+- **Tests Executed**: `tests/test_admin.py`, full 1609 regression suite.
+- **Approval Requirement**: Approved by release engineer.
+
+---
+
+### Change 5 — Shared Admin Template Context Variables Injection
+
+- **Changed Files**:
+  - `app/context_processors.py`
+- **Classification**: **Template Context Fix**
+- **Reason**: Sub-templates extending `admin.html` expected context variables `stats` and `leaderboard`. Added a global context injector within `utility_processors` for admin sessions to prevent `UndefinedError` when individual routes omitted them.
+- **Risk**: ⚪ **Low** — safe fallback defaults prevent template rendering crashes.
+- **Tests Executed**: Full 150-route UI smoke test, full 1609 regression suite.
+- **Approval Requirement**: Approved by release engineer.
+
+---
+
+### Change 6 — Layout Block Inheritance Fix in Admin Layout
+
+- **Changed Files**:
+  - `templates/admin.html`
+- **Classification**: **Template Layout Fix**
+- **Reason**: Added `{% block title %}` and `{% block content %}` in the main layout (`admin.html`) to allow sub-pages extending it (e.g. `admin_hunts.html`, `admin_malware.html`, `admin_campaigns.html`) to successfully inject their specific page layouts and title tags. Previously, due to the lack of content blocks in `admin.html`, Flask silently ignored the content overrides and rendered the main admin dashboard for all extending sub-routes.
+- **Risk**: ⚪ **Low** — standard template layout inheritance structure.
+- **Tests Executed**: Full 150-route UI smoke test, full 1609 regression suite.
+- **Approval Requirement**: Approved by release engineer.
+

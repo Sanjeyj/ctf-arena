@@ -1,0 +1,38 @@
+{% extends "admin.html" %}
+{% block title %}Investment Plans — Admin{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3 class="card-title">Resilience Investment Plans</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Plan Name</th>
+        <th>Budget Limit</th>
+        <th>Horizon (Months)</th>
+        <th>Target Risk Reduction</th>
+        <th>Target Resilience</th>
+        <th>Status</th>
+        <th>Approved By</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in plans %}
+      <tr>
+        <td><strong>{{ p.name }}</strong></td>
+        <td>${{ "{:,.2f}".format(p.budget_limit) }}</td>
+        <td>{{ p.planning_horizon_months }} months</td>
+        <td>{{ p.target_risk_reduction }}%</td>
+        <td>{{ p.target_resilience_score }}%</td>
+        <td>{{ p.status }}</td>
+        <td>{{ p.approved_by or "N/A" }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7">No investment plans created.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

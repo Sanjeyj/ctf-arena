@@ -79,6 +79,18 @@ This release represents the completion of **Phases 1–40** of the Cyber Defense
 
 ---
 
+## Post-DOM Verification UI Fixes
+
+Prior to release, the browser-based DOM audit discovered four critical layout and rendering defects, which have been fully resolved:
+
+1. **Flask Proxy g NameError**: Resolved `NameError: name 'g' is not defined` inside `admin_cyberrange` route by adding standard Flask imports.
+2. **Extensions db NameError**: Resolved `NameError: name 'db' is not defined` inside `admin_hunts` route by importing `db` from `app.extensions`.
+3. **Admin Context UndefinedError**: Added automatic context variable injections (`stats`, `leaderboard`) inside `utility_processors` in `app/context_processors.py` to prevent template crashes when sub-routes omitted them.
+4. **Layout Inheritance Content Block Fix**: Modified the base layout `templates/admin.html` to define block content, enabling the 64 extending sub-templates to successfully override the dashboard content block and display their specific controls/panels.
+
+
+---
+
 ## Security Clearances
 
 | Gate | Status |

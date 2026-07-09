@@ -1,0 +1,40 @@
+{% extends "admin.html" %}
+{% block title %}Risk Scenarios — Admin{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3 class="card-title">Quantitative Risk Scenarios</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Scenario Name</th>
+        <th>Type</th>
+        <th>Threat Category</th>
+        <th>Likelihood</th>
+        <th>Impact</th>
+        <th>Inherent Risk</th>
+        <th>Residual Risk</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in scenarios %}
+      <tr>
+        <td><strong>{{ s.name }}</strong></td>
+        <td>{{ s.scenario_type }}</td>
+        <td>{{ s.threat_category }}</td>
+        <td>{{ s.likelihood_score }}</td>
+        <td>{{ s.impact_score }}</td>
+        <td><span class="badge badge-danger">{{ s.inherent_risk_score }}</span></td>
+        <td><span class="badge badge-warning">{{ s.residual_risk_score }}</span></td>
+        <td>{{ s.status }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="8">No scenarios registered.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Decision Outcomes</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #a78bfa; border-bottom: 2px solid #a78bfa33; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #1e1b4b; color: #a78bfa; padding: 10px 14px; text-align: left; font-size: 13px; text-transform: uppercase; }
+        td { padding: 10px 14px; border-bottom: 1px solid #1e1b4b; font-size: 13px; }
+        tr:hover td { background: #111827; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .effective { background: #064e3b; color: #34d399; }
+        .partially_effective { background: #1e3a5f; color: #60a5fa; }
+        .ineffective { background: #78350f; color: #fbbf24; }
+        .regressed { background: #7f1d1d; color: #fca5a5; }
+        .requires_review { background: #3b1d5f; color: #c4b5fd; }
+        .pending { background: #4b5563; color: #d1d5db; }
+        .back { color: #a78bfa; text-decoration: none; font-size: 14px; }
+        .pos { color: #34d399; }
+        .neg { color: #fca5a5; }
+    </style>
+</head>
+<body>
+    <a class="back" href="/admin/governance-intelligence">← Back to Governance Overview</a>
+    <h1>📊 Decision Outcomes</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Rec ID</th>
+                <th>Baseline</th>
+                <th>Result</th>
+                <th>Delta</th>
+                <th>Expected</th>
+                <th>Variance</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in outcomes %}
+            <tr>
+                <td>{{ o.id }}</td>
+                <td>{{ o.recommendation_id }}</td>
+                <td>{{ o.baseline_metric | round(2) }}</td>
+                <td>{{ o.result_metric | round(2) }}</td>
+                <td class="{{ 'pos' if o.improvement_delta >= 0 else 'neg' }}">{{ '%+.2f' | format(o.improvement_delta) }}</td>
+                <td>{{ o.expected_improvement | round(2) }}</td>
+                <td class="{{ 'neg' if o.variance < 0 else 'pos' }}">{{ '%+.2f' | format(o.variance) }}</td>
+                <td><span class="badge {{ o.outcome_status }}">{{ o.outcome_status.replace('_', ' ').upper() }}</span></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" style="color:#64748b; text-align:center;">No decision outcomes recorded.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

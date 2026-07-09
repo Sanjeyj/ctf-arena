@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | CTF Arena</title>
+    <title>{% block title %}Admin Dashboard | CTF Arena{% endblock %}</title>
     <meta name="description" content="CTF Arena Admin — Live leaderboard and participant statistics.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -307,6 +307,7 @@
     </div>
 </header>
 
+{% block content %}
 <div class="page">
     <div class="page-title">Admin <span>Dashboard</span></div>
     <div class="page-sub" id="dashboard-subtitle">Live competition overview — auto-refreshes every 1 second</div>
@@ -430,6 +431,8 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
 
 <script>
 // ── Chart.js Score Distribution ─────────────────────────────

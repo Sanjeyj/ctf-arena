@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Detection Validations</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0b0f19; color: #e2e8f0; margin: 0; padding: 20px; }
+        h1 { color: #38bdf8; border-bottom: 2px solid #38bdf833; padding-bottom: 10px; }
+        .btn-link { color: #38bdf8; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
+        .btn-link:hover { text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111827; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #1f2937; }
+        th { background-color: #151f32; color: #38bdf8; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .detected-yes { background: #064e3b; color: #34d399; }
+        .detected-no { background: #7f1d1d; color: #fca5a5; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Detection Rule Validations</h1>
+    <p><a class="btn-link" href="/admin/validation-fabric">← Back to Overview</a></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Validation ID</th>
+                <th>Execution ID</th>
+                <th>Detection Type</th>
+                <th>Detection Reference</th>
+                <th>Synthetic Signal</th>
+                <th>Expected</th>
+                <th>Detected</th>
+                <th>Latency Score</th>
+                <th>Coverage Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in validations %}
+            <tr>
+                <td>{{ v.id }}</td>
+                <td>{{ v.execution_id }}</td>
+                <td>{{ v.detection_type.upper() }}</td>
+                <td><code>{{ v.detection_reference }}</code></td>
+                <td>{{ v.synthetic_signal_type }}</td>
+                <td>{{ 'YES' if v.expected_detection else 'NO' }}</td>
+                <td>
+                    <span class="badge {{ 'detected-yes' if v.detected else 'detected-no' }}">
+                        {{ 'DETECTED' if v.detected else 'MISSED' }}
+                    </span>
+                </td>
+                <td>{{ v.latency_score }}</td>
+                <td>{{ v.coverage_score }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9" style="text-align: center; color: #64748b;">No detection rule validation events logged.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

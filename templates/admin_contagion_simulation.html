@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contagion Propagation Simulations</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #a78bfa; border-bottom: 2px solid #a78bfa33; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #1e1b4b; color: #a78bfa; padding: 10px 14px; text-align: left; font-size: 13px; text-transform: uppercase; }
+        td { padding: 10px 14px; border-bottom: 1px solid #1e1b4b; font-size: 13px; }
+        tr:hover td { background: #111827; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .completed { background: #064e3b; color: #34d399; }
+        .running { background: #1e3a5f; color: #60a5fa; }
+        .back { color: #a78bfa; text-decoration: none; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <a class="back" href="/admin/systemic-resilience">← Back to Overview</a>
+    <h1>☣️ Contagion Propagation Simulations</h1>
+
+    <h2>Simulation Scenarios</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Scenario</th>
+                <th>Type</th>
+                <th>Severity</th>
+                <th>Depth Limit</th>
+                <th>Seed</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in scenarios %}
+            <tr>
+                <td><strong>{{ s.name }}</strong></td>
+                <td>{{ s.scenario_type }}</td>
+                <td>{{ s.severity.upper() }}</td>
+                <td>{{ s.propagation_depth }}</td>
+                <td>{{ s.random_seed }}</td>
+                <td>{{ s.status }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" style="color:#64748b; text-align:center;">No contagion scenarios configured.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2 style="margin-top: 40px;">Execution Runs</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Run ID</th>
+                <th>Scenario ID</th>
+                <th>Nodes Affected</th>
+                <th>Max Depth</th>
+                <th>Impact Score</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for run in runs %}
+            <tr>
+                <td>{{ run.id }}</td>
+                <td>{{ run.scenario_id }}</td>
+                <td>{{ run.nodes_affected }}</td>
+                <td>{{ run.maximum_depth_reached }}</td>
+                <td>{{ run.aggregate_impact_score | round(1) }}%</td>
+                <td><span class="badge {{ run.status }}">{{ run.status.upper() }}</span></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" style="color:#64748b; text-align:center;">No simulation runs executed.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

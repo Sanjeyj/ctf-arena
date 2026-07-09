@@ -1,0 +1,36 @@
+{% extends "admin.html" %}
+{% block title %}Strategic Decisions — Admin{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3 class="card-title">Strategic Decisions Audit Log</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Decision Title</th>
+        <th>Type</th>
+        <th>Recommended Option</th>
+        <th>Risk Reduction Score</th>
+        <th>Approval Status</th>
+        <th>Approved By</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in decisions %}
+      <tr>
+        <td><strong>{{ d.title }}</strong></td>
+        <td>{{ d.decision_type }}</td>
+        <td>{{ d.recommended_option or "None" }}</td>
+        <td>{{ d.risk_reduction_score }}</td>
+        <td><span class="badge badge-info">{{ d.approval_status }}</span></td>
+        <td>{{ d.approved_by or "N/A" }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6">No strategic decision records stored.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

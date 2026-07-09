@@ -1,0 +1,38 @@
+{% extends "admin.html" %}
+{% block title %}Risk Treatments — Admin{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3 class="card-title">Risk Treatment Options</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Treatment Plan</th>
+        <th>Type</th>
+        <th>Scenario ID</th>
+        <th>Estimated Cost</th>
+        <th>Risk Reduction</th>
+        <th>Complexity</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for o in options %}
+      <tr>
+        <td><strong>{{ o.title }}</strong></td>
+        <td>{{ o.treatment_type }}</td>
+        <td>#{{ o.scenario_id }}</td>
+        <td>${{ "{:,.2f}".format(o.estimated_cost) }}</td>
+        <td>{{ o.expected_risk_reduction }}%</td>
+        <td>{{ o.implementation_complexity }}</td>
+        <td>{{ o.status }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7">No treatment options proposed.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

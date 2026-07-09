@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Decision Intelligence Contexts</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #a78bfa; border-bottom: 2px solid #a78bfa33; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 20px; }
+        .card { background: #111827; border: 1px solid #4c1d95; border-radius: 10px; padding: 18px; }
+        .card h3 { color: #a78bfa; margin: 0 0 8px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .active { background: #064e3b; color: #34d399; }
+        .archived { background: #4b5563; color: #d1d5db; }
+        .back { color: #a78bfa; text-decoration: none; font-size: 14px; }
+        .score-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; font-size: 13px; }
+        .score-item { background: #1e1b4b; padding: 4px 10px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <a class="back" href="/admin/governance-intelligence">← Back to Governance Overview</a>
+    <h1>🔍 Decision Intelligence Contexts</h1>
+
+    <div class="grid">
+        {% for ctx in contexts %}
+        <div class="card">
+            <h3>{{ ctx.name }}</h3>
+            <span class="badge {{ ctx.status or 'active' }}">{{ (ctx.status or 'active').upper() }}</span>
+            <div style="margin: 6px 0; font-size: 13px; color: #94a3b8;">Type: {{ ctx.context_type }} | Scope: {{ ctx.business_scope or '—' }}</div>
+            <div class="score-row">
+                <div class="score-item">Risk: <strong>{{ ctx.risk_score | round(1) }}</strong></div>
+                <div class="score-item">Resilience: <strong>{{ ctx.resilience_score | round(1) }}</strong></div>
+                <div class="score-item">Control: <strong>{{ ctx.control_effectiveness_score | round(1) }}</strong></div>
+                <div class="score-item">Evidence: <strong>{{ ctx.evidence_confidence_score | round(1) }}</strong></div>
+                <div class="score-item">Urgency: <strong>{{ ctx.urgency_score | round(1) }}</strong></div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card"><p style="color:#64748b">No decision contexts registered.</p></div>
+        {% endfor %}
+    </div>
+</body>
+</html>

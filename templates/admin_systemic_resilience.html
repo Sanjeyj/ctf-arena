@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Systemic Cyber Risk & Resilience</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #a78bfa; border-bottom: 2px solid #a78bfa33; padding-bottom: 10px; }
+        .metric-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin: 20px 0; }
+        .metric { background: #111827; border: 1px solid #4c1d95; border-radius: 10px; padding: 18px; text-align: center; }
+        .metric h3 { color: #a78bfa; margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+        .metric .val { font-size: 28px; font-weight: 700; color: #f8fafc; }
+        .nav-links a { color: #a78bfa; text-decoration: none; font-weight: bold; margin-right: 18px; font-size: 14px; }
+        .nav-links a:hover { color: #c4b5fd; }
+        .info-box { background: #111827; border: 1px solid #4c1d95; border-radius: 8px; padding: 15px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <h1>🌐 Systemic Cyber Risk & Collective Resilience</h1>
+    <div class="info-box">
+        <p>Phase 39 — Systemic Risk Modeling, Offline Contagion Simulation, Mutual Aid, and Federated Governance.</p>
+        <div class="nav-links">
+            <a href="/admin/systemic-resilience/graph">Dependency Graph</a>
+            <a href="/admin/systemic-resilience/contagion">Contagion Simulation</a>
+            <a href="/admin/systemic-resilience/concentration">Concentration Risk</a>
+            <a href="/admin/systemic-resilience/plans">Resilience Plans</a>
+            <a href="/admin/systemic-resilience/mutual-aid">Mutual Aid</a>
+            <a href="/admin/systemic-resilience/governance">Federation Governance</a>
+        </div>
+    </div>
+
+    <h2>Ecosystem Health & Risk Metrics</h2>
+    <div class="metric-row">
+        <div class="metric">
+            <h3>Systemic Risk Index</h3>
+            <div class="val" style="color: #fca5a5;">{{ summary.systemic_risk_index | round(1) }}%</div>
+        </div>
+        <div class="metric">
+            <h3>Composite Resilience</h3>
+            <div class="val" style="color: #34d399;">{{ summary.composite_resilience | round(1) }}%</div>
+        </div>
+        <div class="metric">
+            <h3>Dependency Resilience</h3>
+            <div class="val">{{ summary.dependency_resilience | round(1) }}</div>
+        </div>
+        <div class="metric">
+            <h3>Sector Resilience</h3>
+            <div class="val">{{ summary.sector_resilience | round(1) }}</div>
+        </div>
+        <div class="metric">
+            <h3>Regional Resilience</h3>
+            <div class="val">{{ summary.regional_resilience | round(1) }}</div>
+        </div>
+        <div class="metric">
+            <h3>Collective Readiness</h3>
+            <div class="val">{{ summary.collective_readiness | round(1) }}%</div>
+        </div>
+        <div class="metric">
+            <h3>Recovery Capacity</h3>
+            <div class="val">{{ summary.recovery_capacity | round(1) }}</div>
+        </div>
+    </div>
+
+    <h2>Graph Inventory Summaries</h2>
+    <div class="metric-row">
+        <div class="metric">
+            <h3>Total Graph Nodes</h3>
+            <div class="val">{{ summary.total_nodes }}</div>
+        </div>
+        <div class="metric">
+            <h3>Active Connections</h3>
+            <div class="val">{{ summary.total_dependencies }}</div>
+        </div>
+        <div class="metric">
+            <h3>Resilience Plans</h3>
+            <div class="val">{{ summary.total_plans }}</div>
+        </div>
+    </div>
+</body>
+</html>

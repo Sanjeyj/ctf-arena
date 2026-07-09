@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Systemic Dependency Graph</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #a78bfa; border-bottom: 2px solid #a78bfa33; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 20px; }
+        .card { background: #111827; border: 1px solid #4c1d95; border-radius: 10px; padding: 18px; }
+        .card h3 { color: #a78bfa; margin: 0 0 8px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .active { background: #064e3b; color: #34d399; }
+        .degraded_simulation { background: #78350f; color: #fbbf24; }
+        .back { color: #a78bfa; text-decoration: none; font-size: 14px; }
+        .score-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; font-size: 13px; }
+        .score-item { background: #1e1b4b; padding: 4px 10px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <a class="back" href="/admin/systemic-resilience">← Back to Overview</a>
+    <h1>🕸️ Systemic Dependency Graph Nodes</h1>
+
+    <div class="grid">
+        {% for node in nodes %}
+        <div class="card">
+            <h3>{{ node.name }}</h3>
+            <span class="badge {{ node.status or 'active' }}">{{ (node.status or 'active').upper() }}</span>
+            <div style="margin: 6px 0; font-size: 13px; color: #94a3b8;">Type: {{ node.node_type }} | Sector: {{ node.sector or '—' }}</div>
+            <div class="score-row">
+                <div class="score-item">Criticality: <strong>{{ node.criticality_score | round(1) }}</strong></div>
+                <div class="score-item">Dependency: <strong>{{ node.dependency_score | round(1) }}</strong></div>
+                <div class="score-item">Concentration: <strong>{{ node.concentration_score | round(1) }}</strong></div>
+                <div class="score-item">Resilience: <strong>{{ node.resilience_score | round(1) }}</strong></div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card"><p style="color:#64748b">No graph nodes registered.</p></div>
+        {% endfor %}
+    </div>
+</body>
+</html>

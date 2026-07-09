@@ -1,0 +1,50 @@
+{% extends "admin.html" %}
+{% block title %}Strategic Resilience & Decision Control Center — Admin{% endblock %}
+
+{% block content %}
+<div class="resilience-center">
+  <div class="resilience-header">
+    <div class="resilience-icon">⚡</div>
+    <div>
+      <h1 class="resilience-title">Strategic Resilience & Decision Control Center</h1>
+      <p class="resilience-subtitle">Model extreme stress scenarios, prioritize resilience investments, evaluate dependency concentration risks, and record strategic decisions.</p>
+    </div>
+  </div>
+
+  <div class="grid-layout">
+    <div class="card">
+      <h3 class="card-title">Stress Testing</h3>
+      <p>Evaluate enterprise resilience indices under multi-domain failure modes.</p>
+      <a href="/admin/strategic-resilience/stress-tests" class="btn btn-primary">Stress Test Scenarios</a>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Investment Planning</h3>
+      <p>Configure candidate initiatives and track budget approvals.</p>
+      <a href="/admin/strategic-resilience/investment-plans" class="btn btn-primary">Investment Plans</a>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Portfolio Optimization</h3>
+      <p>Run knapsack budget solvers to allocate funding optimally.</p>
+      <a href="/admin/strategic-resilience/optimization" class="btn btn-primary">Optimize Portfolios</a>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Dependency & Concentration Risks</h3>
+      <p>Identify critical concentration vectors and single points of failure.</p>
+      <a href="/admin/strategic-resilience/dependencies" class="btn btn-primary">Dependency Map</a>
+    </div>
+  </div>
+</div>
+
+<style>
+.resilience-center { padding-bottom: 2rem; }
+.resilience-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #020617 0%, #030712 100%); border-radius: 16px; border: 1px solid rgba(16,185,129,0.3); }
+.resilience-icon { font-size: 2.5rem; }
+.resilience-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #f1f5f9; }
+.resilience-subtitle { margin: 0; color: #34d399; font-size: 0.9rem; }
+.grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.card { background: #0b1329; border: 1px solid #1c2541; border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; }
+.card-title { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #f1f5f9; border-bottom: 1px solid #1c2541; padding-bottom: 0.5rem; }
+.btn { display: inline-block; padding: 0.5rem 1rem; background-color: #059669; color: white; border-radius: 8px; text-decoration: none; font-weight: 600; text-align: center; }
+.btn:hover { background-color: #047857; }
+</style>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "admin.html" %}
+{% block title %}Risk Simulations — Admin{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3 class="card-title">Monte Carlo / Deterministic Simulations</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Scenario ID</th>
+        <th>Type</th>
+        <th>Expected Loss</th>
+        <th>Median Loss</th>
+        <th>P95 Loss</th>
+        <th>Status</th>
+        <th>Completed At</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in runs %}
+      <tr>
+        <td>#{{ r.scenario_id }}</td>
+        <td>{{ r.simulation_type }}</td>
+        <td>${{ "{:,.2f}".format(r.expected_loss) }}</td>
+        <td>${{ "{:,.2f}".format(r.median_loss) }}</td>
+        <td>${{ "{:,.2f}".format(r.p95_loss) }}</td>
+        <td>{{ r.status }}</td>
+        <td>{{ r.completed_at }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7">No simulation runs executed.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

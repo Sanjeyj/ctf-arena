@@ -1,0 +1,30 @@
+{% extends "admin.html" %}
+{% block title %}Portfolio Optimization — Admin{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3 class="card-title">Portfolio Budget Optimization Control</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Plan Name</th>
+        <th>Budget Limit</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in plans %}
+      <tr>
+        <td><strong>{{ p.name }}</strong></td>
+        <td>${{ "{:,.2f}".format(p.budget_limit) }}</td>
+        <td>{{ p.status }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="3">No plans available for optimization.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

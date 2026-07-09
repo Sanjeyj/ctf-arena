@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Enterprise Governance Intelligence</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #a78bfa; border-bottom: 2px solid #a78bfa33; padding-bottom: 10px; }
+        .metric-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin: 20px 0; }
+        .metric { background: #111827; border: 1px solid #4c1d95; border-radius: 10px; padding: 18px; text-align: center; }
+        .metric h3 { color: #a78bfa; margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+        .metric .val { font-size: 28px; font-weight: 700; color: #f8fafc; }
+        .nav-links a { color: #a78bfa; text-decoration: none; font-weight: bold; margin-right: 18px; font-size: 14px; }
+        .nav-links a:hover { color: #c4b5fd; }
+        .info-box { background: #111827; border: 1px solid #4c1d95; border-radius: 8px; padding: 15px; margin: 15px 0; }
+        .drift-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .critical { background: #7f1d1d; color: #fca5a5; }
+        .high { background: #78350f; color: #fbbf24; }
+        .medium { background: #1e3a5f; color: #60a5fa; }
+        .low { background: #064e3b; color: #34d399; }
+    </style>
+</head>
+<body>
+    <h1>🧠 Enterprise Security Governance Intelligence</h1>
+    <div class="info-box">
+        <p>Phase 38 — Adaptive Policy Optimization, Decision Intelligence & Governance Drift Monitoring.</p>
+        <div class="nav-links">
+            <a href="/admin/governance-intelligence/decisions">Decision Contexts</a>
+            <a href="/admin/governance-intelligence/policies">Policy Optimization</a>
+            <a href="/admin/governance-intelligence/conflicts">Policy Conflicts</a>
+            <a href="/admin/governance-intelligence/objectives">Objectives</a>
+            <a href="/admin/governance-intelligence/outcomes">Outcomes</a>
+            <a href="/admin/governance-intelligence/drift">Drift Monitor</a>
+        </div>
+    </div>
+
+    <h2>Governance Scorecard</h2>
+    <div class="metric-row">
+        <div class="metric">
+            <h3>Overall Score</h3>
+            <div class="val">{{ summary.overall_score | round(1) }}</div>
+        </div>
+        <div class="metric">
+            <h3>Risk Alignment</h3>
+            <div class="val">{{ summary.risk_alignment | round(1) }}</div>
+        </div>
+        <div class="metric">
+            <h3>Policy Effectiveness</h3>
+            <div class="val">{{ summary.policy_effectiveness | round(1) }}</div>
+        </div>
+        <div class="metric">
+            <h3>Evidence Quality</h3>
+            <div class="val">{{ summary.evidence_quality | round(1) }}</div>
+        </div>
+        <div class="metric">
+            <h3>Decision Quality</h3>
+            <div class="val">{{ summary.decision_quality | round(1) }}</div>
+        </div>
+        <div class="metric">
+            <h3>Objective Progress</h3>
+            <div class="val">{{ summary.objective_progress | round(1) }}</div>
+        </div>
+    </div>
+
+    <h2>Active Governance Drift</h2>
+    <div class="metric-row">
+        <div class="metric">
+            <h3>Active Drift Alerts</h3>
+            <div class="val">{{ drift.active_drift_records }}</div>
+        </div>
+        <div class="metric">
+            <h3>Critical Drift</h3>
+            <div class="val" style="color: #fca5a5;">{{ drift.critical_governance_drift }}</div>
+        </div>
+        <div class="metric">
+            <h3>Total Drift Records</h3>
+            <div class="val">{{ drift.total_drift_records }}</div>
+        </div>
+    </div>
+</body>
+</html>

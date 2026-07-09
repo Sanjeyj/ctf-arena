@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Architecture Zones</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #f43f5e; border-bottom: 2px solid #f43f5e33; padding-bottom: 10px; }
+        .btn-link { color: #f43f5e; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111827; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #1f2937; }
+        th { background-color: #1f2937; color: #f43f5e; }
+    </style>
+</head>
+<body>
+    <h1>🛡 Security Architecture Zones</h1>
+    <p><a class="btn-link" href="/admin/exposure-fabric">← Back to Overview</a></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Zone ID</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Trust Level</th>
+                <th>Criticality</th>
+                <th>Status</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for z in zones %}
+            <tr>
+                <td>{{ z.id }}</td>
+                <td><strong>{{ z.name }}</strong></td>
+                <td>{{ z.zone_type.upper() }}</td>
+                <td>{{ z.trust_level }}</td>
+                <td>{{ z.criticality.upper() }}</td>
+                <td>{{ z.status.upper() }}</td>
+                <td>{{ z.description or 'N/A' }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align: center; color: #64748b;">No logical zones defined.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

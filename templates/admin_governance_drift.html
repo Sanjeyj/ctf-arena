@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Governance Drift Monitor</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #a78bfa; border-bottom: 2px solid #a78bfa33; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-top: 20px; }
+        .card { background: #111827; border-radius: 10px; padding: 18px; }
+        .card.critical { border: 1px solid #7f1d1d; }
+        .card.high { border: 1px solid #78350f; }
+        .card.medium { border: 1px solid #1e3a5f; }
+        .card.low { border: 1px solid #064e3b; }
+        .card h3 { margin: 0 0 6px; font-size: 14px; }
+        .card.critical h3 { color: #fca5a5; }
+        .card.high h3 { color: #fbbf24; }
+        .card.medium h3 { color: #60a5fa; }
+        .card.low h3 { color: #34d399; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .critical-b { background: #7f1d1d; color: #fca5a5; }
+        .high-b { background: #78350f; color: #fbbf24; }
+        .medium-b { background: #1e3a5f; color: #60a5fa; }
+        .low-b { background: #064e3b; color: #34d399; }
+        .detected { background: #3b1d5f; color: #c4b5fd; }
+        .resolved { background: #064e3b; color: #34d399; }
+        .back { color: #a78bfa; text-decoration: none; font-size: 14px; }
+        .delta-row { display: flex; gap: 12px; margin-top: 8px; font-size: 13px; }
+        .delta-item { background: #1e1b4b; padding: 4px 10px; border-radius: 8px; }
+        .rec { font-size: 12px; color: #67e8f9; margin-top: 8px; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <a class="back" href="/admin/governance-intelligence">← Back to Governance Overview</a>
+    <h1>🌡️ Governance Drift Monitor</h1>
+
+    <div class="grid">
+        {% for r in records %}
+        <div class="card {{ r.severity }}">
+            <h3>{{ r.drift_type | replace('_', ' ') | title }} — {{ r.resource_type }}</h3>
+            <span class="badge {{ r.severity }}-b">{{ r.severity.upper() }}</span>
+            <span class="badge {{ r.status }}" style="margin-left: 6px;">{{ r.status.upper() }}</span>
+            <div class="delta-row">
+                <div class="delta-item">Baseline: <strong>{{ r.baseline_value | round(2) }}</strong></div>
+                <div class="delta-item">Current: <strong>{{ r.current_value | round(2) }}</strong></div>
+                <div class="delta-item">Δ: <strong>{{ '%+.2f' | format(r.drift_delta) }}</strong></div>
+            </div>
+            {% if r.recommended_action %}
+            <div class="rec">💡 {{ r.recommended_action }}</div>
+            {% endif %}
+            <div style="font-size: 11px; color: #64748b; margin-top: 8px;">
+                Detected: {{ r.detected_at.strftime('%Y-%m-%d %H:%M') if r.detected_at else '—' }}
+            </div>
+        </div>
+        {% else %}
+        <div class="card low"><p style="color:#64748b">No governance drift detected.</p></div>
+        {% endfor %}
+    </div>
+</body>
+</html>

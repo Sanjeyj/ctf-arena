@@ -1,0 +1,38 @@
+{% extends "admin.html" %}
+{% block title %}Dependency & Concentration Risks — Admin{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3 class="card-title">Business Dependency Concentration & SPOFs</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Process ID</th>
+        <th>Dependency Type</th>
+        <th>Reference ID</th>
+        <th>Criticality Score</th>
+        <th>Concentration Risk</th>
+        <th>Failure Impact</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in dependencies %}
+      <tr>
+        <td>#{{ d.business_process_id }}</td>
+        <td>{{ d.dependency_type }}</td>
+        <td>{{ d.dependency_reference_id }}</td>
+        <td>{{ d.criticality_score }}</td>
+        <td><span class="badge badge-warning">{{ d.concentration_risk_score }}</span></td>
+        <td><span class="badge badge-danger">{{ d.failure_impact_score }}</span></td>
+        <td>{{ d.status }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7">No dependency maps registered.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

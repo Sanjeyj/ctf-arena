@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Federation Governance Decisions</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #a78bfa; border-bottom: 2px solid #a78bfa33; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #1e1b4b; color: #a78bfa; padding: 10px 14px; text-align: left; font-size: 13px; text-transform: uppercase; }
+        td { padding: 10px 14px; border-bottom: 1px solid #1e1b4b; font-size: 13px; }
+        tr:hover td { background: #111827; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .approved { background: #064e3b; color: #34d399; }
+        .proposed { background: #1e3a5f; color: #60a5fa; }
+        .rejected { background: #7f1d1d; color: #fca5a5; }
+        .back { color: #a78bfa; text-decoration: none; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <a class="back" href="/admin/systemic-resilience">← Back to Overview</a>
+    <h1>🏛️ Federation Governance Proposals & Decisions</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Consensus Score</th>
+                <th>Systemic Risk Impact</th>
+                <th>Resilience Impact</th>
+                <th>Approved By</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in proposals %}
+            <tr>
+                <td><strong>{{ p.title }}</strong></td>
+                <td>{{ p.decision_type }}</td>
+                <td>{{ p.consensus_score | round(1) }}%</td>
+                <td>{{ "%+.1f"|format(p.systemic_risk_impact) }}</td>
+                <td>{{ p.collective_resilience_impact | round(1) }}</td>
+                <td>{{ p.approved_by or '—' }}</td>
+                <td><span class="badge {{ p.decision_status }}">{{ p.decision_status.upper() }}</span></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" style="color:#64748b; text-align:center;">No governance proposals registered.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

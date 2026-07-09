@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Policy Conflicts</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #a78bfa; border-bottom: 2px solid #a78bfa33; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; margin-top: 20px; }
+        .card { background: #111827; border: 1px solid #7f1d1d; border-radius: 10px; padding: 18px; }
+        .card h3 { color: #fca5a5; margin: 0 0 6px; font-size: 14px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .open { background: #7f1d1d; color: #fca5a5; }
+        .resolved { background: #064e3b; color: #34d399; }
+        .high { background: #78350f; color: #fbbf24; }
+        .medium { background: #1e3a5f; color: #60a5fa; }
+        .reviewing { background: #3b1d5f; color: #c4b5fd; }
+        .false_positive { background: #4b5563; color: #d1d5db; }
+        .back { color: #a78bfa; text-decoration: none; font-size: 14px; }
+        .desc { font-size: 12px; color: #94a3b8; margin-top: 8px; line-height: 1.5; }
+        .rec { font-size: 12px; color: #67e8f9; margin-top: 6px; }
+    </style>
+</head>
+<body>
+    <a class="back" href="/admin/governance-intelligence">← Back to Governance Overview</a>
+    <h1>⚡ Policy Conflicts</h1>
+
+    <div class="grid">
+        {% for c in conflicts %}
+        <div class="card">
+            <h3>{{ c.conflict_type | upper }} — Policies #{{ c.source_policy_id }} vs #{{ c.target_policy_id }}</h3>
+            <span class="badge {{ c.severity }}">{{ c.severity.upper() }}</span>
+            <span class="badge {{ c.status }}" style="margin-left: 6px;">{{ c.status.upper() }}</span>
+            <div class="desc">{{ c.description }}</div>
+            {% if c.resolution_recommendation %}
+            <div class="rec">💡 {{ c.resolution_recommendation }}</div>
+            {% endif %}
+            <div style="font-size: 11px; color: #64748b; margin-top: 8px;">Confidence: {{ c.confidence_score | round(1) }}%</div>
+        </div>
+        {% else %}
+        <div class="card"><p style="color:#64748b">No policy conflicts detected.</p></div>
+        {% endfor %}
+    </div>
+</body>
+</html>

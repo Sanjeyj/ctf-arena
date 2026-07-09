@@ -1,0 +1,38 @@
+{% extends "admin.html" %}
+{% block title %}Resilience Portfolio — Admin{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3 class="card-title">Resilience Portfolio Optimization History</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Measured At</th>
+        <th>Total Budget</th>
+        <th>Allocated Budget</th>
+        <th>Risk Reduction</th>
+        <th>Resilience Before</th>
+        <th>Resilience After</th>
+        <th>Efficiency Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in metrics %}
+      <tr>
+        <td>{{ m.measured_at }}</td>
+        <td>${{ "{:,.2f}".format(m.total_budget) }}</td>
+        <td>${{ "{:,.2f}".format(m.allocated_budget) }}</td>
+        <td>{{ m.risk_reduction_percentage }}%</td>
+        <td>{{ m.resilience_before }}%</td>
+        <td>{{ m.resilience_after }}%</td>
+        <td>{{ m.portfolio_efficiency_score }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7">No resilience portfolio metrics tracked.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

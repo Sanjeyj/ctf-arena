@@ -1,0 +1,38 @@
+{% extends "admin.html" %}
+{% block title %}Resilience Stress Testing — Admin{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3 class="card-title">Resilience Stress Testing Scenarios</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Scenario Name</th>
+        <th>Category</th>
+        <th>Severity</th>
+        <th>Duration (Hours)</th>
+        <th>Probability</th>
+        <th>Multiplier</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in scenarios %}
+      <tr>
+        <td><strong>{{ s.name }}</strong></td>
+        <td>{{ s.scenario_category }}</td>
+        <td><span class="badge badge-warning">{{ s.severity }}</span></td>
+        <td>{{ s.duration_hours }} hrs</td>
+        <td>{{ s.probability }}</td>
+        <td>{{ s.impact_multiplier }}x</td>
+        <td>{{ s.status }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7">No stress test scenarios registered.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

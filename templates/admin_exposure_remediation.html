@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Remediation Prioritizations</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #f43f5e; border-bottom: 2px solid #f43f5e33; padding-bottom: 10px; }
+        .btn-link { color: #f43f5e; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111827; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #1f2937; }
+        th { background-color: #1f2937; color: #f43f5e; }
+    </style>
+</head>
+<body>
+    <h1>📋 Remediation priorization center</h1>
+    <p><a class="btn-link" href="/admin/exposure-fabric">← Back to Overview</a></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Plan ID</th>
+                <th>Title</th>
+                <th>Finding ID</th>
+                <th>Priority Score</th>
+                <th>Recommended Action</th>
+                <th>Approval Status</th>
+                <th>Status</th>
+                <th>Target Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in plans %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td><strong>{{ p.title }}</strong></td>
+                <td>{{ p.finding_id }}</td>
+                <td>{{ p.priority_score }}</td>
+                <td>{{ p.recommended_action or 'N/A' }}</td>
+                <td>{{ p.approval_status.upper() }}</td>
+                <td>{{ p.status.upper() }}</td>
+                <td>{{ p.target_date }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center; color: #64748b;">No remediation plans generated.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

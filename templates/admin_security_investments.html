@@ -1,0 +1,38 @@
+{% extends "admin.html" %}
+{% block title %}Security Investments — Admin{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3 class="card-title">Security Investments Prioritization</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Investment Title</th>
+        <th>Category</th>
+        <th>Cost</th>
+        <th>Expected Loss Reduction</th>
+        <th>ROSI</th>
+        <th>Priority Score</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in investments %}
+      <tr>
+        <td><strong>{{ i.title }}</strong></td>
+        <td>{{ i.investment_category }}</td>
+        <td>${{ "{:,.2f}".format(i.cost) }}</td>
+        <td>${{ "{:,.2f}".format(i.expected_loss_reduction) }}</td>
+        <td>{{ i.rosi_score }}%</td>
+        <td>{{ i.priority_score }}</td>
+        <td>{{ i.status }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7">No security investments prioritized.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

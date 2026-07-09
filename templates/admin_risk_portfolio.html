@@ -1,0 +1,34 @@
+{% extends "admin.html" %}
+{% block title %}Risk Portfolio Metrics — Admin{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3 class="card-title">Risk Portfolio Composite History</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Measured At</th>
+        <th>Total Inherent Risk</th>
+        <th>Total Residual Risk</th>
+        <th>Expected Annual Loss</th>
+        <th>Portfolio Efficiency</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in metrics %}
+      <tr>
+        <td>{{ m.measured_at }}</td>
+        <td>{{ m.total_inherent_risk }}</td>
+        <td>{{ m.total_residual_risk }}</td>
+        <td>${{ "{:,.2f}".format(m.expected_annual_loss) }}</td>
+        <td>{{ m.portfolio_efficiency_score }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5">No portfolio metrics logged.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

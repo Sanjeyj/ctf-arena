@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Logical Attack Paths</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #f43f5e; border-bottom: 2px solid #f43f5e33; padding-bottom: 10px; }
+        .btn-link { color: #f43f5e; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111827; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #1f2937; }
+        th { background-color: #1f2937; color: #f43f5e; }
+    </style>
+</head>
+<body>
+    <h1>🕸 Logical Attack Paths & Lateral Traversals</h1>
+    <p><a class="btn-link" href="/admin/exposure-fabric">← Back to Overview</a></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Path ID</th>
+                <th>Name</th>
+                <th>Source Asset ID</th>
+                <th>Target Asset ID</th>
+                <th>Hop Count</th>
+                <th>Path Score</th>
+                <th>Confidence</th>
+                <th>Status</th>
+                <th>Path Hops JSON</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in paths %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td><strong>{{ p.name }}</strong></td>
+                <td>{{ p.source_asset_id }}</td>
+                <td>{{ p.target_asset_id }}</td>
+                <td>{{ p.hop_count }} hops</td>
+                <td>{{ p.path_risk_score }}</td>
+                <td>{{ p.confidence }}</td>
+                <td>{{ p.status.upper() }}</td>
+                <td><code>{{ p.path_json }}</code></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9" style="text-align: center; color: #64748b;">No attack paths calculated.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
