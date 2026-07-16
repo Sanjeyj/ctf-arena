@@ -2,59 +2,163 @@
 {% block title %}Executive Cyber Resilience Center — Admin{% endblock %}
 
 {% block content %}
-<div class="resilience-center">
-  <div class="resilience-header">
-    <div class="resilience-icon">🛡️</div>
-    <div>
-      <h1 class="resilience-title">Executive Cyber Resilience Center</h1>
-      <p class="resilience-subtitle">Assess real-time organizational safety postures, failover capabilities, and business process RTO/RPO objectives.</p>
-    </div>
-  </div>
-
-  <div class="grid-layout">
-    <!-- Score Widget -->
-    <div class="card score-card">
-      <h3 class="card-title">Resilience Score</h3>
-      <div class="score-display">
-        <span class="score-number">{{ score }}</span>
-        <span class="score-total">/100</span>
-      </div>
-      <div class="components-breakdown">
-        <p>Exercises: <strong>{{ score_components.exercise_score }}%</strong></p>
-        <p>Process Alignment: <strong>{{ score_components.process_alignment }}%</strong></p>
-        <p>Vendor Resilience: <strong>{{ score_components.vendor_resilience }}%</strong></p>
-      </div>
-    </div>
-
-    <!-- Forecast Widget -->
-    <div class="card forecast-card">
-      <h3 class="card-title">Failure Modes Forecast</h3>
-      <div class="forecast-status">
-        <p>Simulation Failure Risk: <strong style="color: #ef4444;">{{ forecast.failure_probability_pct }}%</strong></p>
-        <p>Simulated Downtime Loss: <strong>${{ "{:,.2f}".format(forecast.estimated_downtime_loss_usd) }}</strong></p>
-      </div>
-      <p class="forecast-summary">{{ forecast.forecast_summary }}</p>
-    </div>
-  </div>
+<div class="ui-page-header">
+    <div class="ui-page-title">🛡️ Executive Cyber <em>Resilience Center</em></div>
+    <div class="ui-page-subtitle">Assess real-time organizational safety postures, failover capabilities, and business process RTO/RPO objectives.</div>
 </div>
 
-<style>
-.resilience-center { padding-bottom: 2rem; }
-.resilience-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 16px; border: 1px solid rgba(59,130,246,0.3); }
-.resilience-icon { font-size: 2.5rem; }
-.resilience-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #f1f5f9; }
-.resilience-subtitle { margin: 0; color: #94a3b8; font-size: 0.9rem; }
+<!-- Bento Grid -->
+<div class="ui-bento">
+    <!-- Top Left: Resilience Score Card (Glass style) -->
+    <div class="ui-bento-6 ui-glass-card accent-success">
+        <div class="ui-card-title">
+            <span><span class="title-icon">📈</span> Resilience Score Index</span>
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 2rem; margin: 1.5rem 0;">
+            <div style="position: relative; width: 110px; height: 110px; display: flex; align-items: center; justify-content: center; background: rgba(16, 185, 129, 0.08); border-radius: 50%; border: 3px double var(--ui-success); box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);">
+                <div style="text-align: center;">
+                    <span class="mono success" style="font-size: 2.2rem; font-weight: 800;">{{ score }}</span>
+                    <span style="font-size: 0.8rem; color: var(--ui-text-muted); display: block; margin-top: -0.25rem;">/100</span>
+                </div>
+            </div>
+            
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 0.65rem;">
+                <div class="ui-bar-row">
+                    <div class="ui-bar-label">Exercises & Drills</div>
+                    <div class="ui-bar-track">
+                        <div class="ui-bar-fill" style="width: {{ score_components.exercise_score }}%; background: linear-gradient(90deg, var(--ui-cyan), var(--ui-success));"></div>
+                    </div>
+                    <div class="ui-bar-count mono success">{{ score_components.exercise_score }}%</div>
+                </div>
 
-.grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-.card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 1.5rem; }
-.card-title { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #f1f5f9; border-bottom: 1px solid #334155; padding-bottom: 0.5rem; }
+                <div class="ui-bar-row">
+                    <div class="ui-bar-label">Process Alignment (BCP)</div>
+                    <div class="ui-bar-track">
+                        <div class="ui-bar-fill" style="width: {{ score_components.process_alignment }}%; background: linear-gradient(90deg, var(--ui-cyan), var(--ui-violet));"></div>
+                    </div>
+                    <div class="ui-bar-count mono success">{{ score_components.process_alignment }}%</div>
+                </div>
 
-.score-display { display: flex; align-items: baseline; justify-content: center; margin: 1.5rem 0; }
-.score-number { font-size: 3.5rem; font-weight: 800; color: #10b981; }
-.score-total { font-size: 1.5rem; color: #94a3b8; }
-.components-breakdown p { margin: 0.5rem 0; color: #cbd5e1; }
+                <div class="ui-bar-row">
+                    <div class="ui-bar-label">Vendor Resilience</div>
+                    <div class="ui-bar-track">
+                        <div class="ui-bar-fill" style="width: {{ score_components.vendor_resilience }}%; background: linear-gradient(90deg, var(--ui-cyan), var(--ui-warning));"></div>
+                    </div>
+                    <div class="ui-bar-count mono success">{{ score_components.vendor_resilience }}%</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-.forecast-status p { margin: 0.5rem 0; font-size: 1rem; color: #cbd5e1; }
-.forecast-summary { margin-top: 1rem; font-style: italic; color: #94a3b8; font-size: 0.9rem; }
-</style>
+    <!-- Top Right: Failure Modes Forecast (Glass style) -->
+    <div class="ui-bento-6 ui-glass-card accent-danger">
+        <div class="ui-card-title" style="justify-content: space-between;">
+            <span><span class="title-icon">🔮</span> Failure Modes Forecast</span>
+            <span class="ui-badge ui-badge-danger">CRITICAL RISK</span>
+        </div>
+        
+        <div style="display: flex; gap: 1.5rem; margin-top: 1.25rem; margin-bottom: 1.25rem;">
+            <div style="flex: 1; background: rgba(239, 68, 68, 0.05); border: 1px solid var(--ui-danger-dim); padding: 0.85rem; border-radius: var(--ui-radius-md);">
+                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--ui-text-muted);">Simulation Risk</div>
+                <div class="mono" style="font-size: 1.55rem; font-weight: 800; color: var(--ui-danger); margin-top: 0.25rem;">{{ forecast.failure_probability_pct }}%</div>
+            </div>
+            
+            <div style="flex: 1; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--ui-border); padding: 0.85rem; border-radius: var(--ui-radius-md);">
+                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--ui-text-muted);">Est. Downtime Loss</div>
+                <div class="mono" style="font-size: 1.55rem; font-weight: 800; color: var(--ui-text-primary); margin-top: 0.25rem;">${{ "{:,.2f}".format(forecast.estimated_downtime_loss_usd) }}</div>
+            </div>
+        </div>
+        
+        <p class="muted" style="font-size: 0.85rem; font-style: italic; border-top: 1px solid var(--ui-border); padding-top: 0.85rem; line-height: 1.4;">
+            &ldquo;{{ forecast.forecast_summary }}&rdquo;
+        </p>
+    </div>
+
+    <!-- Bottom Left: Dependency Health & Readiness Matrix -->
+    <div class="ui-bento-8 ui-glass-card">
+        <div class="ui-card-title">
+            <span><span class="title-icon">🔌</span> Infrastructure Dependency & Failover Status</span>
+        </div>
+        <p class="muted" style="font-size: 0.85rem; margin-bottom: 1.25rem;">Real-time checks for redundant systems, backups, and target recovery objective boundaries.</p>
+        
+        <div class="ui-table-wrap">
+            <table class="ui-table">
+                <thead>
+                    <tr>
+                        <th>Dependency Layer</th>
+                        <th>Classification</th>
+                        <th>RTO SLA</th>
+                        <th>Actual Recovery</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight: 600;">Active Directory & Identity</td>
+                        <td><span class="ui-badge ui-badge-violet">CRITICAL</span></td>
+                        <td class="mono">1.0 Hour</td>
+                        <td class="mono cyan">15 Min</td>
+                        <td><span class="ui-badge ui-badge-success">OPERATIONAL</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">Core Database Replication</td>
+                        <td><span class="ui-badge ui-badge-violet">CRITICAL</span></td>
+                        <td class="mono">2.0 Hours</td>
+                        <td class="mono cyan">45 Min</td>
+                        <td><span class="ui-badge ui-badge-success">OPERATIONAL</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">Public Web Gateways</td>
+                        <td><span class="ui-badge ui-badge-cyan">HIGH</span></td>
+                        <td class="mono">4.0 Hours</td>
+                        <td class="mono warning">3.2 Hours</td>
+                        <td><span class="ui-badge ui-badge-warning">DEGRADED</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">Third-Party API Integrations</td>
+                        <td><span class="ui-badge ui-badge-muted">MEDIUM</span></td>
+                        <td class="mono">8.0 Hours</td>
+                        <td class="mono danger">12.5 Hours</td>
+                        <td><span class="ui-badge ui-badge-danger">OUTAGE</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bottom Right: Quick Actions & Simulation Control -->
+    <div class="ui-bento-4 ui-glass-card">
+        <div class="ui-card-title">
+            <span class="title-icon">⚡</span> Resilience Operations
+        </div>
+        <p class="muted" style="font-size: 0.85rem; margin-bottom: 1.25rem;">Initiate failover drills, assess recovery playbooks, or configure insurance policies.</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <a href="/admin/resilience/bcp" class="ui-glass" style="display: flex; gap: 1rem; align-items: center; padding: 0.8rem; text-decoration: none; border-radius: var(--ui-radius-md);">
+                <span style="font-size: 1.4rem;">📋</span>
+                <div>
+                    <div style="font-weight: 600; color: var(--ui-text-primary); font-size: 0.85rem;">Business Continuity (BCP)</div>
+                    <div class="muted" style="font-size: 0.72rem;">Review checklists & RTO matrices</div>
+                </div>
+            </a>
+            
+            <a href="/admin/resilience/vendors" class="ui-glass" style="display: flex; gap: 1rem; align-items: center; padding: 0.8rem; text-decoration: none; border-radius: var(--ui-radius-md);">
+                <span style="font-size: 1.4rem;">🏢</span>
+                <div>
+                    <div style="font-weight: 600; color: var(--ui-text-primary); font-size: 0.85rem;">Third-Party Vendor Risk</div>
+                    <div class="muted" style="font-size: 0.72rem;">Track supply chain vulnerabilities</div>
+                </div>
+            </a>
+
+            <a href="/admin/resilience/insurance" class="ui-glass" style="display: flex; gap: 1rem; align-items: center; padding: 0.8rem; text-decoration: none; border-radius: var(--ui-radius-md);">
+                <span style="font-size: 1.4rem;">💰</span>
+                <div>
+                    <div style="font-weight: 600; color: var(--ui-text-primary); font-size: 0.85rem;">Cyber Insurance Policies</div>
+                    <div class="muted" style="font-size: 0.72rem;">Assess financial coverages & options</div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
 {% endblock %}

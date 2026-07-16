@@ -6,9 +6,9 @@ setup(
     description="Self-hosted CTF platform with native Docker challenge deployments.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    author="CTF Arena Contributors",
-    author_email="contributors@ctf-arena.example.com",
-    url="https://github.com/Sanjeyj/ctf-arena",
+    author="EthicBids Technologies",
+    author_email="hello@ethicbids.vercel.app",
+    url="https://ethicbids.vercel.app/",
     packages=find_packages(),
     include_package_data=True,
     install_requires=[

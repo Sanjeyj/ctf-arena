@@ -1,56 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Exposure Findings</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
-        h1 { color: #f43f5e; border-bottom: 2px solid #f43f5e33; padding-bottom: 10px; }
-        .btn-link { color: #f43f5e; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111827; border-radius: 8px; overflow: hidden; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #1f2937; }
-        th { background-color: #1f2937; color: #f43f5e; }
-    </style>
-</head>
-<body>
-    <h1>🐞 Vulnerability Findings & Exposure Gaps</h1>
-    <p><a class="btn-link" href="/admin/exposure-fabric">← Back to Overview</a></p>
+{% extends "admin.html" %}
+{% block title %}Exposure Findings — Cyber Defense Platform{% endblock %}
 
-    <table>
-        <thead>
-            <tr>
-                <th>Finding ID</th>
-                <th>Asset ID</th>
-                <th>Title</th>
-                <th>Type</th>
-                <th>Severity</th>
-                <th>Likelihood</th>
-                <th>Impact Score</th>
-                <th>Confidence</th>
-                <th>Source Type</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for f in findings %}
-            <tr>
-                <td>{{ f.id }}</td>
-                <td>{{ f.exposure_asset_id }}</td>
-                <td><strong>{{ f.title }}</strong></td>
-                <td>{{ f.finding_type }}</td>
-                <td>{{ f.severity.upper() }}</td>
-                <td>{{ f.likelihood * 100 }}%</td>
-                <td>{{ f.impact_score }}</td>
-                <td>{{ f.confidence }}</td>
-                <td>{{ f.source_type }}</td>
-                <td>{{ f.status.upper() }}</td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="10" style="text-align: center; color: #64748b;">No exposure findings logged.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html>
+{% block content %}
+<div class="ui-page-header">
+  <div>
+    <h1 class="ui-page-title">Vulnerability Findings &amp; Exposure Gaps</h1>
+    <p class="ui-page-subtitle">Detailed exposure findings registry with severity scoring, impact analysis, and remediation status tracking.</p>
+  </div>
+  <a class="ui-btn ui-btn-ghost" href="/admin/exposure-fabric">← Back to Exposure Fabric</a>
+</div>
+
+<div class="ui-glass-card" style="overflow-x:auto;">
+  <table class="ui-table" aria-label="Exposure findings list">
+    <thead>
+      <tr>
+        <th scope="col">Finding ID</th>
+        <th scope="col">Asset ID</th>
+        <th scope="col">Title</th>
+        <th scope="col">Type</th>
+        <th scope="col">Severity</th>
+        <th scope="col">Likelihood</th>
+        <th scope="col">Impact Score</th>
+        <th scope="col">Confidence</th>
+        <th scope="col">Source Type</th>
+        <th scope="col">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in findings %}
+      <tr>
+        <td style="font-family:'Fira Code',monospace;color:var(--ui-muted);font-size:0.8rem;">{{ f.id }}</td>
+        <td style="font-family:'Fira Code',monospace;color:var(--ui-muted);font-size:0.8rem;">{{ f.exposure_asset_id }}</td>
+        <td><strong style="color:var(--ui-text-primary);">{{ f.title }}</strong></td>
+        <td style="color:var(--ui-text-secondary);">{{ f.finding_type }}</td>
+        <td>
+          {% if f.severity == 'critical' %}
+            <span class="ui-badge ui-badge-danger">CRITICAL</span>
+          {% elif f.severity == 'high' %}
+            <span class="ui-badge ui-badge-warning">HIGH</span>
+          {% elif f.severity == 'medium' %}
+            <span class="ui-badge ui-badge-info">MEDIUM</span>
+          {% else %}
+            <span class="ui-badge ui-badge-muted">{{ f.severity.upper() }}</span>
+          {% endif %}
+        </td>
+        <td style="font-family:'Fira Code',monospace;color:var(--ui-accent-warning);">{{ f.likelihood * 100 }}%</td>
+        <td style="font-family:'Fira Code',monospace;font-weight:700;color:var(--ui-accent-cyan);">{{ f.impact_score }}</td>
+        <td style="font-family:'Fira Code',monospace;color:var(--ui-text-secondary);">{{ f.confidence }}</td>
+        <td style="color:var(--ui-muted);">{{ f.source_type }}</td>
+        <td>
+          {% if f.status == 'open' %}
+            <span class="ui-badge ui-badge-danger">OPEN</span>
+          {% elif f.status == 'mitigated' %}
+            <span class="ui-badge ui-badge-warning">MITIGATED</span>
+          {% elif f.status == 'closed' %}
+            <span class="ui-badge ui-badge-success">CLOSED</span>
+          {% else %}
+            <span class="ui-badge ui-badge-muted">{{ f.status.upper() }}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="10" style="text-align:center;padding:2rem;color:var(--ui-muted);">No exposure findings logged.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

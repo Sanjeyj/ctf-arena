@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Zero Trust Decision Ledger</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #10b981; border-bottom: 2px solid #10b98133; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #1e293b; color: #94a3b8; padding: 10px; text-align: left; font-size: 13px; }
+        td { padding: 10px; border-bottom: 1px solid #1e293b; font-size: 14px; }
+        tr:hover td { background: #111827; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; }
+        .allow { background: #052e16; color: #34d399; }
+        .allow_with_monitoring { background: #1e3a5f; color: #60a5fa; }
+        .require_step_up { background: #422006; color: #fbbf24; }
+        .deny_simulation { background: #450a0a; color: #f87171; }
+    </style>
+</head>
+<body>
+    <h1>📖 Zero Trust Decision Ledger</h1>
+    <table>
+        <thead>
+            <tr><th>Decision ID</th><th>Identity ID</th><th>Device ID</th><th>Resource</th><th>Requested Action</th><th>Combined Trust</th><th>Decision Outcome</th></tr>
+        </thead>
+        <tbody>
+            {% for d in decisions %}
+            <tr>
+                <td>#{{ d.id }}</td>
+                <td>Identity #{{ d.identity_id }}</td>
+                <td>Device #{{ d.device_posture_id }}</td>
+                <td>{{ d.resource_type }} #{{ d.resource_id }}</td>
+                <td>{{ d.requested_action }}</td>
+                <td><strong>{{ d.trust_score }}</strong></td>
+                <td><span class="badge {{ d.decision }}">{{ d.decision.upper() }}</span></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" style="color:#64748b;text-align:center">No decisions ledger logged.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

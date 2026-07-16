@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Validation Campaigns</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0b0f19; color: #e2e8f0; margin: 0; padding: 20px; }
+        h1 { color: #38bdf8; border-bottom: 2px solid #38bdf833; padding-bottom: 10px; }
+        .btn-link { color: #38bdf8; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
+        .btn-link:hover { text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111827; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #1f2937; }
+        th { background-color: #151f32; color: #38bdf8; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .status-draft { background: #374151; color: #d1d5db; }
+        .status-running { background: #1e3a8a; color: #93c5fd; }
+        .status-completed { background: #064e3b; color: #34d399; }
+        .status-failed { background: #7f1d1d; color: #fca5a5; }
+    </style>
+</head>
+<body>
+    <h1>📋 Validation Campaigns</h1>
+    <p><a class="btn-link" href="/admin/validation-fabric">← Back to Overview</a></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Campaign ID</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Scope</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Scheduled At</th>
+                <th>Started At</th>
+                <th>Completed At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in campaigns %}
+            <tr>
+                <td>{{ c.id }}</td>
+                <td><strong>{{ c.name }}</strong></td>
+                <td>{{ c.campaign_type.upper() }}</td>
+                <td>{{ c.scope or 'N/A' }}</td>
+                <td>{{ c.priority.upper() }}</td>
+                <td><span class="badge status-{{ c.status }}">{{ c.status.upper() }}</span></td>
+                <td>{{ c.scheduled_at or 'N/A' }}</td>
+                <td>{{ c.started_at or 'N/A' }}</td>
+                <td>{{ c.completed_at or 'N/A' }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9" style="text-align: center; color: #64748b;">No validation campaigns found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

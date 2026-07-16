@@ -8,7 +8,7 @@ version = "1.0.0"
 description = "Self-hosted CTF platform with native Docker challenge deployments."
 readme = "README.md"
 authors = [
-    { name = "CTF Arena Contributors", email = "contributors@ctf-arena.example.com" }
+    { name = "EthicBids Technologies", email = "hello@ethicbids.vercel.app" }
 ]
 license = { text = "MIT" }
 classifiers = [

@@ -1,79 +1,114 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Contagion Propagation Simulations</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
-        h1 { color: #a78bfa; border-bottom: 2px solid #a78bfa33; padding-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background: #1e1b4b; color: #a78bfa; padding: 10px 14px; text-align: left; font-size: 13px; text-transform: uppercase; }
-        td { padding: 10px 14px; border-bottom: 1px solid #1e1b4b; font-size: 13px; }
-        tr:hover td { background: #111827; }
-        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
-        .completed { background: #064e3b; color: #34d399; }
-        .running { background: #1e3a5f; color: #60a5fa; }
-        .back { color: #a78bfa; text-decoration: none; font-size: 14px; }
-    </style>
-</head>
-<body>
-    <a class="back" href="/admin/systemic-resilience">← Back to Overview</a>
-    <h1>☣️ Contagion Propagation Simulations</h1>
+{% extends "admin.html" %}
+{% block title %}Contagion Propagation Simulations{% endblock %}
 
-    <h2>Simulation Scenarios</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Scenario</th>
-                <th>Type</th>
-                <th>Severity</th>
-                <th>Depth Limit</th>
-                <th>Seed</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for s in scenarios %}
-            <tr>
-                <td><strong>{{ s.name }}</strong></td>
-                <td>{{ s.scenario_type }}</td>
-                <td>{{ s.severity.upper() }}</td>
-                <td>{{ s.propagation_depth }}</td>
-                <td>{{ s.random_seed }}</td>
-                <td>{{ s.status }}</td>
-            </tr>
-            {% else %}
-            <tr><td colspan="6" style="color:#64748b; text-align:center;">No contagion scenarios configured.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+{% block content %}
+<div class="ui-page-header" style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <div class="ui-page-title">☣️ Contagion Propagation <em>Simulations</em></div>
+        <div class="ui-page-subtitle">Model systemic stress, cascading failures, and contagion propagation paths across the ecosystem network.</div>
+    </div>
+    <div>
+        <a class="ui-btn ui-btn-ghost ui-btn-sm" href="/admin/systemic-resilience">← Back to Overview</a>
+    </div>
+</div>
 
-    <h2 style="margin-top: 40px;">Execution Runs</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Run ID</th>
-                <th>Scenario ID</th>
-                <th>Nodes Affected</th>
-                <th>Max Depth</th>
-                <th>Impact Score</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for run in runs %}
-            <tr>
-                <td>{{ run.id }}</td>
-                <td>{{ run.scenario_id }}</td>
-                <td>{{ run.nodes_affected }}</td>
-                <td>{{ run.maximum_depth_reached }}</td>
-                <td>{{ run.aggregate_impact_score | round(1) }}%</td>
-                <td><span class="badge {{ run.status }}">{{ run.status.upper() }}</span></td>
-            </tr>
-            {% else %}
-            <tr><td colspan="6" style="color:#64748b; text-align:center;">No simulation runs executed.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html>
+<!-- Bento Grid -->
+<div class="ui-bento">
+    <!-- Configured Scenarios -->
+    <div class="ui-bento-12 ui-glass-card" style="margin-bottom: 1.5rem;">
+        <div class="ui-card-title" style="margin-bottom: 1rem;">
+            <span><span class="title-icon">⚙️</span> Configured Scenarios</span>
+        </div>
+        
+        <div class="ui-table-wrap">
+            <table class="ui-table">
+                <thead>
+                    <tr>
+                        <th>Scenario Name</th>
+                        <th>Type</th>
+                        <th>Severity</th>
+                        <th>Depth Limit</th>
+                        <th>Seed</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in scenarios %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ s.name }}</td>
+                        <td><span class="mono" style="color: var(--ui-cyan);">{{ s.scenario_type }}</span></td>
+                        <td>
+                            <span class="ui-badge {% if s.severity == 'critical' or s.severity == 'high' %}ui-badge-danger{% elif s.severity == 'medium' %}ui-badge-warning{% else %}ui-badge-success{% endif %}">{{ s.severity.upper() }}</span>
+                        </td>
+                        <td class="mono">{{ s.propagation_depth }}</td>
+                        <td class="mono text-secondary">{{ s.random_seed }}</td>
+                        <td><span class="ui-badge ui-badge-violet">{{ s.status.upper() }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6">
+                            <div class="ui-empty-state">
+                                <span class="icon">⚙️</span>
+                                No contagion scenarios configured yet.
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Execution Runs History -->
+    <div class="ui-bento-12 ui-glass-card">
+        <div class="ui-card-title" style="margin-bottom: 1rem;">
+            <span><span class="title-icon">📊</span> Execution Runs History</span>
+        </div>
+        
+        <div class="ui-table-wrap">
+            <table class="ui-table">
+                <thead>
+                    <tr>
+                        <th>Run ID</th>
+                        <th>Scenario ID</th>
+                        <th>Nodes Affected</th>
+                        <th>Max Depth</th>
+                        <th>Impact Score</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for run in runs %}
+                    <tr>
+                        <td class="mono" style="font-weight: 600; color: var(--ui-cyan);">#{{ run.id }}</td>
+                        <td class="mono">Scenario {{ run.scenario_id }}</td>
+                        <td class="mono">{{ run.nodes_affected }}</td>
+                        <td class="mono">{{ run.maximum_depth_reached }}</td>
+                        <td>
+                            <div class="ui-bar-row" style="margin: 0; gap: 0.5rem; justify-content: flex-start; max-width: 140px; display: flex; align-items: center;">
+                                <div class="ui-bar-track" style="height: 6px; flex: 1;">
+                                    <div class="ui-bar-fill" style="width: {{ run.aggregate_impact_score }}%; background: {% if run.aggregate_impact_score >= 70 %}linear-gradient(90deg, var(--ui-danger), #f87171){% elif run.aggregate_impact_score >= 40 %}linear-gradient(90deg, var(--ui-warning), #fbbf24){% else %}linear-gradient(90deg, var(--ui-success), #34d399){% endif %};"></div>
+                                </div>
+                                <span class="mono" style="font-size: 0.8rem; font-weight: 700;">{{ run.aggregate_impact_score | round(1) }}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="ui-badge {% if run.status == 'completed' %}ui-badge-success{% elif run.status == 'running' %}ui-badge-danger{% else %}ui-badge-violet{% endif %}">{{ run.status.upper() }}</span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6">
+                            <div class="ui-empty-state">
+                                <span class="icon">☣️</span>
+                                No simulation runs executed.
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,48 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Software Supply Chain</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
-        h1 { color: #ec4899; border-bottom: 2px solid #ec489933; padding-bottom: 10px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-        .col { background: #111827; border: 1px solid #1e293b; border-radius: 8px; padding: 18px; }
-        h2 { color: #ec4899; margin-top: 0; }
-        .item { padding: 8px; border-bottom: 1px solid #1e293b; font-size: 14px; }
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; }
-        .valid { background: #052e16; color: #34d399; }
-        .invalid { background: #450a0a; color: #f87171; }
-    </style>
-</head>
-<body>
-    <h1>📦 Software Supply Chain Attestations & SBOMs</h1>
-    <div class="grid">
-        <div class="col">
-            <h2>Attestations ({{ attestations|length }})</h2>
-            {% for a in attestations %}
-            <div class="item">
-                <strong>{{ a.artifact_name }}</strong> (v{{ a.artifact_version }})
-                <span class="badge {{ a.verification_status }}">{{ a.verification_status.upper() }}</span>
-                <div style="color:#64748b; font-size:12px">Digest: <code style="color:#ec4899">{{ a.artifact_digest[:16] }}...</code></div>
-                <div style="color:#64748b; font-size:11px">Builder: {{ a.builder_identity or '—' }} | Env: {{ a.build_environment or '—' }}</div>
-            </div>
-            {% else %}
-            <p style="color:#64748b">No attestations registered.</p>
-            {% endfor %}
-        </div>
-        <div class="col">
-            <h2>SBOM documents ({{ sboms|length }})</h2>
-            {% for s in sboms %}
-            <div class="item">
-                <strong>{{ s.artifact_name }}</strong> (v{{ s.artifact_version }})
-                <div style="color:#64748b; font-size:12px">Format: {{ s.format_type }} | Hash: <code>{{ s.document_hash[:16] }}...</code></div>
-                <div style="color:#64748b; font-size:11px">Components: {{ s.component_count }} | Dependencies: {{ s.dependency_count }} | Risks: <strong style="color:#f87171">{{ s.known_risk_count }}</strong></div>
-            </div>
-            {% else %}
-            <p style="color:#64748b">No SBOMs registered.</p>
-            {% endfor %}
-        </div>
+{% extends "admin.html" %}
+{% block title %}Software Supply Chain Assurance — Cyber Defense Platform{% endblock %}
+
+{% block content %}
+<div class="ui-page-header">
+  <div>
+    <h1 class="ui-page-title">Software Supply Chain Attestations &amp; SBOMs</h1>
+    <p class="ui-page-subtitle">Build provenance attestations, software bill of materials catalog, and dependency risk registry.</p>
+  </div>
+  <a class="ui-btn ui-btn-ghost" href="/admin/assurance">← Back to Assurance Fabric</a>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:1.5rem;">
+  <!-- Attestations Panel -->
+  <div class="ui-glass-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--ui-border);">
+      <h2 style="font-size:1rem;font-weight:700;color:var(--ui-text-primary);margin:0;">Build Attestations</h2>
+      <span class="ui-badge ui-badge-info">{{ attestations|length }} registered</span>
     </div>
-</body>
-</html>
+    {% for a in attestations %}
+    <div style="padding:0.75rem;border-bottom:1px solid var(--ui-border);last-child:border-bottom:none;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.4rem;">
+        <span style="font-weight:600;color:var(--ui-text-primary);font-size:0.9rem;">{{ a.artifact_name }}</span>
+        {% if a.verification_status == 'valid' %}
+          <span class="ui-badge ui-badge-success">VALID</span>
+        {% else %}
+          <span class="ui-badge ui-badge-danger">INVALID</span>
+        {% endif %}
+      </div>
+      <div style="font-size:0.8rem;color:var(--ui-muted);margin-bottom:0.25rem;">
+        Version: <span style="color:var(--ui-text-secondary);">v{{ a.artifact_version }}</span>
+      </div>
+      <div style="font-size:0.78rem;color:var(--ui-muted);">
+        Digest: <code style="color:var(--ui-accent-violet);font-family:'Fira Code',monospace;font-size:0.75rem;">{{ a.artifact_digest[:16] }}...</code>
+      </div>
+      <div style="font-size:0.75rem;color:var(--ui-muted);margin-top:0.2rem;">
+        Builder: {{ a.builder_identity or '—' }} &nbsp;|&nbsp; Env: {{ a.build_environment or '—' }}
+      </div>
+    </div>
+    {% else %}
+    <div class="ui-empty-state" style="padding:1.5rem 0;">
+      <div class="ui-empty-icon">📦</div>
+      <p class="ui-empty-text">No attestations registered.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- SBOMs Panel -->
+  <div class="ui-glass-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--ui-border);">
+      <h2 style="font-size:1rem;font-weight:700;color:var(--ui-text-primary);margin:0;">SBOM Documents</h2>
+      <span class="ui-badge ui-badge-info">{{ sboms|length }} registered</span>
+    </div>
+    {% for s in sboms %}
+    <div style="padding:0.75rem;border-bottom:1px solid var(--ui-border);">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.4rem;">
+        <span style="font-weight:600;color:var(--ui-text-primary);font-size:0.9rem;">{{ s.artifact_name }}</span>
+        <span class="ui-badge ui-badge-muted">{{ s.format_type }}</span>
+      </div>
+      <div style="font-size:0.8rem;color:var(--ui-muted);margin-bottom:0.25rem;">
+        Version: <span style="color:var(--ui-text-secondary);">v{{ s.artifact_version }}</span>
+        &nbsp;|&nbsp; Hash: <code style="font-family:'Fira Code',monospace;font-size:0.75rem;color:var(--ui-accent-cyan);">{{ s.document_hash[:16] }}...</code>
+      </div>
+      <div style="display:flex;gap:1rem;font-size:0.78rem;color:var(--ui-muted);margin-top:0.3rem;">
+        <span>Components: <strong style="color:var(--ui-text-secondary);">{{ s.component_count }}</strong></span>
+        <span>Dependencies: <strong style="color:var(--ui-text-secondary);">{{ s.dependency_count }}</strong></span>
+        <span>Known Risks: <strong style="color:{% if s.known_risk_count > 0 %}var(--ui-accent-danger){% else %}var(--ui-accent-success){% endif %};">{{ s.known_risk_count }}</strong></span>
+      </div>
+    </div>
+    {% else %}
+    <div class="ui-empty-state" style="padding:1.5rem 0;">
+      <div class="ui-empty-icon">📄</div>
+      <p class="ui-empty-text">No SBOMs registered.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

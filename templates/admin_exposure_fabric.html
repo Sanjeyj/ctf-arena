@@ -1,60 +1,96 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Exposure Fabric Control Panel</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
-        h1 { color: #f43f5e; border-bottom: 2px solid #f43f5e33; padding-bottom: 10px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
-        .card { background: #111827; border: 1px solid #9f1239; border-radius: 10px; padding: 18px; }
-        .card h3 { color: #f43f5e; margin: 0 0 8px; }
-        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-        .active { background: #064e3b; color: #34d399; }
-        .open { background: #7c2d12; color: #ff7e5f; }
-        .btn-link { color: #f43f5e; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
-    </style>
-</head>
-<body>
-    <h1>🕸 Security Architecture, Exposure & Attack Surface Management Fabric</h1>
-    <div style="margin: 20px 0; padding: 15px; background: #111827; border: 1px solid #9f1239; border-radius: 8px;">
-        <p>Manage security zones, boundary validations, exposed assets inventory, attack path graphs, and prioritized remediations.</p>
-        <p>
-            <a class="btn-link" href="/admin/exposure-fabric/zones">Architecture Zones</a>
-            <a class="btn-link" href="/admin/exposure-fabric/boundaries">Trust Boundaries</a>
-            <a class="btn-link" href="/admin/exposure-fabric/inventory">Asset Inventory</a>
-            <a class="btn-link" href="/admin/exposure-fabric/findings">Vulnerabilities & Findings</a>
-            <a class="btn-link" href="/admin/exposure-fabric/paths">Attack Paths</a>
-            <a class="btn-link" href="/admin/exposure-fabric/remediation">Remediation Prioritization</a>
-        </p>
-    </div>
+{% extends "admin.html" %}
+{% block title %}Exposure Fabric Control Panel — Cyber Defense Platform{% endblock %}
 
-    <h2>Architecture Zones</h2>
-    <div class="grid">
-        {% for z in zones %}
-        <div class="card">
-            <h3>{{ z.name }}</h3>
-            <span class="badge active">{{ z.status.upper() }} - {{ z.zone_type.upper() }}</span>
-            <div style="margin: 8px 0; font-size: 14px;">Trust Level: <strong>{{ z.trust_level }}</strong></div>
-            <div style="font-size:12px; color:#64748b">Criticality: {{ z.criticality.upper() }}</div>
-        </div>
-        {% else %}
-        <div class="card"><p style="color:#64748b">No logical architecture zones mapped.</p></div>
-        {% endfor %}
-    </div>
+{% block content %}
+<div class="ui-page-header">
+  <div>
+    <h1 class="ui-page-title">Security Architecture, Exposure &amp; Attack Surface Management Fabric</h1>
+    <p class="ui-page-subtitle">Manage security zones, boundary validations, exposed assets inventory, attack path graphs, and prioritized remediations.</p>
+  </div>
+</div>
 
-    <h2 style="margin-top: 30px;">Active Exposure Findings</h2>
-    <div class="grid">
-        {% for f in findings %}
-        <div class="card" style="border-color: #7f1d1d;">
-            <h3 style="color: #ef4444;">{{ f.title }}</h3>
-            <span class="badge open">{{ f.severity.upper() }} - {{ f.status.upper() }}</span>
-            <div style="margin: 8px 0; font-size: 14px;">Likelihood: <strong>{{ f.likelihood * 100 }}%</strong></div>
-            <div style="font-size: 12px; color:#64748b">Source: {{ f.source_type }}</div>
-        </div>
-        {% else %}
-        <div class="card" style="border-color: #065f46;"><p style="color:#34d399">No active exposure findings recorded.</p></div>
-        {% endfor %}
+<!-- Sub-navigation -->
+<nav class="ui-glass-card" style="margin-bottom:1.5rem;padding:1rem 1.5rem;" aria-label="Exposure sub-navigation">
+  <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;">
+    <span style="color:var(--ui-muted);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Navigate:</span>
+    <a class="ui-btn ui-btn-ghost" href="/admin/exposure-fabric/zones">Architecture Zones</a>
+    <a class="ui-btn ui-btn-ghost" href="/admin/exposure-fabric/boundaries">Trust Boundaries</a>
+    <a class="ui-btn ui-btn-ghost" href="/admin/exposure-fabric/inventory">Asset Inventory</a>
+    <a class="ui-btn ui-btn-ghost" href="/admin/exposure-fabric/findings">Vulnerabilities &amp; Findings</a>
+    <a class="ui-btn ui-btn-ghost" href="/admin/exposure-fabric/paths">Attack Paths</a>
+    <a class="ui-btn ui-btn-ghost" href="/admin/exposure-fabric/remediation">Remediation Prioritization</a>
+  </div>
+</nav>
+
+<!-- Architecture Zones -->
+<h2 class="ui-section-heading">Architecture Zones</h2>
+<div class="ui-bento">
+  {% for z in zones %}
+  <div class="ui-glass-card ui-bento-card" tabindex="0">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
+      <h3 style="font-size:1rem;font-weight:600;color:var(--ui-text-primary);margin:0;">{{ z.name }}</h3>
+      <span class="ui-badge ui-badge-info">{{ z.zone_type.upper() }}</span>
     </div>
-</body>
-</html>
+    <div class="ui-stat-row">
+      <span class="ui-stat-label">Status</span>
+      <span class="ui-stat-value">{{ z.status.upper() }}</span>
+    </div>
+    <div class="ui-stat-row">
+      <span class="ui-stat-label">Trust Level</span>
+      <span class="ui-stat-value" style="font-family:'Fira Code',monospace;font-weight:700;color:var(--ui-accent-cyan);">{{ z.trust_level }}</span>
+    </div>
+    <div class="ui-stat-row">
+      <span class="ui-stat-label">Criticality</span>
+      <span class="ui-stat-value" style="color:{% if z.criticality == 'critical' %}var(--ui-accent-danger){% elif z.criticality == 'high' %}var(--ui-accent-warning){% else %}var(--ui-accent-success){% endif %};">
+        {{ z.criticality.upper() }}
+      </span>
+    </div>
+  </div>
+  {% else %}
+  <div class="ui-glass-card ui-bento-card ui-empty-state">
+    <div class="ui-empty-icon">🏗</div>
+    <p class="ui-empty-text">No logical architecture zones mapped.</p>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Active Exposure Findings -->
+<h2 class="ui-section-heading" style="margin-top:2rem;">Active Exposure Findings</h2>
+<div class="ui-bento">
+  {% for f in findings %}
+  <div class="ui-glass-card ui-bento-card" style="border-color:rgba(239,68,68,0.3);" tabindex="0">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
+      <h3 style="font-size:1rem;font-weight:600;color:var(--ui-accent-danger);margin:0;">{{ f.title }}</h3>
+      {% if f.severity == 'critical' %}
+        <span class="ui-badge ui-badge-danger">CRITICAL</span>
+      {% elif f.severity == 'high' %}
+        <span class="ui-badge ui-badge-warning">HIGH</span>
+      {% elif f.severity == 'medium' %}
+        <span class="ui-badge ui-badge-info">MEDIUM</span>
+      {% else %}
+        <span class="ui-badge ui-badge-muted">{{ f.severity.upper() }}</span>
+      {% endif %}
+    </div>
+    <div class="ui-stat-row">
+      <span class="ui-stat-label">Status</span>
+      <span class="ui-stat-value">{{ f.status.upper() }}</span>
+    </div>
+    <div class="ui-stat-row">
+      <span class="ui-stat-label">Likelihood</span>
+      <span class="ui-stat-value" style="font-family:'Fira Code',monospace;color:var(--ui-accent-warning);">{{ f.likelihood * 100 }}%</span>
+    </div>
+    <div class="ui-stat-row">
+      <span class="ui-stat-label">Source</span>
+      <span class="ui-stat-value">{{ f.source_type }}</span>
+    </div>
+  </div>
+  {% else %}
+  <div class="ui-glass-card ui-bento-card" style="border-color:rgba(16,185,129,0.25);">
+    <div class="ui-empty-state">
+      <div class="ui-empty-icon">✅</div>
+      <p class="ui-empty-text" style="color:var(--ui-accent-success);">No active exposure findings recorded.</p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

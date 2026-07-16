@@ -2,96 +2,237 @@
 {% block title %}Third-Party Vendor Risk Management — Admin{% endblock %}
 
 {% block content %}
-<div class="vendor-center">
-  <div class="vendor-header">
-    <div class="vendor-icon">🏢</div>
+<div class="ui-page-header" style="display: flex; justify-content: space-between; align-items: center;">
     <div>
-      <h1 class="vendor-title">Third-Party Vendor Risk Register</h1>
-      <p class="vendor-subtitle">Monitor supply chain suppliers, assess security posture, and manage compliance audits for all vendors.</p>
+        <div class="ui-page-title">🏢 Third-Party Vendor <em>Risk Register</em></div>
+        <div class="ui-page-subtitle">Monitor supply chain suppliers, assess security posture, and manage compliance audits for all vendors.</div>
     </div>
-  </div>
+    <div>
+        <button class="ui-btn ui-btn-primary ui-btn-sm" onclick="openVendorModal()">+ Register Vendor</button>
+    </div>
+</div>
 
-  <div class="card vendors-table-card">
-    <div class="table-header">
-      <h3 class="card-title" style="margin:0; border: none; padding: 0;">Registered Vendors</h3>
-      <button class="add-vendor-btn" onclick="addVendor()">+ Register Vendor</button>
+<!-- Bento Grid -->
+<div class="ui-bento">
+    <!-- Top Row: KPI Cards -->
+    {% set total_count = vendors|length %}
+    {% set critical_count = namespace(val=0) %}
+    {% set high_count = namespace(val=0) %}
+    {% set total_risk = namespace(val=0) %}
+    
+    {% for v in vendors %}
+        {% set total_risk.val = total_risk.val + v.risk_score %}
+        {% if v.risk_score >= 70 %}
+            {% set critical_count.val = critical_count.val + 1 %}
+        {% elif v.risk_score >= 40 %}
+            {% set high_count.val = high_count.val + 1 %}
+        {% endif %}
+    {% endfor %}
+    
+    {% set avg_risk = (total_risk.val / total_count) if total_count > 0 else 0.0 %}
+
+    <div class="ui-bento-3 ui-glass-card">
+        <div class="ui-metric-card">
+            <div class="ui-metric-label">Vendor Count</div>
+            <div class="ui-metric-value" id="vendor-count">{{ total_count }}</div>
+            <div class="ui-metric-sub">Total registered third parties</div>
+        </div>
     </div>
-    <div class="table-container">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Vendor Name</th>
-            <th>Service Type</th>
-            <th>Risk Score</th>
-            <th>Risk Rating</th>
-            <th>Contract Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if vendors %}
-            {% for v in vendors %}
-            <tr>
-              <td><strong>{{ v.vendor_name }}</strong></td>
-              <td>{{ v.service_type or '—' }}</td>
-              <td>
-                <div class="risk-bar-container">
-                  <div class="risk-bar" style="width: {{ v.risk_score }}%; background: {% if v.risk_score >= 70 %}#ef4444{% elif v.risk_score >= 40 %}#f59e0b{% else %}#10b981{% endif %};"></div>
-                </div>
-                <span class="risk-num">{{ v.risk_score | round(1) }}</span>
-              </td>
-              <td>
-                <span class="badge {% if v.risk_score >= 70 %}badge-danger{% elif v.risk_score >= 40 %}badge-warning{% else %}badge-success{% endif %}">
-                  {% if v.risk_score >= 70 %}HIGH{% elif v.risk_score >= 40 %}MEDIUM{% else %}LOW{% endif %}
-                </span>
-              </td>
-              <td><span class="badge badge-{{ 'success' if v.contract_status == 'active' else 'danger' }}">{{ v.contract_status }}</span></td>
-            </tr>
-            {% endfor %}
-          {% else %}
-            <tr>
-              <td colspan="5" class="empty-state">No vendors registered yet.</td>
-            </tr>
-          {% endif %}
-        </tbody>
-      </table>
+
+    <div class="ui-bento-3 ui-glass-card accent-danger">
+        <div class="ui-metric-card">
+            <div class="ui-metric-label">Critical Vendors</div>
+            <div class="ui-metric-value success" id="critical-vendors">{{ critical_count.val }}</div>
+            <div class="ui-metric-sub">Risk score &ge; 70</div>
+        </div>
     </div>
-  </div>
+
+    <div class="ui-bento-3 ui-glass-card accent-warning">
+        <div class="ui-metric-card">
+            <div class="ui-metric-label">High/Medium Risk</div>
+            <div class="ui-metric-value warning" id="high-risk-vendors">{{ high_count.val }}</div>
+            <div class="ui-metric-sub">Risk score between 40 and 69</div>
+        </div>
+    </div>
+
+    <div class="ui-bento-3 ui-glass-card accent-violet">
+        <div class="ui-metric-card">
+            <div class="ui-metric-label">Average Risk</div>
+            <div class="ui-metric-value violet" id="avg-risk">{{ avg_risk|round(1) }}%</div>
+            <div class="ui-metric-sub">Mean organizational risk exposure</div>
+        </div>
+    </div>
+
+    <!-- Middle: Table Card -->
+    <div class="ui-bento-8 ui-glass-card">
+        <div class="ui-card-title">
+            <span><span class="title-icon">📋</span> Registered Vendors</span>
+        </div>
+        
+        <div class="ui-table-wrap">
+            <table class="ui-table">
+                <thead>
+                    <tr>
+                        <th>Vendor Name</th>
+                        <th>Service Type</th>
+                        <th>Risk Score</th>
+                        <th>Risk Rating</th>
+                        <th>Contract Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for v in vendors %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ v.vendor_name }}</td>
+                        <td class="muted">{{ v.service_type or '—' }}</td>
+                        <td>
+                            <div class="ui-bar-row" style="margin: 0; gap: 0.5rem; justify-content: flex-start; max-width: 140px;">
+                                <div class="ui-bar-track" style="height: 6px;">
+                                    <div class="ui-bar-fill" style="width: {{ v.risk_score }}%; background: {% if v.risk_score >= 70 %}linear-gradient(90deg, var(--ui-danger), #f87171){% elif v.risk_score >= 40 %}linear-gradient(90deg, var(--ui-warning), #fbbf24){% else %}linear-gradient(90deg, var(--ui-success), #34d399){% endif %};"></div>
+                                </div>
+                                <span class="mono" style="font-size: 0.8rem; font-weight: 700;">{{ v.risk_score|round(1) }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            {% if v.risk_score >= 70 %}
+                                <span class="ui-badge ui-badge-danger">HIGH</span>
+                            {% elif v.risk_score >= 40 %}
+                                <span class="ui-badge ui-badge-warning">MEDIUM</span>
+                            {% else %}
+                                <span class="ui-badge ui-badge-success">LOW</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="ui-badge {% if v.contract_status == 'active' %}ui-badge-success{% else %}ui-badge-danger{% endif %}">{{ v.contract_status|upper }}</span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="ui-empty-state">
+                                <span class="icon">🏢</span>
+                                No vendors registered in the organization yet.
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Right Side: Risk distribution details -->
+    <div class="ui-bento-4 ui-glass-card">
+        <div class="ui-card-title">
+            <span class="title-icon">📊</span> Risk Allocation Analysis
+        </div>
+        <p class="muted" style="font-size: 0.85rem; margin-bottom: 1.25rem;">Compliance check bounds for third-party supply chain audits.</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div class="ui-glass" style="padding: 1rem; border-radius: var(--ui-radius-md);">
+                <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--ui-danger); margin-bottom: 0.25rem;">Tier 1 Suppliers</div>
+                <div class="mono" style="font-size: 1.25rem; font-weight: 800; color: var(--ui-text-primary);">{{ critical_count.val }} Critical</div>
+                <div class="muted" style="font-size: 0.75rem; margin-top: 0.25rem;">Requires monthly continuous control auditing.</div>
+            </div>
+            
+            <div class="ui-glass" style="padding: 1rem; border-radius: var(--ui-radius-md);">
+                <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--ui-warning); margin-bottom: 0.25rem;">Tier 2 Support</div>
+                <div class="mono" style="font-size: 1.25rem; font-weight: 800; color: var(--ui-text-primary);">{{ high_count.val }} Medium/High</div>
+                <div class="muted" style="font-size: 0.75rem; margin-top: 0.25rem;">Requires quarterly self-assessments.</div>
+            </div>
+
+            <div class="ui-glass" style="padding: 1rem; border-radius: var(--ui-radius-md);">
+                <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--ui-success); margin-bottom: 0.25rem;">Low-impact SaaS</div>
+                <div class="mono" style="font-size: 1.25rem; font-weight: 800; color: var(--ui-text-primary);">{{ (total_count - critical_count.val - high_count.val) if total_count > 0 else 0 }} Low Risk</div>
+                <div class="muted" style="font-size: 0.75rem; margin-top: 0.25rem;">Standard terms and annual security baseline checks.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Dialog for Registering Vendor -->
+<div class="modal-overlay" id="vendorModal" style="display: none;">
+    <div class="ui-glass-strong" style="max-width: 480px; width: 100%; padding: 2rem; border-radius: var(--ui-radius-lg); position: relative; border: 1px solid var(--ui-border-cyan); box-shadow: var(--ui-shadow-glow-cyan);">
+        <div class="ui-card-title" style="margin-bottom: 1.5rem; justify-content: space-between;">
+            <span><span class="title-icon">🏢</span> Register Third-Party Vendor</span>
+            <span style="cursor: pointer; opacity: 0.7;" onclick="closeVendorModal()">&times;</span>
+        </div>
+        
+        <form id="add-vendor-form" onsubmit="submitVendor(event)">
+            <div class="ui-form-group">
+                <label for="vendor-name-input" class="ui-label">Vendor / Supplier Name</label>
+                <input type="text" id="vendor-name-input" class="ui-input" placeholder="e.g. CyberCloud Solutions" required>
+            </div>
+            
+            <div class="ui-form-group">
+                <label for="vendor-service-input" class="ui-label">Service Type</label>
+                <input type="text" id="vendor-service-input" class="ui-input" placeholder="e.g. Infrastructure Hosting" required>
+            </div>
+
+            <div class="ui-form-group">
+                <label for="vendor-risk-input" class="ui-label">Initial Risk Score (0 - 100)</label>
+                <input type="number" id="vendor-risk-input" class="ui-input" min="0" max="100" value="30" required>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.75rem;">
+                <button type="button" class="ui-btn ui-btn-ghost" onclick="closeVendorModal()">Cancel</button>
+                <button type="submit" class="ui-btn ui-btn-primary">Register Vendor</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
-function addVendor() {
-  const name = prompt("Vendor Name:");
-  if (!name) return;
-  const risk = prompt("Initial Risk Score (0-100):", "30");
-  alert(`Vendor "${name}" registered with risk score ${risk}.`);
+function openVendorModal() {
+    document.getElementById('vendorModal').style.display = 'flex';
+}
+
+function closeVendorModal() {
+    document.getElementById('vendorModal').style.display = 'none';
+}
+
+async function submitVendor(e) {
+    e.preventDefault();
+    const name = document.getElementById('vendor-name-input').value;
+    const service = document.getElementById('vendor-service-input').value;
+    const risk = document.getElementById('vendor-risk-input').value;
+    
+    try {
+        // Authenticate / get JWT
+        const authResp = await fetch('/api/v1/research/token', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ username: 'admin' })
+        });
+        const authData = await authResp.json();
+        const jwtToken = authData.token;
+
+        // Post Vendor to API
+        const response = await fetch('/api/v1/vendors', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwtToken}`
+            },
+            body: JSON.stringify({
+                vendor_name: name,
+                service_type: service,
+                risk_score: parseFloat(risk),
+                organization_id: {{ current_org_id or 1 }}
+            })
+        });
+        
+        if (response.ok) {
+            closeVendorModal();
+            location.reload();
+        } else {
+            const err = await response.json();
+            alert("Error: " + (err.error || "Unable to register vendor"));
+        }
+    } catch(err) {
+        console.error(err);
+        alert("Failed to submit request.");
+    }
 }
 </script>
-
-<style>
-.vendor-center { padding-bottom: 2rem; }
-.vendor-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border-radius: 16px; border: 1px solid rgba(99,102,241,0.35); }
-.vendor-icon { font-size: 2.5rem; }
-.vendor-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: #c7d2fe; }
-.vendor-subtitle { margin: 0; color: #a5b4fc; font-size: 0.9rem; }
-
-.card { background: #1e1b4b; border: 1px solid #312e81; border-radius: 16px; padding: 1.5rem; }
-.card-title { margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; color: #c7d2fe; }
-.table-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #312e81; padding-bottom: 0.75rem; margin-bottom: 1rem; }
-.add-vendor-btn { background: #6366f1; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: bold; }
-
-.table-container { overflow-x: auto; }
-.data-table { width: 100%; border-collapse: collapse; text-align: left; }
-.data-table th { padding: 0.75rem 1rem; color: #6366f1; font-size: 0.8rem; text-transform: uppercase; border-bottom: 1px solid #312e81; }
-.data-table td { padding: 0.75rem 1rem; color: #c7d2fe; font-size: 0.9rem; border-bottom: 1px solid #1e1b4b; }
-
-.risk-bar-container { width: 80px; height: 6px; background: #312e81; border-radius: 4px; overflow: hidden; display: inline-block; margin-right: 0.5rem; vertical-align: middle; }
-.risk-bar { height: 100%; border-radius: 4px; }
-.risk-num { font-weight: bold; vertical-align: middle; }
-
-.badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
-.badge-success { background: rgba(16,185,129,0.2); color: #34d399; }
-.badge-danger { background: rgba(239,68,68,0.2); color: #f87171; }
-.badge-warning { background: rgba(245,158,11,0.2); color: #fbbf24; }
-.empty-state { text-align: center; color: #818cf8; font-style: italic; padding: 2rem; }
-</style>
 {% endblock %}

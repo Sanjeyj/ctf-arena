@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Service Health Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #10b981; border-bottom: 2px solid #10b98133; padding-bottom: 10px; }
+        .btn-link { color: #10b981; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+        .card { background: #111827; border: 1px solid #065f46; border-radius: 10px; padding: 18px; }
+        .card h3 { color: #10b981; margin: 0 0 8px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .healthy { background: #064e3b; color: #34d399; }
+        .warning { background: #78350f; color: #fbbf24; }
+        .degraded { background: #7c2d12; color: #ff7e5f; }
+        .critical { background: #7f1d1d; color: #f87171; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111827; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #1f2937; }
+        th { background-color: #1f2937; color: #10b981; }
+    </style>
+</head>
+<body>
+    <h1>🏥 Platform Capabilities & Golden Signals Health</h1>
+    <p><a class="btn-link" href="/admin/operations-fabric">← Back to Overview</a></p>
+
+    <h2>Capability Registry Current Health</h2>
+    <div class="grid">
+        {% for s in services %}
+        <div class="card">
+            <h3>{{ s.service_name }}</h3>
+            <span class="badge {{ s.status }}">{{ s.status.upper() }}</span>
+            <div style="margin: 8px 0; font-size: 14px;">Current Score: <strong>{{ s.health_score * 100 }}%</strong></div>
+            <div style="font-size: 12px; color:#64748b">Criticality: {{ s.criticality.upper() }}</div>
+        </div>
+        {% else %}
+        <div class="card"><p style="color:#64748b">No platform capability services registered.</p></div>
+        {% endfor %}
+    </div>
+
+    <h2>Service Health Snapshots Ledger</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Service ID</th>
+                <th>Health Score</th>
+                <th>Availability</th>
+                <th>Latency</th>
+                <th>Error Rate</th>
+                <th>Saturation</th>
+                <th>Status</th>
+                <th>Measured At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in snapshots %}
+            <tr>
+                <td>{{ s.platform_service_id }}</td>
+                <td><strong>{{ s.health_score }}%</strong></td>
+                <td>{{ s.availability * 100 }}%</td>
+                <td>{{ s.latency_ms }} ms</td>
+                <td>{{ s.error_rate * 100 }}%</td>
+                <td>{{ s.saturation * 100 }}%</td>
+                <td><span class="badge {{ s.status }}">{{ s.status.upper() }}</span></td>
+                <td>{{ s.measured_at }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center; color: #64748b;">No health snapshots recorded yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

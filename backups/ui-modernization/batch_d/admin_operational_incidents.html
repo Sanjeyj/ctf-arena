@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Incident Center</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #ef4444; border-bottom: 2px solid #ef444433; padding-bottom: 10px; }
+        .btn-link { color: #ef4444; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+        .card { background: #111827; border: 1px solid #7f1d1d; border-radius: 10px; padding: 18px; }
+        .card h3 { color: #ef4444; margin: 0 0 8px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .critical { background: #7f1d1d; color: #f87171; }
+        .active { background: #7c2d12; color: #ff7e5f; }
+        .resolved { background: #064e3b; color: #34d399; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111827; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #1f2937; }
+        th { background-color: #1f2937; color: #ef4444; }
+    </style>
+</head>
+<body>
+    <h1>🚨 Operational Incidents & Correlation Ledger</h1>
+    <p><a class="btn-link" href="/admin/operations-fabric">← Back to Overview</a></p>
+
+    <h2>Active and Resolved Incidents</h2>
+    <div class="grid">
+        {% for i in incidents %}
+        <div class="card" style="border-color: {% if i.status == 'resolved' %}#065f46{% else %}#7f1d1d{% endif %};">
+            <h3 style="color: {% if i.status == 'resolved' %}#10b981{% else %}#ef4444{% endif %};">{{ i.title }}</h3>
+            <span class="badge {{ i.status }}">{{ i.status.upper() }} - {{ i.severity.upper() }}</span>
+            <div style="margin: 8px 0; font-size: 14px;">Module: <strong>{{ i.source_module }}</strong></div>
+            <div style="font-size: 12px; color:#64748b">Root Cause: {{ i.root_cause_summary }}</div>
+            <div style="font-size: 12px; color:#64748b">Impact: {{ i.impact_summary }}</div>
+        </div>
+        {% else %}
+        <div class="card" style="border-color: #065f46;"><p style="color:#34d399">All systems operational. No incidents logged.</p></div>
+        {% endfor %}
+    </div>
+
+    <h2>Timeline of Operational Signals</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Event Type</th>
+                <th>Source Service</th>
+                <th>Description</th>
+                <th>Score Delta</th>
+                <th>Event Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in events %}
+            <tr>
+                <td><strong>{{ e.event_type.upper() }}</strong></td>
+                <td>{{ e.source_service }}</td>
+                <td>{{ e.description }}</td>
+                <td style="color: {% if e.score_delta < 0 %}#ef4444{% else %}#10b981{% endif %};">{{ e.score_delta }}</td>
+                <td>{{ e.event_time }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; color: #64748b;">No operational timeline events recorded yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

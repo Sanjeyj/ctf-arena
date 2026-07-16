@@ -1,37 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Assurance Cases Claims</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
-        h1 { color: #f59e0b; border-bottom: 2px solid #f59e0b33; padding-bottom: 10px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-top: 20px; }
-        .card { background: #111827; border: 1px solid #78350f; border-radius: 10px; padding: 18px; }
-        .card h3 { color: #f59e0b; margin: 0 0 8px; }
-        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-        .supported { background: #052e16; color: #34d399; }
-        .under_review { background: #1e3a5f; color: #60a5fa; }
-        .insufficient_evidence { background: #450a0a; color: #f87171; }
-        .stat { margin: 6px 0; font-size: 14px; color: #94a3b8; }
-        .stat span { color: #e0e6f0; font-weight: bold; }
-    </style>
-</head>
-<body>
-    <h1>📂 Assurance Cases Claims & Confidence Gaps</h1>
-    <div class="grid">
-        {% for c in cases %}
-        <div class="card">
-            <h3>{{ c.title }}</h3>
-            <span class="badge {{ c.status }}">{{ c.status.upper() }}</span>
-            <div class="stat">Scope: <span>{{ c.scope or 'Overall Platform' }}</span></div>
-            <div class="stat">Owner: <span>{{ c.owner or '—' }}</span></div>
-            <div class="stat">Confidence score: <span>{{ c.confidence_score }}%</span></div>
-            <div class="stat">Claim: <div style="color:#d1d5db; margin-top: 4px;">{{ c.claim }}</div></div>
-        </div>
-        {% else %}
-        <div class="card"><p style="color:#64748b">No active claims cataloged.</p></div>
-        {% endfor %}
+{% extends "admin.html" %}
+{% block title %}Assurance Cases Claims — Cyber Defense Platform{% endblock %}
+
+{% block content %}
+<div class="ui-page-header">
+  <div>
+    <h1 class="ui-page-title">Assurance Cases Claims &amp; Confidence Gaps</h1>
+    <p class="ui-page-subtitle">Detailed assurance claims, evidence confidence indexes, and verification gap analysis.</p>
+  </div>
+  <a class="ui-btn ui-btn-ghost" href="/admin/assurance">← Back to Assurance Fabric</a>
+</div>
+
+<div class="ui-bento">
+  {% for c in cases %}
+  <div class="ui-glass-card ui-bento-card" tabindex="0">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
+      <h3 style="font-size:1rem;font-weight:600;color:var(--ui-text-primary);margin:0;">{{ c.title }}</h3>
+      {% if c.status == 'supported' %}
+        <span class="ui-badge ui-badge-success">{{ c.status.upper() }}</span>
+      {% elif c.status == 'under_review' %}
+        <span class="ui-badge ui-badge-info">{{ c.status.upper().replace('_',' ') }}</span>
+      {% elif c.status == 'insufficient_evidence' %}
+        <span class="ui-badge ui-badge-danger">INSUFFICIENT EVIDENCE</span>
+      {% else %}
+        <span class="ui-badge ui-badge-muted">{{ c.status.upper() }}</span>
+      {% endif %}
     </div>
-</body>
-</html>
+
+    <div class="ui-stat-row" style="margin-bottom:0.5rem;">
+      <span class="ui-stat-label">Scope</span>
+      <span class="ui-stat-value">{{ c.scope or 'Overall Platform' }}</span>
+    </div>
+    <div class="ui-stat-row" style="margin-bottom:0.75rem;">
+      <span class="ui-stat-label">Owner</span>
+      <span class="ui-stat-value">{{ c.owner or '—' }}</span>
+    </div>
+
+    <div style="margin-bottom:0.5rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;">
+        <span style="font-size:0.75rem;color:var(--ui-muted);">Confidence Score</span>
+        <span style="font-size:0.85rem;font-weight:700;color:var(--ui-accent-cyan);font-family:'Fira Code',monospace;">{{ c.confidence_score }}%</span>
+      </div>
+      <div class="ui-bar-track" role="progressbar" aria-valuenow="{{ c.confidence_score }}" aria-valuemin="0" aria-valuemax="100">
+        <div class="ui-bar-fill" style="width:{{ c.confidence_score }}%;background:{% if c.confidence_score >= 80 %}var(--ui-accent-success){% elif c.confidence_score >= 50 %}var(--ui-accent-warning){% else %}var(--ui-accent-danger){% endif %};"></div>
+      </div>
+    </div>
+
+    <div style="font-size:0.8rem;color:var(--ui-muted);margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--ui-border);line-height:1.55;">
+      <span style="font-weight:600;color:var(--ui-text-secondary);display:block;margin-bottom:0.25rem;">Claim</span>
+      {{ c.claim }}
+    </div>
+  </div>
+  {% else %}
+  <div class="ui-glass-card ui-bento-card ui-empty-state">
+    <div class="ui-empty-icon">📂</div>
+    <p class="ui-empty-text">No active claims cataloged.</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

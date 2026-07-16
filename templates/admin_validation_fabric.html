@@ -1,70 +1,89 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Continuous Validation Fabric Dashboard</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0b0f19; color: #e2e8f0; margin: 0; padding: 20px; }
-        h1 { color: #38bdf8; border-bottom: 2px solid #38bdf833; padding-bottom: 10px; }
-        h2 { color: #7dd3fc; margin-top: 30px; }
-        .nav-bar { margin: 20px 0; padding: 15px; background: #151f32; border: 1px solid #0284c7; border-radius: 8px; }
-        .btn-link { color: #38bdf8; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
-        .btn-link:hover { text-decoration: underline; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
-        .card { background: #111827; border: 1px solid #1e293b; border-radius: 10px; padding: 18px; transition: border-color 0.2s; }
-        .card:hover { border-color: #38bdf8; }
-        .card h3 { color: #38bdf8; margin: 0 0 8px; }
-        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-        .status-draft { background: #374151; color: #d1d5db; }
-        .status-running { background: #1e3a8a; color: #93c5fd; }
-        .status-completed { background: #064e3b; color: #34d399; }
-        .status-failed { background: #7f1d1d; color: #fca5a5; }
-        .status-open { background: #7c2d12; color: #fdba74; }
-        .status-resolved { background: #064e3b; color: #34d399; }
-    </style>
-</head>
-<body>
-    <h1>🛡 Continuous Security Validation & Defense Effectiveness Fabric</h1>
-    
-    <div class="nav-bar">
-        <p>Continuous validation engine dashboard mapping control campaign runs, playbook check metrics, and active regression checks.</p>
-        <p>
-            <a class="btn-link" href="/admin/validation-fabric/campaigns">Validation Campaigns</a>
-            <a class="btn-link" href="/admin/validation-fabric/scenarios">Validation Scenarios</a>
-            <a class="btn-link" href="/admin/validation-fabric/executions">Execution Run Logs</a>
-            <a class="btn-link" href="/admin/validation-fabric/detections">Detection Validations</a>
-            <a class="btn-link" href="/admin/validation-fabric/readiness">Playbook Readiness</a>
-            <a class="btn-link" href="/admin/validation-fabric/effectiveness">Defense Effectiveness</a>
-        </p>
-    </div>
+{% extends "admin.html" %}
+{% block title %}Continuous Validation Fabric — Cyber Defense Platform{% endblock %}
 
-    <h2>Active Campaigns</h2>
-    <div class="grid">
-        {% for c in campaigns %}
-        <div class="card">
-            <h3>{{ c.name }}</h3>
-            <span class="badge status-{{ c.status }}">{{ c.status.upper() }}</span>
-            <div style="margin: 8px 0; font-size: 14px;">Type: <strong>{{ c.campaign_type }}</strong></div>
-            <div style="font-size: 12px; color: #94a3b8;">Priority: {{ c.priority.upper() }}</div>
-        </div>
-        {% else %}
-        <div class="card"><p style="color:#64748b">No active validation campaigns mapped.</p></div>
-        {% endfor %}
-    </div>
+{% block content %}
+<div class="ui-page-header">
+  <div>
+    <h1 class="ui-page-title">Continuous Security Validation &amp; Defense Effectiveness Fabric</h1>
+    <p class="ui-page-subtitle">Continuous validation engine mapping control campaign runs, playbook check metrics, and active regression checks.</p>
+  </div>
+</div>
 
-    <h2>Active Regressions</h2>
-    <div class="grid">
-        {% for r in regressions %}
-        <div class="card" style="border-color: #ef444455;">
-            <h3 style="color: #f87171;">Drop in: {{ r.resource_type }}</h3>
-            <span class="badge status-{{ r.status }}">{{ r.severity.upper() }} - {{ r.status.upper() }}</span>
-            <div style="margin: 8px 0; font-size: 14px;">Previous: {{ r.previous_score }}% | Current: {{ r.current_score }}%</div>
-            <div style="font-size: 12px; color: #ef4444;">Delta: -{{ r.regression_delta }}%</div>
-        </div>
-        {% else %}
-        <div class="card" style="border-color: #10b98155;"><p style="color:#34d399">No active security posture regressions detected.</p></div>
-        {% endfor %}
-    </div>
+<!-- Sub-navigation -->
+<nav class="ui-glass-card" style="margin-bottom:1.5rem;padding:1rem 1.5rem;" aria-label="Validation sub-navigation">
+  <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;">
+    <span style="color:var(--ui-muted);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Navigate:</span>
+    <a class="ui-btn ui-btn-ghost" href="/admin/validation-fabric/campaigns">Validation Campaigns</a>
+    <a class="ui-btn ui-btn-ghost" href="/admin/validation-fabric/scenarios">Validation Scenarios</a>
+    <a class="ui-btn ui-btn-ghost" href="/admin/validation-fabric/executions">Execution Run Logs</a>
+    <a class="ui-btn ui-btn-ghost" href="/admin/validation-fabric/detections">Detection Validations</a>
+    <a class="ui-btn ui-btn-ghost" href="/admin/validation-fabric/readiness">Playbook Readiness</a>
+    <a class="ui-btn ui-btn-ghost" href="/admin/validation-fabric/effectiveness">Defense Effectiveness</a>
+  </div>
+</nav>
 
-</body>
-</html>
+<!-- Active Campaigns -->
+<h2 class="ui-section-heading">Active Campaigns</h2>
+<div class="ui-bento">
+  {% for c in campaigns %}
+  <div class="ui-glass-card ui-bento-card" tabindex="0">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
+      <h3 style="font-size:1rem;font-weight:600;color:var(--ui-text-primary);margin:0;">{{ c.name }}</h3>
+      {% if c.status == 'running' %}
+        <span class="ui-badge ui-badge-info">RUNNING</span>
+      {% elif c.status == 'completed' %}
+        <span class="ui-badge ui-badge-success">COMPLETED</span>
+      {% elif c.status == 'failed' %}
+        <span class="ui-badge ui-badge-danger">FAILED</span>
+      {% else %}
+        <span class="ui-badge ui-badge-muted">{{ c.status.upper() }}</span>
+      {% endif %}
+    </div>
+    <div class="ui-stat-row">
+      <span class="ui-stat-label">Type</span>
+      <span class="ui-stat-value">{{ c.campaign_type }}</span>
+    </div>
+    <div class="ui-stat-row">
+      <span class="ui-stat-label">Priority</span>
+      <span class="ui-stat-value">{{ c.priority.upper() }}</span>
+    </div>
+  </div>
+  {% else %}
+  <div class="ui-glass-card ui-bento-card ui-empty-state">
+    <div class="ui-empty-icon">🛡</div>
+    <p class="ui-empty-text">No active validation campaigns mapped.</p>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Active Regressions -->
+<h2 class="ui-section-heading" style="margin-top:2rem;">Active Regressions</h2>
+<div class="ui-bento">
+  {% for r in regressions %}
+  <div class="ui-glass-card ui-bento-card" style="border-color:rgba(239,68,68,0.35);" tabindex="0">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
+      <h3 style="font-size:1rem;font-weight:600;color:var(--ui-accent-danger);margin:0;">Drop in: {{ r.resource_type }}</h3>
+      <span class="ui-badge ui-badge-danger">{{ r.severity.upper() }}</span>
+    </div>
+    <div class="ui-stat-row">
+      <span class="ui-stat-label">Previous</span>
+      <span class="ui-stat-value" style="font-family:'Fira Code',monospace;">{{ r.previous_score }}%</span>
+    </div>
+    <div class="ui-stat-row">
+      <span class="ui-stat-label">Current</span>
+      <span class="ui-stat-value" style="font-family:'Fira Code',monospace;color:var(--ui-accent-danger);">{{ r.current_score }}%</span>
+    </div>
+    <div style="margin-top:0.5rem;font-size:0.85rem;font-weight:700;font-family:'Fira Code',monospace;color:var(--ui-accent-danger);">
+      Delta: -{{ r.regression_delta }}%
+    </div>
+  </div>
+  {% else %}
+  <div class="ui-glass-card ui-bento-card" style="border-color:rgba(16,185,129,0.3);">
+    <div class="ui-empty-state">
+      <div class="ui-empty-icon">✅</div>
+      <p class="ui-empty-text" style="color:var(--ui-accent-success);">No active security posture regressions detected.</p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

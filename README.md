@@ -1,5 +1,7 @@
 # 🚩 CTF Arena v2
 
+> Maintained by **[EthicBids Technologies™](https://ethicbids.vercel.app/)**
+
 A self-hosted **Capture The Flag (CTF)** platform built with Flask for college
 cybersecurity competitions. Features a **live scoreboard**, **admin dashboard**,
 **Docker-based container challenges**, **time-based dynamic scoring**, **team mode**,
@@ -212,3 +214,8 @@ python -m pytest tests/test_challenges.py  # Run a single file
 ---
 
 Made with ❤️ for college cybersecurity competitions 🏆
+
+---
+
+&copy; 2026 **EthicBids Technologies™**. All Rights Reserved.  
+Developed and Maintained by [EthicBids Technologies](https://ethicbids.vercel.app/)

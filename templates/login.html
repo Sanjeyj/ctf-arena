@@ -3,188 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login to the Arena | CTF Arena</title>
+    <title>Login to the Arena | CTF Arena | EthicBids Technologies™</title>
+    <meta name="author" content="EthicBids Technologies">
+    <meta name="application-name" content="CTF Arena">
+    <meta name="copyright" content="© 2026 EthicBids Technologies™">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/ui-modernization.css">
     <style>
-        :root {
-            --bg: #0b0c10;
-            --card: #13161e;
-            --border: #2b313d;
-            --neon-blue: #00f0ff;
-            --neon-green: #00ff66;
-            --neon-red: #ff3366;
-            --text: #f0f2f5;
-            --muted: #8b949e;
-            --glow-blue: rgba(0,240,255,0.2);
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            overflow: hidden;
+            min-height: 100vh;
         }
-        body::before {
-            content: '';
-            position: fixed;
-            top: -15%; left: -10%;
-            width: 55%; height: 65%;
-            background: radial-gradient(circle, rgba(0,240,255,0.07) 0%, transparent 70%);
-            pointer-events: none;
-        }
-        
-        .login-box {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 3rem 2.5rem;
-            width: 100%;
-            max-width: 440px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
-            position: relative;
-            z-index: 1;
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .logo .icon { font-size: 3.5rem; display: block; margin-bottom: 0.5rem; filter: drop-shadow(0 0 10px var(--neon-blue)); }
-        .logo h1 { font-size: 2rem; font-weight: 700; }
-        .logo h1 span { color: var(--neon-blue); text-shadow: 0 0 12px var(--glow-blue); }
-        .logo p { color: var(--muted); margin-top: 0.4rem; font-size: 0.95rem; }
-
-        .field { margin-bottom: 1.2rem; }
-        label {
-            display: block;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.5rem;
-        }
-        input[type="text"], input[type="password"] {
-            width: 100%;
-            background: #0a0c10;
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.9rem 1.1rem;
-            border-radius: 10px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.05rem;
-            transition: all 0.2s;
-        }
-        input:focus {
-            outline: none;
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 12px var(--glow-blue);
-        }
-
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            cursor: pointer;
-            user-select: none;
-            color: var(--muted);
-            font-size: 0.9rem;
-        }
-        .checkbox-container input {
-            cursor: pointer;
-            accent-color: var(--neon-blue);
-            width: 16px;
-            height: 16px;
-        }
-
-        .error-msg {
-            background: rgba(255,51,102,0.1);
-            border: 1px solid rgba(255,51,102,0.3);
-            color: var(--neon-red);
-            padding: 0.7rem 1rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            margin-bottom: 1.2rem;
-        }
-
-        .login-btn {
-            width: 100%;
-            background: var(--neon-blue);
-            color: #0b0c10;
-            border: none;
-            padding: 1rem;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            font-family: 'Outfit', sans-serif;
-            cursor: pointer;
-            transition: all 0.2s;
-            letter-spacing: 0.3px;
-        }
-        .login-btn:hover {
-            box-shadow: 0 0 20px var(--glow-blue);
-            transform: translateY(-1px);
-        }
-
-        .register-link {
-            text-align: center;
-            margin-top: 1.8rem;
-            font-size: 0.85rem;
-            color: var(--muted);
-        }
-        .register-link a { color: var(--neon-blue); text-decoration: none; font-weight: 600; }
-        .register-link a:hover { text-shadow: 0 0 6px var(--glow-blue); }
-
-        .cursor { display: inline-block; animation: blink 1s step-end infinite; }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
     </style>
 </head>
-<body>
-    <div class="login-box">
-        <div class="logo">
+<body class="ui-app-bg">
+    <div class="ui-auth-card">
+        <div class="ui-auth-logo">
             <span class="icon">🔑</span>
-            <h1>Login <span>Arena<span class="cursor">_</span></span></h1>
+            <h1>Login <span>Arena<span class="ui-cursor">_</span></span></h1>
             <p>Access your challenges and statistics</p>
         </div>
 
         {% if error %}
-            <div class="error-msg">⚠️ {{ error }}</div>
+            <div class="ui-error-msg" role="alert">⚠️ {{ error }}</div>
         {% endif %}
 
         <form method="POST" action="/login" id="login-form">
             <!-- CSRF Token -->
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             
-            <div class="field">
-                <label for="login-username">Username</label>
-                <input type="text" name="username" id="login-username" placeholder="e.g. HackerAce42" required autocomplete="off" autofocus>
+            <div class="ui-form-group">
+                <label for="login-username" class="ui-label">Username</label>
+                <input type="text" name="username" id="login-username" class="ui-input" placeholder="e.g. HackerAce42" required autocomplete="off" autofocus>
             </div>
             
-            <div class="field">
-                <label for="login-password">Password</label>
-                <input type="password" name="password" id="login-password" placeholder="••••••••••" required>
+            <div class="ui-form-group">
+                <label for="login-password" class="ui-label">Password</label>
+                <input type="password" name="password" id="login-password" class="ui-input" placeholder="••••••••••" required>
             </div>
 
-            <label class="checkbox-container">
-                <input type="checkbox" name="remember" id="login-remember">
-                Remember Me
-            </label>
+            <div class="ui-form-group">
+                <label class="ui-checkbox-row" for="login-remember">
+                    <input type="checkbox" name="remember" id="login-remember">
+                    Remember Me
+                </label>
+            </div>
 
-            <button type="submit" class="login-btn" id="btn-login-submit">Sign In →</button>
+            <button type="submit" class="ui-submit-btn" id="btn-login-submit">Sign In →</button>
         </form>
 
-        <div class="register-link">
+        <div class="ui-auth-link">
             New player? <a href="/register" id="link-register">Register Display Name →</a><br><br>
             Organiser? <a href="/admin/login" id="link-admin-login">Admin Login →</a>
         </div>
     </div>
+    <p style="margin-top:1.5rem;font-size:0.72rem;color:rgba(255,255,255,0.35);text-align:center;letter-spacing:0.3px;">Powered by <a href="https://ethicbids.vercel.app/" target="_blank" rel="noopener" style="color:rgba(0,240,255,0.5);text-decoration:none;">EthicBids Technologies™</a></p>
 </body>
 </html>

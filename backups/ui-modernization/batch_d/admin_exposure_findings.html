@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Exposure Findings</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #f43f5e; border-bottom: 2px solid #f43f5e33; padding-bottom: 10px; }
+        .btn-link { color: #f43f5e; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111827; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #1f2937; }
+        th { background-color: #1f2937; color: #f43f5e; }
+    </style>
+</head>
+<body>
+    <h1>🐞 Vulnerability Findings & Exposure Gaps</h1>
+    <p><a class="btn-link" href="/admin/exposure-fabric">← Back to Overview</a></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Finding ID</th>
+                <th>Asset ID</th>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Severity</th>
+                <th>Likelihood</th>
+                <th>Impact Score</th>
+                <th>Confidence</th>
+                <th>Source Type</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in findings %}
+            <tr>
+                <td>{{ f.id }}</td>
+                <td>{{ f.exposure_asset_id }}</td>
+                <td><strong>{{ f.title }}</strong></td>
+                <td>{{ f.finding_type }}</td>
+                <td>{{ f.severity.upper() }}</td>
+                <td>{{ f.likelihood * 100 }}%</td>
+                <td>{{ f.impact_score }}</td>
+                <td>{{ f.confidence }}</td>
+                <td>{{ f.source_type }}</td>
+                <td>{{ f.status.upper() }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="10" style="text-align: center; color: #64748b;">No exposure findings logged.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

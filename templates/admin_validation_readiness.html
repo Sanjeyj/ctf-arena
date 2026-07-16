@@ -1,57 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Playbook Readiness Index</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0b0f19; color: #e2e8f0; margin: 0; padding: 20px; }
-        h1 { color: #38bdf8; border-bottom: 2px solid #38bdf833; padding-bottom: 10px; }
-        .btn-link { color: #38bdf8; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
-        .btn-link:hover { text-decoration: underline; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111827; border-radius: 8px; overflow: hidden; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #1f2937; }
-        th { background-color: #151f32; color: #38bdf8; }
-        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-        .status-ready { background: #064e3b; color: #34d399; }
-    </style>
-</head>
-<body>
-    <h1>📖 Playbook Readiness Index</h1>
-    <p><a class="btn-link" href="/admin/validation-fabric">← Back to Overview</a></p>
+{% extends "admin.html" %}
+{% block title %}Playbook Readiness Index — Cyber Defense Platform{% endblock %}
 
-    <table>
-        <thead>
-            <tr>
-                <th>Record ID</th>
-                <th>Playbook ID</th>
-                <th>Execution ID</th>
-                <th>Step Coverage</th>
-                <th>Dependency Score</th>
-                <th>Approval Score</th>
-                <th>Evidence Score</th>
-                <th>Readiness Index</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for r in records %}
-            <tr>
-                <td>{{ r.id }}</td>
-                <td>{{ r.playbook_id }}</td>
-                <td>{{ r.execution_id }}</td>
-                <td>{{ (r.step_coverage_score * 100)|round(1) }}%</td>
-                <td>{{ (r.dependency_score * 100)|round(1) }}%</td>
-                <td>{{ (r.approval_score * 100)|round(1) }}%</td>
-                <td>{{ (r.evidence_score * 100)|round(1) }}%</td>
-                <td><strong>{{ (r.readiness_score * 100)|round(1) }}%</strong></td>
-                <td><span class="badge status-ready">{{ r.status.upper() }}</span></td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="9" style="text-align: center; color: #64748b;">No playbook readiness indexes generated.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html>
+{% block content %}
+<div class="ui-page-header">
+  <div>
+    <h1 class="ui-page-title">Playbook Readiness Index</h1>
+    <p class="ui-page-subtitle">Step coverage, dependency resolution, approval scores, and evidence completeness readiness assessments per playbook execution.</p>
+  </div>
+  <a class="ui-btn ui-btn-ghost" href="/admin/validation-fabric">← Back to Validation Fabric</a>
+</div>
+
+<div class="ui-glass-card" style="overflow-x:auto;">
+  <table class="ui-table" aria-label="Playbook readiness index">
+    <thead>
+      <tr>
+        <th scope="col">Record ID</th>
+        <th scope="col">Playbook ID</th>
+        <th scope="col">Execution ID</th>
+        <th scope="col">Step Coverage</th>
+        <th scope="col">Dependency Score</th>
+        <th scope="col">Approval Score</th>
+        <th scope="col">Evidence Score</th>
+        <th scope="col">Readiness Index</th>
+        <th scope="col">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in records %}
+      <tr>
+        <td style="font-family:'Fira Code',monospace;color:var(--ui-muted);font-size:0.8rem;">{{ r.id }}</td>
+        <td style="font-family:'Fira Code',monospace;color:var(--ui-text-secondary);">{{ r.playbook_id }}</td>
+        <td style="font-family:'Fira Code',monospace;color:var(--ui-text-secondary);">{{ r.execution_id }}</td>
+        <td>
+          <span style="font-family:'Fira Code',monospace;font-weight:600;color:{% if r.step_coverage_score >= 0.8 %}var(--ui-accent-success){% elif r.step_coverage_score >= 0.5 %}var(--ui-accent-warning){% else %}var(--ui-accent-danger){% endif %};">
+            {{ (r.step_coverage_score * 100)|round(1) }}%
+          </span>
+        </td>
+        <td>
+          <span style="font-family:'Fira Code',monospace;font-weight:600;color:{% if r.dependency_score >= 0.8 %}var(--ui-accent-success){% elif r.dependency_score >= 0.5 %}var(--ui-accent-warning){% else %}var(--ui-accent-danger){% endif %};">
+            {{ (r.dependency_score * 100)|round(1) }}%
+          </span>
+        </td>
+        <td>
+          <span style="font-family:'Fira Code',monospace;font-weight:600;color:{% if r.approval_score >= 0.8 %}var(--ui-accent-success){% elif r.approval_score >= 0.5 %}var(--ui-accent-warning){% else %}var(--ui-accent-danger){% endif %};">
+            {{ (r.approval_score * 100)|round(1) }}%
+          </span>
+        </td>
+        <td>
+          <span style="font-family:'Fira Code',monospace;font-weight:600;color:{% if r.evidence_score >= 0.8 %}var(--ui-accent-success){% elif r.evidence_score >= 0.5 %}var(--ui-accent-warning){% else %}var(--ui-accent-danger){% endif %};">
+            {{ (r.evidence_score * 100)|round(1) }}%
+          </span>
+        </td>
+        <td>
+          <strong style="font-family:'Fira Code',monospace;font-size:1rem;color:{% if r.readiness_score >= 0.8 %}var(--ui-accent-success){% elif r.readiness_score >= 0.5 %}var(--ui-accent-warning){% else %}var(--ui-accent-danger){% endif %};">
+            {{ (r.readiness_score * 100)|round(1) }}%
+          </strong>
+        </td>
+        <td>
+          <span class="ui-badge ui-badge-success">{{ r.status.upper() }}</span>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="9" style="text-align:center;padding:2rem;color:var(--ui-muted);">No playbook readiness indexes generated.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,61 +1,89 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Operations Fabric Control Panel</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
-        h1 { color: #10b981; border-bottom: 2px solid #10b98133; padding-bottom: 10px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
-        .card { background: #111827; border: 1px solid #065f46; border-radius: 10px; padding: 18px; }
-        .card h3 { color: #10b981; margin: 0 0 8px; }
-        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-        .active { background: #064e3b; color: #34d399; }
-        .degraded { background: #78350f; color: #fbbf24; }
-        .critical { background: #7f1d1d; color: #f87171; }
-        .btn-link { color: #10b981; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
-    </style>
-</head>
-<body>
-    <h1>📈 Cyber Platform Observability, Reliability & Operations Fabric</h1>
-    <div style="margin: 20px 0; padding: 15px; background: #111827; border: 1px solid #065f46; border-radius: 8px;">
-        <p>Operational control plane monitoring platform health, SLO error budgets, active telemetry sources, system traces, and chaos simulations.</p>
-        <p>
-            <a class="btn-link" href="/admin/operations-fabric/telemetry">Telemetry Sources</a>
-            <a class="btn-link" href="/admin/operations-fabric/traces">System Tracing</a>
-            <a class="btn-link" href="/admin/operations-fabric/health">Platform Service Health</a>
-            <a class="btn-link" href="/admin/operations-fabric/reliability">Reliability Engineering (SLOs)</a>
-            <a class="btn-link" href="/admin/operations-fabric/incidents">Operational Incidents</a>
-            <a class="btn-link" href="/admin/operations-fabric/chaos">Chaos Experiments</a>
-        </p>
-    </div>
+{% extends "admin.html" %}
+{% block title %}Operations Fabric Control Panel — Cyber Defense Platform{% endblock %}
 
-    <h2>Active Telemetry Sources</h2>
-    <div class="grid">
-        {% for s in sources %}
-        <div class="card">
-            <h3>{{ s.name }}</h3>
-            <span class="badge {{ s.status }}">{{ s.status.upper() }}</span>
-            <div style="margin: 8px 0; font-size: 14px;">Interval: <strong>{{ s.collection_interval }}s</strong></div>
-            <div style="font-size:12px; color:#64748b">Health: {{ s.health_score * 100 }}%</div>
-        </div>
-        {% else %}
-        <div class="card"><p style="color:#64748b">No active telemetry sources registered.</p></div>
-        {% endfor %}
-    </div>
+{% block content %}
+<div class="ui-page-header">
+  <div>
+    <h1 class="ui-page-title">Cyber Platform Observability, Reliability &amp; Operations Fabric</h1>
+    <p class="ui-page-subtitle">Operational control plane monitoring platform health, SLO error budgets, active telemetry sources, system traces, and chaos simulations.</p>
+  </div>
+</div>
 
-    <h2 style="margin-top: 30px;">Active Incidents</h2>
-    <div class="grid">
-        {% for i in incidents %}
-        <div class="card" style="border-color: #7f1d1d;">
-            <h3 style="color: #ef4444;">{{ i.title }}</h3>
-            <span class="badge critical">{{ i.severity.upper() }} - {{ i.status.upper() }}</span>
-            <div style="margin: 8px 0; font-size: 14px;">Module: <strong>{{ i.source_module }}</strong></div>
-            <div style="font-size: 12px; color:#64748b">Root Cause: {{ i.root_cause_summary }}</div>
-        </div>
-        {% else %}
-        <div class="card" style="border-color: #065f46;"><p style="color:#34d399">System Status: All services operational. No active incidents.</p></div>
-        {% endfor %}
+<!-- Sub-navigation -->
+<nav class="ui-glass-card" style="margin-bottom:1.5rem;padding:1rem 1.5rem;" aria-label="Operations sub-navigation">
+  <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;">
+    <span style="color:var(--ui-muted);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Navigate:</span>
+    <a class="ui-btn ui-btn-ghost" href="/admin/operations-fabric/telemetry">Telemetry Sources</a>
+    <a class="ui-btn ui-btn-ghost" href="/admin/operations-fabric/traces">System Tracing</a>
+    <a class="ui-btn ui-btn-ghost" href="/admin/operations-fabric/health">Service Health</a>
+    <a class="ui-btn ui-btn-ghost" href="/admin/operations-fabric/reliability">Reliability Engineering</a>
+    <a class="ui-btn ui-btn-ghost" href="/admin/operations-fabric/incidents">Operational Incidents</a>
+    <a class="ui-btn ui-btn-ghost" href="/admin/operations-fabric/chaos">Chaos Experiments</a>
+  </div>
+</nav>
+
+<!-- Active Telemetry Sources -->
+<h2 class="ui-section-heading">Active Telemetry Sources</h2>
+<div class="ui-bento">
+  {% for s in sources %}
+  <div class="ui-glass-card ui-bento-card" tabindex="0">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
+      <h3 style="font-size:1rem;font-weight:600;color:var(--ui-text-primary);margin:0;">{{ s.name }}</h3>
+      {% if s.status == 'active' %}
+        <span class="ui-badge ui-badge-success">ACTIVE</span>
+      {% elif s.status == 'degraded' %}
+        <span class="ui-badge ui-badge-warning">DEGRADED</span>
+      {% else %}
+        <span class="ui-badge ui-badge-muted">{{ s.status.upper() }}</span>
+      {% endif %}
     </div>
-</body>
-</html>
+    <div class="ui-stat-row">
+      <span class="ui-stat-label">Interval</span>
+      <span class="ui-stat-value" style="font-family:'Fira Code',monospace;">{{ s.collection_interval }}s</span>
+    </div>
+    <div class="ui-stat-row">
+      <span class="ui-stat-label">Health Score</span>
+      <span class="ui-stat-value" style="font-family:'Fira Code',monospace;color:{% if s.health_score >= 0.8 %}var(--ui-accent-success){% elif s.health_score >= 0.5 %}var(--ui-accent-warning){% else %}var(--ui-accent-danger){% endif %};">
+        {{ s.health_score * 100 }}%
+      </span>
+    </div>
+  </div>
+  {% else %}
+  <div class="ui-glass-card ui-bento-card ui-empty-state">
+    <div class="ui-empty-icon">📡</div>
+    <p class="ui-empty-text">No active telemetry sources registered.</p>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Active Incidents -->
+<h2 class="ui-section-heading" style="margin-top:2rem;">Active Incidents</h2>
+<div class="ui-bento">
+  {% for i in incidents %}
+  <div class="ui-glass-card ui-bento-card" style="border-color:rgba(239,68,68,0.35);" tabindex="0">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
+      <h3 style="font-size:1rem;font-weight:600;color:var(--ui-accent-danger);margin:0;">{{ i.title }}</h3>
+      {% if i.severity == 'critical' %}
+        <span class="ui-badge ui-badge-danger">CRITICAL</span>
+      {% elif i.severity == 'high' %}
+        <span class="ui-badge ui-badge-warning">HIGH</span>
+      {% else %}
+        <span class="ui-badge ui-badge-muted">{{ i.severity.upper() }}</span>
+      {% endif %}
+    </div>
+    <div class="ui-stat-row">
+      <span class="ui-stat-label">Module</span>
+      <span class="ui-stat-value">{{ i.source_module }}</span>
+    </div>
+    <div style="font-size:0.8rem;color:var(--ui-muted);margin-top:0.5rem;line-height:1.5;">{{ i.root_cause_summary }}</div>
+  </div>
+  {% else %}
+  <div class="ui-glass-card ui-bento-card" style="border-color:rgba(16,185,129,0.25);">
+    <div class="ui-empty-state">
+      <div class="ui-empty-icon">✅</div>
+      <p class="ui-empty-text" style="color:var(--ui-accent-success);">System Status: All services operational. No active incidents.</p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

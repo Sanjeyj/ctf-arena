@@ -1,73 +1,82 @@
 {% extends "admin.html" %}
+
 {% block title %}Campaign Timelines — CTI Platform{% endblock %}
 
 {% block content %}
-<div class="campaigns-page">
-  <div class="breadcrumb">
-    <a href="/admin/research">🔬 CTI Hub</a> &gt; <span>Campaigns</span>
-  </div>
-
-  <div class="page-header">
+<div class="ui-page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
     <div>
-      <h1 class="page-title">📅 Campaign Tracking</h1>
-      <p class="page-sub">Trace active threat campaigns, timeline schedules, and targeted industry sectors.</p>
+        <div class="ui-page-title">📅 Campaign Tracking</div>
+        <div class="ui-page-subtitle">Trace active threat campaigns, timeline schedules, and targeted industry sectors.</div>
     </div>
-    <button class="create-campaign-btn" onclick="document.getElementById('createModal').style.display='flex'">+ Add Campaign</button>
-  </div>
+    <button class="ui-btn ui-btn-primary ui-btn-sm" onclick="document.getElementById('createModal').style.display='flex'">+ Add Campaign</button>
+</div>
 
-  <!-- Timeline Stream -->
-  <div class="timeline-container" id="campaignTimeline">
-    <div class="empty-state">Loading campaigns timeline...</div>
-  </div>
+<!-- Bento Grid -->
+<div class="ui-bento">
+    <!-- Main Timeline Content Area -->
+    <div class="ui-bento-12 ui-glass-card">
+        <div class="ui-card-title">
+            <span class="title-icon">📅</span> Active Campaign Timeline
+        </div>
+        
+        <!-- Timeline container -->
+        <div class="timeline-container" id="campaignTimeline">
+            <div class="ui-empty-state">Loading campaigns timeline...</div>
+        </div>
+    </div>
 </div>
 
 <!-- Create Campaign Modal -->
-<div id="createModal" class="modal-overlay" style="display:none">
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3>Create Threat Campaign</h3>
-      <button class="modal-close" onclick="document.getElementById('createModal').style.display='none'">✕</button>
+<div id="createModal" class="modal-overlay" style="display:none;" aria-modal="true" role="dialog">
+    <div class="ui-glass-strong ui-auth-card" style="max-width: 520px; padding: 2rem;">
+        <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700;">📅 Track Threat Campaign</h3>
+            <button onclick="document.getElementById('createModal').style.display='none'" class="modal-close" style="background: none; border: none; color: var(--ui-text-secondary); font-size: 1.2rem; cursor: pointer;">✕</button>
+        </div>
+        
+        <form id="createCampaignForm">
+            <div class="ui-form-group">
+                <label class="ui-label">Campaign Name</label>
+                <input type="text" id="campaign-name" class="ui-input" placeholder="e.g. Operation Windigo" required>
+            </div>
+            
+            <div class="ui-form-group">
+                <label class="ui-label">Target Threat Actor Group</label>
+                <select id="campaign-actor" class="ui-select" required>
+                    <!-- Loaded dynamically -->
+                </select>
+            </div>
+            
+            <div class="ui-form-group">
+                <label class="ui-label">Target Sector</label>
+                <input type="text" id="campaign-sector" class="ui-input" placeholder="e.g. Healthcare, Defense">
+            </div>
+            
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="ui-form-group" style="margin: 0;">
+                    <label class="ui-label">Malware Deployed</label>
+                    <input type="text" id="campaign-malware" class="ui-input" placeholder="Cobalt Strike, Mimikatz">
+                </div>
+                <div class="ui-form-group" style="margin: 0;">
+                    <label class="ui-label">MITRE Techniques</label>
+                    <input type="text" id="campaign-techniques" class="ui-input" placeholder="T1190, T1078">
+                </div>
+            </div>
+            
+            <div class="ui-form-group">
+                <label class="ui-label">Description</label>
+                <textarea id="campaign-desc" class="ui-input" rows="3" placeholder="Brief details about target campaign indicators..."></textarea>
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                <button type="button" class="ui-btn ui-btn-ghost" onclick="document.getElementById('createModal').style.display='none'">Cancel</button>
+                <button type="submit" class="ui-btn ui-btn-primary">Create Campaign</button>
+            </div>
+        </form>
     </div>
-    <form id="createCampaignForm">
-      <div class="form-group">
-        <label>Campaign Name</label>
-        <input type="text" id="campaign-name" class="form-input" placeholder="e.g. Operation Windigo" required>
-      </div>
-      <div class="form-group">
-        <label>Target Threat Actor Group</label>
-        <select id="campaign-actor" class="form-input" required>
-          <!-- Loaded dynamically -->
-        </select>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Target Sector</label>
-          <input type="text" id="campaign-sector" class="form-input" placeholder="e.g. Healthcare, Defense">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Malware Deployed (comma separated)</label>
-          <input type="text" id="campaign-malware" class="form-input" placeholder="e.g. Cobalt Strike, Mimikatz">
-        </div>
-        <div class="form-group">
-          <label>MITRE Techniques (comma separated)</label>
-          <input type="text" id="campaign-techniques" class="form-input" placeholder="e.g. T1190, T1078">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Description</label>
-        <textarea id="campaign-desc" class="form-input" rows="3" placeholder="Campaign briefing..."></textarea>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="cancel-btn" onclick="document.getElementById('createModal').style.display='none'">Cancel</button>
-        <button type="submit" class="submit-btn">Create Campaign</button>
-      </div>
-    </form>
-  </div>
 </div>
 
-<div id="toastContainer"></div>
+<div id="toastContainer" style="position: fixed; bottom: 2rem; right: 2rem; display: flex; flex-direction: column; gap: 0.5rem; z-index: 9999;"></div>
 
 <script>
 let jwtToken = "";
@@ -110,23 +119,27 @@ async function loadCampaigns() {
     container.innerHTML = "";
     
     if (!data.campaigns || data.campaigns.length === 0) {
-      container.innerHTML = `<div class="empty-state">No threat campaigns recorded in the timeline.</div>`;
+      container.innerHTML = `<div class="ui-empty-state">No threat campaigns recorded in the timeline.</div>`;
       return;
     }
     
     data.campaigns.forEach(camp => {
       const card = document.createElement('div');
-      card.className = "campaign-timeline-item";
+      card.className = "campaign-timeline-item ui-glass-card accent-cyan";
+      card.style.marginBottom = "1.25rem";
+      card.style.position = "relative";
+      card.style.paddingLeft = "2.5rem";
       card.innerHTML = `
-        <div class="cti-time">Sector: ${camp.target_sector || 'Global'}</div>
+        <div style="position: absolute; left: 0.9rem; top: 1.5rem; width: 10px; height: 10px; background: var(--ui-cyan); border-radius: 50%; box-shadow: var(--ui-shadow-glow-cyan);"></div>
+        <div class="ui-metric-label" style="margin-bottom: 0.4rem;">Target Sector: ${camp.target_sector || 'Global'}</div>
         <div class="cti-content">
-          <h4 class="cti-title">${camp.name}</h4>
-          <p class="cti-desc">${camp.description || 'No description provided.'}</p>
-          <div class="cti-meta">
-            <span>🦠 Malware: ${camp.malware_used || 'None'}</span>
-            <span>🎯 Techniques: ${camp.techniques_used || 'None'}</span>
+          <h4 class="ui-card-title" style="margin-bottom: 0.5rem; font-size: 1.05rem;">${camp.name}</h4>
+          <p class="ui-metric-sub" style="margin-bottom: 1rem; color: var(--ui-text-secondary); line-height: 1.5;">${camp.description || 'No description provided.'}</p>
+          <div style="display: flex; gap: 1.5rem; font-size: 0.8rem; color: var(--ui-text-muted); margin-bottom: 0.75rem;">
+            <span>🦠 Malware: <span class="mono cyan">${camp.malware_used || 'None'}</span></span>
+            <span>🎯 Techniques: <span class="mono violet">${camp.techniques_used || 'None'}</span></span>
           </div>
-          <button class="ai-summary-btn" onclick="summarizeCampaign(${camp.id})">🤖 AI Summarize</button>
+          <button class="ui-btn ui-btn-violet ui-btn-sm" onclick="summarizeCampaign(${camp.id})">🤖 AI Summarize</button>
         </div>
       `;
       container.appendChild(card);
@@ -179,48 +192,24 @@ async function summarizeCampaign(id) {
 function showToast(msg, type) {
   const c = document.getElementById('toastContainer');
   const t = document.createElement('div');
-  t.className = `toast ${type}`; t.textContent = msg;
-  c.appendChild(t); setTimeout(() => t.remove(), 4000);
+  t.className = `toast ${type}`;
+  t.style.padding = '0.75rem 1.25rem';
+  t.style.borderRadius = '8px';
+  t.style.fontSize = '0.875rem';
+  t.style.color = '#fff';
+  t.style.background = type === 'success' ? '#166534' : '#7f1d1d';
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
 }
 
 fetchToken();
+
+document.addEventListener("DOMContentLoaded", function() {
+    var topTitle = document.getElementById("topbar-page-title");
+    if (topTitle) {
+        topTitle.innerHTML = "Campaign <strong>Tracking</strong>";
+    }
+});
 </script>
-
-<style>
-.campaigns-page { padding-bottom: 2rem; }
-.breadcrumb { margin-bottom: 1rem; color: #64748b; font-size: 0.85rem; }
-.breadcrumb a { color: #10b981; text-decoration: none; }
-.page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
-.page-title { margin: 0; font-size: 1.5rem; font-weight: 700; color: #e2e8f0; }
-.page-sub { margin: 0.25rem 0 0; color: #64748b; font-size: 0.9rem; }
-.create-campaign-btn { background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
-
-.timeline-container { position: relative; border-left: 2px solid #23273a; margin-left: 1rem; padding-left: 2rem; }
-.campaign-timeline-item { position: relative; margin-bottom: 2rem; }
-.campaign-timeline-item::before { content: ""; position: absolute; left: -2.4rem; top: 0.25rem; width: 12px; height: 12px; background: #10b981; border: 3px solid #111424; border-radius: 50%; }
-.cti-time { font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; text-transform: uppercase; font-weight: 700; }
-.cti-content { background: #111424; border: 1px solid #23273a; border-radius: 12px; padding: 1.25rem; }
-.cti-title { margin-top: 0; margin-bottom: 0.5rem; color: #e2e8f0; font-size: 1.05rem; }
-.cti-desc { color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5; }
-.cti-meta { display: flex; gap: 1.5rem; font-size: 0.8rem; color: #64748b; margin-bottom: 0.75rem; }
-.ai-summary-btn { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); padding: 0.35rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
-
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9998; }
-.modal-card { background: #111424; border-radius: 16px; padding: 2rem; width: 90%; max-width: 520px; border: 1px solid #23273a; }
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-.modal-header h3 { margin: 0; color: #e2e8f0; font-size: 1.1rem; }
-.modal-close { background: none; border: none; color: #64748b; font-size: 1.25rem; cursor: pointer; }
-.form-group { margin-bottom: 1rem; }
-.form-group label { display: block; font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.05em; }
-.form-input { width: 100%; background: #090d16; border: 1px solid #23273a; color: #e2e8f0; padding: 0.625rem; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; }
-.cancel-btn { background: rgba(255,255,255,0.05); border: none; color: #94a3b8; padding: 0.6rem 1.25rem; border-radius: 8px; cursor: pointer; }
-.submit-btn { background: linear-gradient(135deg, #10b981, #059669); border: none; color: #fff; padding: 0.6rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600; }
-#toastContainer { position: fixed; bottom: 2rem; right: 2rem; display: flex; flex-direction: column; gap: 0.5rem; z-index: 9999; }
-.toast { padding: 0.75rem 1.25rem; border-radius: 8px; font-size: 0.875rem; color: #fff; }
-.toast.success { background: #166534; }
-.toast.error { background: #7f1d1d; }
-.empty-state { text-align: center; color: #475569; padding: 2rem; }
-</style>
 {% endblock %}

@@ -97,3 +97,33 @@ The following changes were introduced after the `v1.0.0-rc1` tag:
 - **Tests Executed**: Full 150-route UI smoke test, full 1609 regression suite.
 - **Approval Requirement**: Approved by release engineer.
 
+---
+
+### Change 7 — Batch A UI Modernization (Dark Futuristic Enterprise Design System)
+
+- **Date**: 2026-07-14
+- **Changed Files**:
+  - `static/css/ui-modernization.css` (**NEW**) — Central CSS design system: 25+ design tokens, glass surfaces, 12-column Bento grid, components (cards, badges, buttons, forms, tables, charts, progress bars)
+  - `static/js/ui-shell.js` (**NEW**) — Admin shell JS: collapsible sidebar, mobile drawer, aria state management, active link detection, localStorage persistence
+  - `templates/admin.html` — Full modernization: collapsible sidebar nav (`#admin-sidebar`), top command bar, Bento grid dashboard, JS isolation guard (guards Chart.js + polling so child pages cannot throw null errors), legacy CSS compat variables
+  - `templates/login.html` — Dark glassmorphic auth card; all original DOM IDs preserved (`#login-form`, `#login-username`, `#login-password`)
+  - `templates/admin_login.html` — Enterprise auth card; all original DOM IDs preserved (`#admin-login-form`, `#admin-username`, `#admin-password`, `#btn-admin-login`)
+  - `templates/admin_mission_control.html` — Full Bento grid Mission Control page extending modernized shell
+  - `backups/ui-modernization/admin.html.pre-modernization` (**NEW**) — Pre-modernization backup
+  - `docs/ui_design_system.md` (**NEW**) — Design system reference documentation
+  - `docs/ui_dom_verification_report.md` (**NEW**) — Automated DOM verification report
+- **Classification**: **UI Modernization / Frontend Only**
+- **Reason**: Implement the approved "Dark Futuristic Enterprise + Restrained Glassmorphism + Responsive Bento Grid" UI design directive across Batch A pages, with zero backend logic changes.
+- **Risk Assessment**:
+  - ⚪ **No backend risk** — no Python, SQL, or route changes
+  - ⚪ **No CSRF risk** — all form tokens preserved verbatim
+  - ⚪ **No DOM selector risk** — all test-asserted IDs preserved
+  - 🟡 **1 UI regression detected and fixed** — `test_rbac_access_restrictions` expected `b"Admin <span>Portal</span>"` but cursor span was nested inside; fixed by moving cursor span out
+- **Post-Fix Test Results**:
+  - `pytest tests/test_validation_regressions.py` — **10/10 PASS**
+  - `scripts/smoke_test.py` — **ALL PASS**
+  - `scripts/admin_smoke_test.py` — **ALL PASS**
+  - Automated DOM verification — **25 PASS / 0 FAIL**
+  - Full `pytest --tb=short -q` — **1609/1609 PASS**
+- **Approval Requirement**: Approved by release engineer.
+

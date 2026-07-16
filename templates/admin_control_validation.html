@@ -1,42 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Control Validation Results</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
-        h1 { color: #f43f5e; border-bottom: 2px solid #f43f5e33; padding-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background: #1e293b; color: #94a3b8; padding: 10px; text-align: left; font-size: 13px; }
-        td { padding: 10px; border-bottom: 1px solid #1e293b; font-size: 14px; }
-        tr:hover td { background: #111827; }
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; }
-        .passed { background: #052e16; color: #34d399; }
-        .partially_effective { background: #1e3a5f; color: #60a5fa; }
-        .failed { background: #450a0a; color: #f87171; }
-    </style>
-</head>
-<body>
-    <h1>🧪 Continuous Control validation Results</h1>
-    <table>
-        <thead>
-            <tr><th>ID</th><th>Control Reference</th><th>Validation Type</th><th>Expected</th><th>Actual</th><th>Effectiveness</th><th>Status</th></tr>
-        </thead>
-        <tbody>
-            {% for v in validations %}
-            <tr>
-                <td>#{{ v.id }}</td>
-                <td><strong>{{ v.control_reference }}</strong></td>
-                <td>{{ v.validation_type }}</td>
-                <td>{{ v.expected_result }}</td>
-                <td>{{ v.actual_result }}</td>
-                <td>{{ (v.effectiveness_score * 100)|round(1) }}%</td>
-                <td><span class="badge {{ v.status }}">{{ v.status.upper() }}</span></td>
-            </tr>
-            {% else %}
-            <tr><td colspan="7" style="color:#64748b;text-align:center">No control validation checks logged.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html>
+{% extends "admin.html" %}
+{% block title %}Control Validation Results — Cyber Defense Platform{% endblock %}
+
+{% block content %}
+<div class="ui-page-header">
+  <div>
+    <h1 class="ui-page-title">Continuous Control Validation Results</h1>
+    <p class="ui-page-subtitle">Compliance control execution ledger — effectiveness scores, expected vs actual outcomes, and verification status.</p>
+  </div>
+  <a class="ui-btn ui-btn-ghost" href="/admin/assurance">← Back to Assurance Fabric</a>
+</div>
+
+<div class="ui-glass-card" style="overflow-x:auto;">
+  <table class="ui-table" aria-label="Control validation results">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Control Reference</th>
+        <th scope="col">Validation Type</th>
+        <th scope="col">Expected</th>
+        <th scope="col">Actual</th>
+        <th scope="col">Effectiveness</th>
+        <th scope="col">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for v in validations %}
+      <tr>
+        <td style="font-family:'Fira Code',monospace;color:var(--ui-muted);font-size:0.8rem;">#{{ v.id }}</td>
+        <td><strong style="color:var(--ui-text-primary);">{{ v.control_reference }}</strong></td>
+        <td style="color:var(--ui-text-secondary);">{{ v.validation_type }}</td>
+        <td style="color:var(--ui-muted);font-size:0.85rem;">{{ v.expected_result }}</td>
+        <td style="color:var(--ui-muted);font-size:0.85rem;">{{ v.actual_result }}</td>
+        <td>
+          <span style="font-family:'Fira Code',monospace;font-weight:700;color:{% if v.effectiveness_score >= 0.8 %}var(--ui-accent-success){% elif v.effectiveness_score >= 0.5 %}var(--ui-accent-warning){% else %}var(--ui-accent-danger){% endif %};">
+            {{ (v.effectiveness_score * 100)|round(1) }}%
+          </span>
+        </td>
+        <td>
+          {% if v.status == 'passed' %}
+            <span class="ui-badge ui-badge-success">PASSED</span>
+          {% elif v.status == 'partially_effective' %}
+            <span class="ui-badge ui-badge-info">PARTIAL</span>
+          {% elif v.status == 'failed' %}
+            <span class="ui-badge ui-badge-danger">FAILED</span>
+          {% else %}
+            <span class="ui-badge ui-badge-muted">{{ v.status.upper() }}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7" style="text-align:center;padding:2rem;color:var(--ui-muted);">No control validation checks logged.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

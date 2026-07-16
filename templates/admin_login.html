@@ -3,156 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login | CTF Arena</title>
+    <title>Admin Login | CTF Arena | EthicBids Technologies™</title>
+    <meta name="author" content="EthicBids Technologies">
+    <meta name="application-name" content="CTF Arena">
+    <meta name="copyright" content="© 2026 EthicBids Technologies™">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/ui-modernization.css">
     <style>
-        :root {
-            --bg: #0b0c10;
-            --card: #13161e;
-            --border: #2b313d;
-            --neon-blue: #00f0ff;
-            --neon-red: #ff3366;
-            --text: #f0f2f5;
-            --muted: #8b949e;
-            --glow-blue: rgba(0,240,255,0.2);
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            overflow: hidden;
+            min-height: 100vh;
         }
-        body::before {
-            content: '';
-            position: fixed;
-            top: -15%; left: -10%;
-            width: 55%; height: 65%;
-            background: radial-gradient(circle, rgba(0,240,255,0.07) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .login-box {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 3rem 2.5rem;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
-            position: relative;
-            z-index: 1;
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .logo .icon { font-size: 2.8rem; display: block; margin-bottom: 0.5rem; }
-        .logo h1 { font-size: 1.8rem; font-weight: 700; }
-        .logo h1 span { color: var(--neon-blue); text-shadow: 0 0 10px var(--glow-blue); }
-        .logo p { color: var(--muted); font-size: 0.9rem; margin-top: 0.4rem; }
-
-        .field { margin-bottom: 1.2rem; }
-        label {
-            display: block;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.4rem;
-        }
-        input[type="text"], input[type="password"] {
-            width: 100%;
-            background: #0a0c10;
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.85rem 1rem;
-            border-radius: 10px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 1rem;
-            transition: all 0.2s;
-        }
-        input:focus {
-            outline: none;
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 10px var(--glow-blue);
-        }
-
-        .error-msg {
-            background: rgba(255,51,102,0.1);
-            border: 1px solid rgba(255,51,102,0.3);
-            color: var(--neon-red);
-            padding: 0.7rem 1rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            margin-bottom: 1.2rem;
-        }
-
-        .login-btn {
-            width: 100%;
-            background: var(--neon-blue);
-            color: #0b0c10;
-            border: none;
-            padding: 1rem;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 700;
-            font-family: 'Outfit', sans-serif;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 0.5rem;
-        }
-        .login-btn:hover {
-            box-shadow: 0 0 18px var(--glow-blue);
-            transform: translateY(-1px);
-        }
-
-        .back-link {
-            text-align: center;
-            margin-top: 1.5rem;
-            font-size: 0.85rem;
-            color: var(--muted);
-        }
-        .back-link a { color: var(--neon-blue); text-decoration: none; font-weight: 600; }
     </style>
 </head>
-<body>
-    <div class="login-box">
-        <div class="logo">
+<body class="ui-app-bg">
+    <div class="ui-auth-card">
+        <div class="ui-auth-logo">
             <span class="icon">🛡️</span>
-            <h1>Admin <span>Portal</span></h1>
+            <h1>Admin <span>Portal</span><span class="ui-cursor">_</span></h1>
             <p>CTF Arena — Organiser Access</p>
         </div>
 
         {% if error %}
-            <div class="error-msg">🔒 {{ error }}</div>
+            <div class="ui-error-msg" role="alert">🔒 {{ error }}</div>
         {% endif %}
 
         <form method="POST" action="/admin/login" id="admin-login-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <div class="field">
-                <label for="admin-username">Username</label>
-                <input type="text" name="username" id="admin-username" placeholder="admin" required autocomplete="off">
+            
+            <div class="ui-form-group">
+                <label for="admin-username" class="ui-label">Username</label>
+                <input type="text" name="username" id="admin-username" class="ui-input" placeholder="admin" required autocomplete="off" autofocus>
             </div>
-            <div class="field">
-                <label for="admin-password">Password</label>
-                <input type="password" name="password" id="admin-password" placeholder="••••••••••" required>
+            
+            <div class="ui-form-group">
+                <label for="admin-password" class="ui-label">Password</label>
+                <input type="password" name="password" id="admin-password" class="ui-input" placeholder="••••••••••" required>
             </div>
-            <button type="submit" class="login-btn" id="btn-admin-login">Login to Dashboard →</button>
+
+            <button type="submit" class="ui-submit-btn" id="btn-admin-login">Login to Dashboard →</button>
         </form>
 
-        <div class="back-link">
+        <div class="ui-auth-link">
             <a href="/register" id="link-back-register">← Back to Participant Login</a>
         </div>
     </div>
+    <p style="margin-top:1.5rem;font-size:0.72rem;color:rgba(255,255,255,0.35);text-align:center;letter-spacing:0.3px;">Powered by <a href="https://ethicbids.vercel.app/" target="_blank" rel="noopener" style="color:rgba(0,240,255,0.5);text-decoration:none;">EthicBids Technologies™</a></p>
 </body>
 </html>

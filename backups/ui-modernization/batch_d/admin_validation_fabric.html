@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Continuous Validation Fabric Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0b0f19; color: #e2e8f0; margin: 0; padding: 20px; }
+        h1 { color: #38bdf8; border-bottom: 2px solid #38bdf833; padding-bottom: 10px; }
+        h2 { color: #7dd3fc; margin-top: 30px; }
+        .nav-bar { margin: 20px 0; padding: 15px; background: #151f32; border: 1px solid #0284c7; border-radius: 8px; }
+        .btn-link { color: #38bdf8; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
+        .btn-link:hover { text-decoration: underline; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+        .card { background: #111827; border: 1px solid #1e293b; border-radius: 10px; padding: 18px; transition: border-color 0.2s; }
+        .card:hover { border-color: #38bdf8; }
+        .card h3 { color: #38bdf8; margin: 0 0 8px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .status-draft { background: #374151; color: #d1d5db; }
+        .status-running { background: #1e3a8a; color: #93c5fd; }
+        .status-completed { background: #064e3b; color: #34d399; }
+        .status-failed { background: #7f1d1d; color: #fca5a5; }
+        .status-open { background: #7c2d12; color: #fdba74; }
+        .status-resolved { background: #064e3b; color: #34d399; }
+    </style>
+</head>
+<body>
+    <h1>🛡 Continuous Security Validation & Defense Effectiveness Fabric</h1>
+    
+    <div class="nav-bar">
+        <p>Continuous validation engine dashboard mapping control campaign runs, playbook check metrics, and active regression checks.</p>
+        <p>
+            <a class="btn-link" href="/admin/validation-fabric/campaigns">Validation Campaigns</a>
+            <a class="btn-link" href="/admin/validation-fabric/scenarios">Validation Scenarios</a>
+            <a class="btn-link" href="/admin/validation-fabric/executions">Execution Run Logs</a>
+            <a class="btn-link" href="/admin/validation-fabric/detections">Detection Validations</a>
+            <a class="btn-link" href="/admin/validation-fabric/readiness">Playbook Readiness</a>
+            <a class="btn-link" href="/admin/validation-fabric/effectiveness">Defense Effectiveness</a>
+        </p>
+    </div>
+
+    <h2>Active Campaigns</h2>
+    <div class="grid">
+        {% for c in campaigns %}
+        <div class="card">
+            <h3>{{ c.name }}</h3>
+            <span class="badge status-{{ c.status }}">{{ c.status.upper() }}</span>
+            <div style="margin: 8px 0; font-size: 14px;">Type: <strong>{{ c.campaign_type }}</strong></div>
+            <div style="font-size: 12px; color: #94a3b8;">Priority: {{ c.priority.upper() }}</div>
+        </div>
+        {% else %}
+        <div class="card"><p style="color:#64748b">No active validation campaigns mapped.</p></div>
+        {% endfor %}
+    </div>
+
+    <h2>Active Regressions</h2>
+    <div class="grid">
+        {% for r in regressions %}
+        <div class="card" style="border-color: #ef444455;">
+            <h3 style="color: #f87171;">Drop in: {{ r.resource_type }}</h3>
+            <span class="badge status-{{ r.status }}">{{ r.severity.upper() }} - {{ r.status.upper() }}</span>
+            <div style="margin: 8px 0; font-size: 14px;">Previous: {{ r.previous_score }}% | Current: {{ r.current_score }}%</div>
+            <div style="font-size: 12px; color: #ef4444;">Delta: -{{ r.regression_delta }}%</div>
+        </div>
+        {% else %}
+        <div class="card" style="border-color: #10b98155;"><p style="color:#34d399">No active security posture regressions detected.</p></div>
+        {% endfor %}
+    </div>
+
+</body>
+</html>

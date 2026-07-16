@@ -1,39 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Chaos Simulation Workspace</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
-        h1 { color: #f59e0b; border-bottom: 2px solid #f59e0b33; padding-bottom: 10px; }
-        .btn-link { color: #f59e0b; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
-        .card { background: #111827; border: 1px solid #78350f; border-radius: 10px; padding: 18px; }
-        .card h3 { color: #f59e0b; margin: 0 0 8px; }
-        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-        .completed { background: #064e3b; color: #34d399; }
-        .running { background: #7c2d12; color: #ff7e5f; }
-        .scheduled { background: #1e3a8a; color: #93c5fd; }
-    </style>
-</head>
-<body>
-    <h1>🧪 Chaos Engineering Simulations</h1>
-    <p><a class="btn-link" href="/admin/operations-fabric">← Back to Overview</a></p>
+{% extends "admin.html" %}
+{% block title %}Chaos Simulation Workspace{% endblock %}
 
-    <h2>Simulation Scenarios & Results</h2>
-    <div class="grid">
-        {% for e in experiments %}
-        <div class="card" style="border-color: {% if e.status == 'completed' %}#065f46{% elif e.status == 'running' %}#7c2d12{% else %}#1e3a8a{% endif %};">
-            <h3>{{ e.name }}</h3>
-            <span class="badge {{ e.status }}">{{ e.status.upper() }}</span>
-            <div style="margin: 8px 0; font-size: 14px;">Target: <strong>{{ e.target_service }}</strong></div>
-            <div style="font-size: 12px; color:#a1a1aa">Hypothesis: {{ e.hypothesis }}</div>
-            <div style="font-size: 12px; color:#64748b; margin-top: 5px;">Baseline: {{ e.baseline_score }}% | Result: {{ e.result_score }}%</div>
-            <div style="font-size: 11px; color:#64748b; margin-top: 5px;">Summary: {{ e.result_summary or 'Awaiting execution...' }}</div>
-        </div>
-        {% else %}
-        <div class="card" style="border-color: #1e3a8a;"><p style="color:#64748b">No active chaos experiments scheduled.</p></div>
-        {% endfor %}
+{% block content %}
+<div class="ui-page-header" style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <div class="ui-page-title">🧪 Chaos Engineering <em>Simulations</em></div>
+        <div class="ui-page-subtitle">Inject faults and latency to evaluate the resilience and recovery posture of target platform services.</div>
     </div>
-</body>
-</html>
+    <div>
+        <a class="ui-btn ui-btn-ghost ui-btn-sm" href="/admin/operations-fabric">← Back to Overview</a>
+    </div>
+</div>
+
+<!-- Bento Grid -->
+<div class="ui-bento">
+    <div class="ui-bento-12 ui-glass-card">
+        <div class="ui-card-title" style="margin-bottom: 1.25rem;">
+            <span><span class="title-icon">🎲</span> Active Experiments & Results</span>
+        </div>
+        
+        <div class="ui-bento" style="margin-top: 1rem; padding: 0; gap: 1.25rem;">
+            {% for e in experiments %}
+            <div class="ui-bento-4 ui-glass-card {% if e.status == 'completed' %}accent-success{% elif e.status == 'running' %}accent-danger{% else %}accent-violet{% endif %}" style="margin: 0; min-height: 220px; display: flex; flex-direction: column; justify-content: space-between;">
+                <div class="ui-metric-card" style="padding: 0; width: 100%;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; gap: 0.5rem;">
+                        <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--ui-text-primary); line-height: 1.3;">{{ e.name }}</h3>
+                        <span class="ui-badge {% if e.status == 'completed' %}ui-badge-success{% elif e.status == 'running' %}ui-badge-danger{% else %}ui-badge-violet{% endif %}">{{ e.status.upper() }}</span>
+                    </div>
+                    
+                    <div style="font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--ui-text-secondary);">
+                        Target Service: <strong style="color: var(--ui-cyan); font-family: var(--ui-font-mono);">{{ e.target_service }}</strong>
+                    </div>
+                    
+                    <div style="font-size: 0.8rem; margin-bottom: 0.75rem; color: var(--ui-text-muted); line-height: 1.4;">
+                        Hypothesis: {{ e.hypothesis }}
+                    </div>
+                    
+                    <div class="ui-glass" style="padding: 0.5rem 0.75rem; border-radius: var(--ui-radius-sm); margin-bottom: 0.75rem; border: 1px solid var(--ui-border);">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                            <span class="muted">Baseline: <strong class="mono" style="color: var(--ui-text-primary);">{{ e.baseline_score }}%</strong></span>
+                            <span class="muted">Result: <strong class="mono" style="color: {% if e.status == 'completed' %}var(--ui-success){% elif e.status == 'running' %}var(--ui-warning){% else %}var(--ui-text-muted){% endif %};">{{ e.result_score }}%</strong></span>
+                        </div>
+                    </div>
+                    
+                    <div style="font-size: 0.75rem; color: var(--ui-text-secondary); line-height: 1.4;">
+                        Summary: <span class="muted" style="font-style: italic;">{{ e.result_summary or 'Awaiting execution...' }}</span>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="ui-bento-12" style="margin: 0; padding: 0;">
+                <div class="ui-empty-state" style="padding: 3rem 1rem;">
+                    <span class="icon" style="font-size: 2.5rem; margin-bottom: 1rem; display: block;">🧪</span>
+                    <span class="muted">No active chaos experiments scheduled.</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

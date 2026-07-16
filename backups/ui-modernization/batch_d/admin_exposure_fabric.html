@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Exposure Fabric Control Panel</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0f1e; color: #e0e6f0; margin: 0; padding: 20px; }
+        h1 { color: #f43f5e; border-bottom: 2px solid #f43f5e33; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+        .card { background: #111827; border: 1px solid #9f1239; border-radius: 10px; padding: 18px; }
+        .card h3 { color: #f43f5e; margin: 0 0 8px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .active { background: #064e3b; color: #34d399; }
+        .open { background: #7c2d12; color: #ff7e5f; }
+        .btn-link { color: #f43f5e; text-decoration: none; font-weight: bold; margin-right: 15px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h1>🕸 Security Architecture, Exposure & Attack Surface Management Fabric</h1>
+    <div style="margin: 20px 0; padding: 15px; background: #111827; border: 1px solid #9f1239; border-radius: 8px;">
+        <p>Manage security zones, boundary validations, exposed assets inventory, attack path graphs, and prioritized remediations.</p>
+        <p>
+            <a class="btn-link" href="/admin/exposure-fabric/zones">Architecture Zones</a>
+            <a class="btn-link" href="/admin/exposure-fabric/boundaries">Trust Boundaries</a>
+            <a class="btn-link" href="/admin/exposure-fabric/inventory">Asset Inventory</a>
+            <a class="btn-link" href="/admin/exposure-fabric/findings">Vulnerabilities & Findings</a>
+            <a class="btn-link" href="/admin/exposure-fabric/paths">Attack Paths</a>
+            <a class="btn-link" href="/admin/exposure-fabric/remediation">Remediation Prioritization</a>
+        </p>
+    </div>
+
+    <h2>Architecture Zones</h2>
+    <div class="grid">
+        {% for z in zones %}
+        <div class="card">
+            <h3>{{ z.name }}</h3>
+            <span class="badge active">{{ z.status.upper() }} - {{ z.zone_type.upper() }}</span>
+            <div style="margin: 8px 0; font-size: 14px;">Trust Level: <strong>{{ z.trust_level }}</strong></div>
+            <div style="font-size:12px; color:#64748b">Criticality: {{ z.criticality.upper() }}</div>
+        </div>
+        {% else %}
+        <div class="card"><p style="color:#64748b">No logical architecture zones mapped.</p></div>
+        {% endfor %}
+    </div>
+
+    <h2 style="margin-top: 30px;">Active Exposure Findings</h2>
+    <div class="grid">
+        {% for f in findings %}
+        <div class="card" style="border-color: #7f1d1d;">
+            <h3 style="color: #ef4444;">{{ f.title }}</h3>
+            <span class="badge open">{{ f.severity.upper() }} - {{ f.status.upper() }}</span>
+            <div style="margin: 8px 0; font-size: 14px;">Likelihood: <strong>{{ f.likelihood * 100 }}%</strong></div>
+            <div style="font-size: 12px; color:#64748b">Source: {{ f.source_type }}</div>
+        </div>
+        {% else %}
+        <div class="card" style="border-color: #065f46;"><p style="color:#34d399">No active exposure findings recorded.</p></div>
+        {% endfor %}
+    </div>
+</body>
+</html>

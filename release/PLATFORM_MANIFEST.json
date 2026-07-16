@@ -1,0 +1,39 @@
+{
+  "platform": "Cyber Defense Platform",
+  "version": "1.0.0",
+  "build_date": "2026-07-16",
+  "migration_head": "8bce79803ffc",
+  "operation_mode": "offline-simulation-only",
+  "status": "CERTIFIED_PENDING_HUMAN_APPROVAL",
+  "components": {
+    "flask_app": "app/",
+    "templates": "templates/",
+    "static_css": "static/css/ui-modernization.css",
+    "static_js": "static/js/ui-shell.js",
+    "migrations": "migrations/",
+    "tests": "tests/",
+    "scripts": "scripts/",
+    "docs": "docs/",
+    "release": "release/"
+  },
+  "metrics": {
+    "backend_phases": 40,
+    "registered_blueprints": 50,
+    "database_tables": 248,
+    "model_classes": 238,
+    "total_routes": 574,
+    "api_endpoints": 340,
+    "admin_routes": 195,
+    "test_cases": 1609,
+    "migration_revisions": 33,
+    "documentation_files": 115
+  },
+  "certifications": {
+    "regression": "1609/1609 PASS",
+    "dom_certification": "236/236 PASS",
+    "security_gates": "6/6 PASS",
+    "tenant_isolation": "VERIFIED",
+    "ai_safety": "VERIFIED",
+    "offline_enforcement": "VERIFIED"
+  }
+}
