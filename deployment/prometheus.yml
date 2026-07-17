@@ -1,8 +1,81 @@
-global:
-  scrape_interval: 15s
+# =============================================================================
+# CTF Arena v1.0.0 — Enhanced Prometheus Configuration
+# EthicBids Technologies™
+# =============================================================================
 
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+  scrape_timeout:      10s
+  external_labels:
+    monitor: 'ctf-arena-prod'
+    environment: 'production'
+    version: '1.0.0'
+
+# ── Alertmanager ─────────────────────────────────────────────────────────────
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ['alertmanager:9093']
+
+# ── Recording Rules ───────────────────────────────────────────────────────────
+rule_files:
+  - "/etc/prometheus/rules/*.yml"
+
+# ── Scrape Configurations ──────────────────────────────────────────────────────
 scrape_configs:
-  - job_name: 'ctf-arena'
+
+  # ── Flask Application Metrics ───────────────────────────────────────────────
+  - job_name: 'ctf-arena-app'
     metrics_path: '/metrics'
+    scrape_interval: 15s
     static_configs:
-      - targets: ['web:5000']
+      - targets: ['app:8000']
+        labels:
+          service: 'flask'
+          component: 'application'
+
+  # ── Nginx Metrics (nginx-prometheus-exporter) ───────────────────────────────
+  - job_name: 'ctf-arena-nginx'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['nginx:9113']
+        labels:
+          service: 'nginx'
+          component: 'proxy'
+
+  # ── PostgreSQL Metrics (postgres-exporter) ──────────────────────────────────
+  - job_name: 'ctf-arena-postgres'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+        labels:
+          service: 'postgres'
+          component: 'database'
+
+  # ── Redis Metrics (redis-exporter) ──────────────────────────────────────────
+  - job_name: 'ctf-arena-redis'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['redis-exporter:9121']
+        labels:
+          service: 'redis'
+          component: 'cache'
+
+  # ── Host / Node Metrics (node-exporter) ────────────────────────────────────
+  - job_name: 'node-exporter'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'host'
+          component: 'system'
+
+  # ── Prometheus Self-Monitoring ──────────────────────────────────────────────
+  - job_name: 'prometheus'
+    scrape_interval: 60s
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+          component: 'monitoring'

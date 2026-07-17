@@ -1,0 +1,105 @@
+# =============================================================================
+# CTF Arena v1.0.0 — Caddy Production Config
+# EthicBids Technologies™
+# =============================================================================
+# Caddy automatically provisions and renews TLS certificates via Let's Encrypt.
+# Usage: caddy run --config deployment/caddy/Caddyfile
+# =============================================================================
+
+{
+    # Global options
+    admin off
+    email admin@{$DOMAIN}
+
+    # OCSP stapling
+    ocsp_stapling off
+}
+
+# Redirect www to apex
+www.{$DOMAIN} {
+    redir https://{$DOMAIN}{uri} permanent
+}
+
+{$DOMAIN} {
+    # ── TLS (automatic via Let's Encrypt) ───────────────────────────────────
+    tls {
+        protocols tls1.2 tls1.3
+        ciphers TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+    }
+
+    # ── Security Headers ─────────────────────────────────────────────────────
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options    "nosniff"
+        X-Frame-Options           "DENY"
+        X-XSS-Protection          "1; mode=block"
+        Referrer-Policy           "strict-origin-when-cross-origin"
+        Permissions-Policy        "geolocation=(), microphone=(), camera=()"
+        Content-Security-Policy   "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none';"
+        -Server
+    }
+
+    # ── Rate Limiting ────────────────────────────────────────────────────────
+    rate_limit {
+        zone login {
+            match path /login /admin/login
+            rate 5r/m
+        }
+        zone submit {
+            match path /submit/*
+            rate 10r/m
+        }
+        zone api {
+            match path /api/*
+            rate 60r/m
+        }
+    }
+
+    # ── Static Files ─────────────────────────────────────────────────────────
+    handle /static/* {
+        root * /opt/ctf-arena
+        file_server
+        header Cache-Control "public, max-age=604800, immutable"
+    }
+
+    handle /uploads/* {
+        root * /opt/ctf-arena
+        file_server
+        header Cache-Control "private, max-age=86400"
+    }
+
+    # ── WebSocket / SSE ──────────────────────────────────────────────────────
+    handle /stream* {
+        reverse_proxy app:8000 {
+            transport http {
+                read_timeout  24h
+                write_timeout 24h
+            }
+        }
+    }
+
+    # ── Application ──────────────────────────────────────────────────────────
+    handle {
+        reverse_proxy app:8000 {
+            health_uri    /health
+            health_interval 30s
+            health_timeout  10s
+
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Real-IP       {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # ── Compression ──────────────────────────────────────────────────────────
+    encode gzip zstd
+
+    # ── Logging ──────────────────────────────────────────────────────────────
+    log {
+        output file /var/log/caddy/ctf-arena.log {
+            roll_size 10mb
+            roll_keep 5
+        }
+        format json
+    }
+}

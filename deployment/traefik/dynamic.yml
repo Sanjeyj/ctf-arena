@@ -1,0 +1,70 @@
+# =============================================================================
+# CTF Arena v1.0.0 — Traefik Dynamic Configuration
+# EthicBids Technologies™
+# =============================================================================
+
+http:
+  routers:
+    ctf-arena:
+      rule: "Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)"
+      entryPoints:
+        - websecure
+      service: ctf-arena-svc
+      middlewares:
+        - security-headers
+        - rate-limit-api
+      tls:
+        certResolver: letsencrypt
+
+    ctf-arena-login:
+      rule: "Host(`${DOMAIN}`) && (Path(`/login`) || Path(`/admin/login`))"
+      entryPoints:
+        - websecure
+      service: ctf-arena-svc
+      middlewares:
+        - security-headers
+        - rate-limit-login
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    ctf-arena-svc:
+      loadBalancer:
+        servers:
+          - url: "http://app:8000"
+        healthCheck:
+          path: /health
+          interval: 30s
+          timeout: 10s
+
+  middlewares:
+    security-headers:
+      headers:
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        forceSTSHeader: true
+        contentTypeNosniff: true
+        frameDeny: true
+        browserXssFilter: true
+        referrerPolicy: "strict-origin-when-cross-origin"
+        permissionsPolicy: "geolocation=(), microphone=(), camera=()"
+        contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none';"
+        customResponseHeaders:
+          X-Powered-By: ""
+          Server: ""
+
+    rate-limit-api:
+      rateLimit:
+        average: 60
+        period: 1m
+        burst: 20
+
+    rate-limit-login:
+      rateLimit:
+        average: 5
+        period: 1m
+        burst: 3
+
+    compress:
+      compress: {}

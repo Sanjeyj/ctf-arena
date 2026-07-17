@@ -1,0 +1,183 @@
+name: Production Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options: [production, staging]
+      version_tag:
+        description: 'Version tag to deploy (e.g. v1.0.0)'
+        required: true
+        type: string
+
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: read
+  packages: write
+  deployments: write
+
+jobs:
+  # ── Step 1: Regression Gate ────────────────────────────────────────────────
+  regression:
+    name: Regression Gate (1609 tests)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: ctf_test
+          POSTGRES_USER: ctf_user
+          POSTGRES_PASSWORD: test_password
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run migrations
+        env:
+          DATABASE_URL: postgresql://ctf_user:test_password@localhost:5432/ctf_test
+          SECRET_KEY: test_secret_key_ci_only
+        run: flask db upgrade
+      - name: Run full regression suite
+        env:
+          TEST_DATABASE_URL: postgresql://ctf_user:test_password@localhost:5432/ctf_test
+          SECRET_KEY: test_secret_key_ci_only
+        run: |
+          python -m pytest --tb=short -q 2>&1 | tee pytest_output.txt
+          RESULT=$(tail -1 pytest_output.txt)
+          echo "Pytest result: ${RESULT}"
+          if echo "${RESULT}" | grep -q "failed"; then
+            echo "::error::Regression suite FAILED. Deployment blocked."
+            exit 1
+          fi
+          echo "✅ Regression gate PASSED"
+      - name: Upload pytest results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-results
+          path: pytest_output.txt
+
+  # ── Step 2: Docker Build & Push ────────────────────────────────────────────
+  docker-build:
+    name: Docker Build & Push
+    needs: regression
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+      image_digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ── Step 3: Security Scan ─────────────────────────────────────────────────
+  security-scan:
+    name: Security Scan (Trivy)
+    needs: docker-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ghcr.io/${{ github.repository }}:latest
+          format: 'table'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH'
+          output: trivy_results.txt
+      - name: Upload Trivy results
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-results
+          path: trivy_results.txt
+
+  # ── Step 4: Deploy ────────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to ${{ github.event.inputs.environment || 'production' }}
+    needs: [docker-build, security-scan]
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment || 'production' }}
+      url: ${{ vars.DEPLOY_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/ctf-arena
+            git pull origin main
+            docker compose -f deployment/docker-compose.production.yml pull app
+            docker compose -f deployment/docker-compose.production.yml up -d --no-deps app
+            docker exec ctf-arena-app flask db upgrade
+            echo "Deployment complete"
+
+  # ── Step 5: Production Health Check ───────────────────────────────────────
+  health-check:
+    name: Production Health Check
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for app to be ready
+        run: sleep 30
+      - name: Check health endpoint
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ vars.DEPLOY_URL }}/health")
+          echo "Health check status: ${STATUS}"
+          if [[ "${STATUS}" != "200" ]]; then
+            echo "::error::Health check FAILED with status ${STATUS}"
+            exit 1
+          fi
+          echo "✅ Production health check PASSED"
+      - name: Notify deployment success
+        if: success()
+        run: echo "✅ CTF Arena v1.0.0 successfully deployed to ${{ github.event.inputs.environment || 'production' }}"
