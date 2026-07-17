@@ -2,28 +2,7 @@
   "framework": null,
   "functions": {
     "api/index.py": {
-      "excludeFiles": [
-        ".node/**",
-        ".node.zip",
-        ".venv/**",
-        "venv/**",
-        "_uv/**",
-        "logs/**",
-        "tests/**",
-        "docs/**",
-        "portfolio/**",
-        "governance/**",
-        "legal/**",
-        "marketing/**",
-        "sales/**",
-        "partners/**",
-        "finance/**",
-        "investor/**",
-        "community/**",
-        "strategy/**",
-        "research/**",
-        "instance/*.zip"
-      ]
+      "excludeFiles": "{.node/**,.venv/**,venv/**,_uv/**,logs/**,tests/**,docs/**,portfolio/**,governance/**,legal/**,marketing/**,sales/**,partners/**,finance/**,investor/**,community/**,strategy/**,research/**,instance/**,.node.zip}"
     }
   },
   "rewrites": [
