@@ -1,0 +1,25 @@
+# Vercel Deployment Ignore list
+.node/
+.venv/
+venv/
+portfolio/
+governance/
+legal/
+marketing/
+sales/
+partners/
+finance/
+investor/
+community/
+strategy/
+research/
+logs/
+tests/
+.git/
+.github/
+.vscode/
+.idea/
+*.log
+*.zip
+*.msi
+scratch/

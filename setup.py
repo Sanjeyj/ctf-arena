@@ -4,7 +4,7 @@ setup(
     name="ctfarena",
     version="1.0.0",
     description="Self-hosted CTF platform with native Docker challenge deployments.",
-    long_description=open("README.md").read(),
+    long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     author="EthicBids Technologies",
     author_email="hello@ethicbids.vercel.app",

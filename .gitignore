@@ -13,3 +13,5 @@ instance/backups/
 logs/
 .pytest_cache/
 docs-site/site/
+.vercel
+.env*
