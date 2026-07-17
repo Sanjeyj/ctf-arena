@@ -63,11 +63,13 @@ def create_app(config_name="default"):
         app.jinja_loader = OverrideLoader()
     
     # Setup directories
-    os.makedirs(os.path.join(app.root_path, "..", "logs"), exist_ok=True)
-    os.makedirs(os.path.join(app.root_path, "..", "instance"), exist_ok=True)
-    os.makedirs(os.path.join(app.root_path, "..", "uploads"), exist_ok=True)
-    os.makedirs(os.path.join(app.root_path, "..", "plugins"), exist_ok=True)
-    os.makedirs(os.path.join(app.root_path, "..", "themes"), exist_ok=True)
+    if not os.environ.get("VERCEL"):
+        os.makedirs(os.path.join(app.root_path, "..", "logs"), exist_ok=True)
+        os.makedirs(os.path.join(app.root_path, "..", "instance"), exist_ok=True)
+        os.makedirs(os.path.join(app.root_path, "..", "uploads"), exist_ok=True)
+        os.makedirs(os.path.join(app.root_path, "..", "plugins"), exist_ok=True)
+        os.makedirs(os.path.join(app.root_path, "..", "themes"), exist_ok=True)
+
     
     # Setup structured JSON logging
     LoggingService.init_app(app)

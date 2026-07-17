@@ -9,3 +9,6 @@ psycopg2-binary>=2.9.9
 flask-login>=0.6.3
 bcrypt>=4.1.0
 flask-wtf>=1.2.1
+flask-limiter>=3.5.0
+docker>=7.0.0
+

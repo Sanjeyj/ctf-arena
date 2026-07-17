@@ -53,19 +53,26 @@ class LoggingService:
         if cls._initialized:
             return
         
-        log_dir = os.path.abspath(os.path.join(app.root_path, "..", "logs"))
-        os.makedirs(log_dir, exist_ok=True)
+        is_vercel = os.environ.get("VERCEL")
+        
+        if not is_vercel:
+            log_dir = os.path.abspath(os.path.join(app.root_path, "..", "logs"))
+            os.makedirs(log_dir, exist_ok=True)
 
         formatter = JSONFormatter()
 
-        # Helper to setup rotating file handler
+        # Helper to setup rotating file handler or stream handler
         def _setup_handler(filename, level):
-            handler = RotatingFileHandler(
-                os.path.join(log_dir, filename),
-                maxBytes=10 * 1024 * 1024,  # 10MB
-                backupCount=5,
-                encoding="utf-8"
-            )
+            if is_vercel:
+                import sys
+                handler = logging.StreamHandler(sys.stdout)
+            else:
+                handler = RotatingFileHandler(
+                    os.path.join(log_dir, filename),
+                    maxBytes=10 * 1024 * 1024,  # 10MB
+                    backupCount=5,
+                    encoding="utf-8"
+                )
             handler.setFormatter(formatter)
             handler.setLevel(level)
             return handler
