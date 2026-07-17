@@ -11,4 +11,6 @@ bcrypt>=4.1.0
 flask-wtf>=1.2.1
 flask-limiter>=3.5.0
 docker>=7.0.0
+pyyaml>=6.0.1
+
 
