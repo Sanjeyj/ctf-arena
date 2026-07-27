@@ -3,105 +3,105 @@
 {% block title %}Platform Mission Control | CTF Admin{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
-    <div class="ui-page-title">🚀 Platform <em>Mission Control</em></div>
-    <div class="ui-page-subtitle">Phase 40 — Convergence, Certification, Readiness, and Release Governance</div>
+<div class="ax-page-header">
+    <div class="ax-page-title">🚀 Platform <em>Mission Control</em></div>
+    <div class="ax-page-subtitle">Phase 40 — Convergence, Certification, Readiness, and Release Governance</div>
 </div>
 
 <!-- Bento Layout -->
-<div class="ui-bento">
+<div class="ax-grid">
     <!-- ROW 1 -->
     <!-- Platform Readiness -->
-    <div class="ui-bento-6 ui-glass-card accent-cyan">
-        <div class="ui-card-title">
+    <div class="ax-grid-6 ax-card ui-glass-card accent-cyan">
+        <div class="ax-card-title">
             <span class="title-icon">📊</span> Platform Readiness
         </div>
-        <div class="ui-metric-card" style="margin-bottom: 1rem;">
-            <div class="ui-metric-label">Overall Readiness Index</div>
-            <div class="ui-metric-value">N/A</div>
-            <div class="ui-metric-sub">Awaiting readiness metric calculation</div>
+        <div class="ax-metric" style="margin-bottom: 1rem;">
+            <div class="ax-metric-label">Overall Readiness Index</div>
+            <div class="ax-metric-value">N/A</div>
+            <div class="ax-metric-sub">Awaiting readiness metric calculation</div>
         </div>
-        <a href="/admin/mission-control/readiness" class="ui-btn ui-btn-primary ui-btn-sm">
+        <a href="/admin/mission-control/readiness" class="ax-btn ax-btn-primary ax-btn-sm">
             Evaluate Readiness Posture →
         </a>
     </div>
 
     <!-- Certification -->
-    <div class="ui-bento-3 ui-glass-card accent-violet">
-        <div class="ui-card-title">
+    <div class="ax-grid-3 ax-card ui-glass-card accent-violet">
+        <div class="ax-card-title">
             <span class="title-icon">📜</span> Certification
         </div>
-        <div class="ui-metric-card" style="margin-bottom: 1rem;">
-            <div class="ui-metric-label">Latest Score</div>
-            <div class="ui-metric-value violet">N/A</div>
-            <div class="ui-metric-sub">No recent audits</div>
+        <div class="ax-metric" style="margin-bottom: 1rem;">
+            <div class="ax-metric-label">Latest Score</div>
+            <div class="ax-metric-value violet">N/A</div>
+            <div class="ax-metric-sub">No recent audits</div>
         </div>
-        <a href="/admin/mission-control/certification" class="ui-btn ui-btn-ghost ui-btn-sm" style="width:100%; justify-content:center;">
+        <a href="/admin/mission-control/certification" class="ax-btn ax-btn-ghost ax-btn-sm" style="width:100%; justify-content:center;">
             View Audits
         </a>
     </div>
 
     <!-- Release State -->
-    <div class="ui-bento-3 ui-glass-card accent-success">
-        <div class="ui-card-title">
+    <div class="ax-grid-3 ax-card ui-glass-card accent-success">
+        <div class="ax-card-title">
             <span class="title-icon">📦</span> Release State
         </div>
-        <div class="ui-metric-card" style="margin-bottom: 1rem;">
-            <div class="ui-metric-label">Active Baseline</div>
-            <div class="ui-metric-value success" style="font-size:1.5rem; margin-top:0.6rem;">v1.0.0-rc1</div>
-            <div class="ui-metric-sub">Commit cca83fa</div>
+        <div class="ax-metric" style="margin-bottom: 1rem;">
+            <div class="ax-metric-label">Active Baseline</div>
+            <div class="ax-metric-value success" style="font-size:1.5rem; margin-top:0.6rem;">v1.0.0-rc1</div>
+            <div class="ax-metric-sub">Commit cca83fa</div>
         </div>
-        <a href="/admin/mission-control/releases" class="ui-btn ui-btn-ghost ui-btn-sm" style="width:100%; justify-content:center;">
+        <a href="/admin/mission-control/releases" class="ax-btn ax-btn-ghost ax-btn-sm" style="width:100%; justify-content:center;">
             Manage Releases
         </a>
     </div>
 
     <!-- ROW 2 -->
     <!-- Registered Capabilities -->
-    <div class="ui-bento-6 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-6 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">🏢</span> Registered Capabilities
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-            <div class="ui-metric-card">
-                <div class="ui-metric-label">Total Modules</div>
-                <div class="ui-metric-value">20</div>
+            <div class="ax-metric">
+                <div class="ax-metric-label">Total Modules</div>
+                <div class="ax-metric-value">20</div>
             </div>
-            <span class="ui-badge ui-badge-success">Fully Synchronized</span>
+            <span class="ax-badge ax-badge-green">Fully Synchronized</span>
         </div>
-        <p class="ui-metric-sub" style="margin-bottom:1rem;">Convergence tracking across all 40 functional platform areas.</p>
-        <a href="/admin/mission-control/capabilities" class="ui-btn ui-btn-ghost ui-btn-sm">
+        <p class="ax-metric-sub" style="margin-bottom:1rem;">Convergence tracking across all 40 functional platform areas.</p>
+        <a href="/admin/mission-control/capabilities" class="ax-btn ax-btn-ghost ax-btn-sm">
             Capability Registry
         </a>
     </div>
 
     <!-- Active Dependencies -->
-    <div class="ui-bento-6 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-6 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">🔗</span> Active Dependencies
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-            <div class="ui-metric-card">
-                <div class="ui-metric-label">Discovered Paths</div>
-                <div class="ui-metric-value violet">0</div>
+            <div class="ax-metric">
+                <div class="ax-metric-label">Discovered Paths</div>
+                <div class="ax-metric-value violet">0</div>
             </div>
-            <span class="ui-badge ui-badge-muted">Isolated Mode</span>
+            <span class="ax-badge ax-badge-zinc">Isolated Mode</span>
         </div>
-        <p class="ui-metric-sub" style="margin-bottom:1rem;">Inter-module request mapping and tenant isolation flow monitoring.</p>
-        <a href="/admin/mission-control/architecture" class="ui-btn ui-btn-ghost ui-btn-sm">
+        <p class="ax-metric-sub" style="margin-bottom:1rem;">Inter-module request mapping and tenant isolation flow monitoring.</p>
+        <a href="/admin/mission-control/architecture" class="ax-btn ax-btn-ghost ax-btn-sm">
             Architecture Convergence
         </a>
     </div>
 
     <!-- ROW 3 -->
     <!-- Release Gates -->
-    <div class="ui-bento-6 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-6 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">🚦</span> Release Gates
         </div>
-        <p class="ui-metric-sub" style="margin-bottom:1rem;">Verification gates evaluated dynamically before baseline promotion:</p>
-        <div class="ui-table-wrap" style="margin-bottom:1rem;">
-            <table class="ui-table">
+        <p class="ax-metric-sub" style="margin-bottom:1rem;">Verification gates evaluated dynamically before baseline promotion:</p>
+        <div class="ax-table-wrap" style="margin-bottom:1rem;">
+            <table class="ax-table">
                 <thead>
                     <tr>
                         <th>Verification Gate</th>
@@ -112,17 +112,17 @@
                 <tbody>
                     <tr>
                         <td>Test Suite Coverage</td>
-                        <td><span class="ui-badge ui-badge-success">Passed</span></td>
+                        <td><span class="ax-badge ax-badge-green">Passed</span></td>
                         <td class="muted">1609/1609 verified</td>
                     </tr>
                     <tr>
                         <td>Security Gate Checks</td>
-                        <td><span class="ui-badge ui-badge-success">Secure</span></td>
+                        <td><span class="ax-badge ax-badge-green">Secure</span></td>
                         <td class="muted">No blocking vulnerabilities</td>
                     </tr>
                     <tr>
                         <td>Tenant Isolation check</td>
-                        <td><span class="ui-badge ui-badge-success">Passed</span></td>
+                        <td><span class="ax-badge ax-badge-green">Passed</span></td>
                         <td class="muted">Zero leakage validated</td>
                     </tr>
                 </tbody>
@@ -131,13 +131,13 @@
     </div>
 
     <!-- Architecture Decisions (ADR) -->
-    <div class="ui-bento-6 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-6 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">📝</span> Architecture Decisions (ADR)
         </div>
-        <p class="ui-metric-sub" style="margin-bottom:1rem;">Latest documented system-level design directives:</p>
-        <div class="ui-table-wrap" style="margin-bottom:1rem;">
-            <table class="ui-table">
+        <p class="ax-metric-sub" style="margin-bottom:1rem;">Latest documented system-level design directives:</p>
+        <div class="ax-table-wrap" style="margin-bottom:1rem;">
+            <table class="ax-table">
                 <thead>
                     <tr>
                         <th>ADR ID</th>
@@ -149,67 +149,67 @@
                     <tr>
                         <td class="mono cyan">ADR-040</td>
                         <td>Mission Control & Convergence</td>
-                        <td><span class="ui-badge ui-badge-cyan">Accepted</span></td>
+                        <td><span class="ax-badge ax-badge-blue">Accepted</span></td>
                     </tr>
                     <tr>
                         <td class="mono cyan">ADR-039</td>
                         <td>Systemic Resilience Graph</td>
-                        <td><span class="ui-badge ui-badge-cyan">Accepted</span></td>
+                        <td><span class="ax-badge ax-badge-blue">Accepted</span></td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        <a href="/admin/mission-control/decisions" class="ui-btn ui-btn-ghost ui-btn-sm">
+        <a href="/admin/mission-control/decisions" class="ax-btn ax-btn-ghost ax-btn-sm">
             View ADR Log →
         </a>
     </div>
 
     <!-- ROW 4 -->
     <!-- Migration State -->
-    <div class="ui-bento-3 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-3 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">💾</span> Migration State
         </div>
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Head Revision</div>
-            <div class="ui-metric-value success" style="font-size:1.15rem; margin-top:0.4rem;">8bce79803ffc</div>
-            <div class="ui-metric-sub">Up to date</div>
+        <div class="ax-metric">
+            <div class="ax-metric-label">Head Revision</div>
+            <div class="ax-metric-value success" style="font-size:1.15rem; margin-top:0.4rem;">8bce79803ffc</div>
+            <div class="ax-metric-sub">Up to date</div>
         </div>
     </div>
 
     <!-- Tenant Isolation -->
-    <div class="ui-bento-3 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-3 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">🔒</span> Tenant Isolation
         </div>
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Leakage Status</div>
-            <div class="ui-metric-value success" style="font-size:1.15rem; margin-top:0.4rem;">0 Anomalies</div>
-            <div class="ui-metric-sub">All tenant partitions isolated</div>
+        <div class="ax-metric">
+            <div class="ax-metric-label">Leakage Status</div>
+            <div class="ax-metric-value success" style="font-size:1.15rem; margin-top:0.4rem;">0 Anomalies</div>
+            <div class="ax-metric-sub">All tenant partitions isolated</div>
         </div>
     </div>
 
     <!-- AI Safety -->
-    <div class="ui-bento-3 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-3 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">🛡️</span> AI Safety Guard
         </div>
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Guardrail State</div>
-            <div class="ui-metric-value success" style="font-size:1.15rem; margin-top:0.4rem;">Active</div>
-            <div class="ui-metric-sub">Stub provider enforced</div>
+        <div class="ax-metric">
+            <div class="ax-metric-label">Guardrail State</div>
+            <div class="ax-metric-value success" style="font-size:1.15rem; margin-top:0.4rem;">Active</div>
+            <div class="ax-metric-sub">Stub provider enforced</div>
         </div>
     </div>
 
     <!-- Test Baseline -->
-    <div class="ui-bento-3 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-3 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">🧪</span> Test Baseline
         </div>
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Regression Suite</div>
-            <div class="ui-metric-value success" style="font-size:1.15rem; margin-top:0.4rem;">1609 Passed</div>
-            <div class="ui-metric-sub">0 failures documented</div>
+        <div class="ax-metric">
+            <div class="ax-metric-label">Regression Suite</div>
+            <div class="ax-metric-value success" style="font-size:1.15rem; margin-top:0.4rem;">1609 Passed</div>
+            <div class="ax-metric-sub">0 failures documented</div>
         </div>
     </div>
 </div>

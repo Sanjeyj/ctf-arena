@@ -2,16 +2,16 @@
 {% block title %}Exposed Assets Inventory — Cyber Defense Platform{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
+<div class="ax-page-header">
   <div>
-    <h1 class="ui-page-title">Exposed Assets Inventory Ledger</h1>
-    <p class="ui-page-subtitle">Complete registry of exposed assets — criticality, internet exposure, business impact, and architecture zone assignment.</p>
+    <h1 class="ax-page-title">Exposed Assets Inventory Ledger</h1>
+    <p class="ax-page-subtitle">Complete registry of exposed assets — criticality, internet exposure, business impact, and architecture zone assignment.</p>
   </div>
-  <a class="ui-btn ui-btn-ghost" href="/admin/exposure-fabric">← Back to Exposure Fabric</a>
+  <a class="ax-btn ax-btn-ghost" href="/admin/exposure-fabric">← Back to Exposure Fabric</a>
 </div>
 
-<div class="ui-glass-card" style="overflow-x:auto;">
-  <table class="ui-table" aria-label="Exposed assets inventory">
+<div class="ax-card ui-glass-card" style="overflow-x:auto;">
+  <table class="ax-table" aria-label="Exposed assets inventory">
     <thead>
       <tr>
         <th scope="col">Asset ID</th>
@@ -36,25 +36,25 @@
         <td style="color:var(--ui-text-secondary);">{{ a.exposure_type.upper() }}</td>
         <td>
           {% if a.internet_exposed %}
-            <span class="ui-badge ui-badge-danger">YES</span>
+            <span class="ax-badge ax-badge-red">YES</span>
           {% else %}
-            <span class="ui-badge ui-badge-muted">NO</span>
+            <span class="ax-badge ax-badge-zinc">NO</span>
           {% endif %}
         </td>
         <td>
           {% if a.criticality == 'critical' %}
-            <span class="ui-badge ui-badge-danger">CRITICAL</span>
+            <span class="ax-badge ax-badge-red">CRITICAL</span>
           {% elif a.criticality == 'high' %}
-            <span class="ui-badge ui-badge-warning">HIGH</span>
+            <span class="ax-badge ax-badge-amber">HIGH</span>
           {% elif a.criticality == 'medium' %}
-            <span class="ui-badge ui-badge-info">MEDIUM</span>
+            <span class="ax-badge ax-badge-blue">MEDIUM</span>
           {% else %}
-            <span class="ui-badge ui-badge-muted">{{ a.criticality.upper() }}</span>
+            <span class="ax-badge ax-badge-zinc">{{ a.criticality.upper() }}</span>
           {% endif %}
         </td>
         <td style="font-family:'Fira Code',monospace;font-weight:700;color:var(--ui-accent-cyan);">{{ a.business_impact_score }}</td>
         <td style="color:var(--ui-muted);font-size:0.82rem;">{{ a.architecture_zone_id or 'UNASSIGNED' }}</td>
-        <td><span class="ui-badge ui-badge-info">{{ a.status.upper() }}</span></td>
+        <td><span class="ax-badge ax-badge-blue">{{ a.status.upper() }}</span></td>
       </tr>
       {% else %}
       <tr>

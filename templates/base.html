@@ -4,403 +4,209 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}CTF Arena | EthicBids Technologies™{% endblock %}</title>
-    <meta name="description" content="College Capture The Flag (CTF) Arena - Easy Level Challenges">
+    <meta name="description" content="CTF Arena — Capture The Flag challenges by EthicBids Technologies™">
     <meta name="author" content="EthicBids Technologies">
     <meta name="application-name" content="CTF Arena">
     <meta name="generator" content="EthicBids Technologies">
     <meta name="copyright" content="© 2026 EthicBids Technologies™">
-    <!-- Google Fonts -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <!-- AXIOM Design System -->
+    <link rel="stylesheet" href="/static/css/axiom.css">
+    <!-- Backward compat token aliases -->
     <style>
         :root {
-            --bg-color: #0b0c10;
-            --container-bg: #11141a;
-            --card-bg: #1a1e26;
-            --border-color: #2b313d;
-            --text-primary: #f0f2f5;
-            --text-secondary: #8b949e;
-            
-            --neon-blue: #00f0ff;
-            --neon-green: #00ff66;
-            --neon-red: #ff3366;
-            --neon-yellow: #ffd700;
-            
-            --glow-blue: rgba(0, 240, 255, 0.25);
-            --glow-green: rgba(0, 255, 102, 0.25);
-            --glow-red: rgba(255, 51, 102, 0.25);
+            --bg-color: var(--ax-bg-base);
+            --container-bg: var(--ax-bg-surface);
+            --card-bg: var(--ax-bg-elevated);
+            --border-color: var(--ax-border-subtle);
+            --text-primary: var(--ax-text-primary);
+            --text-secondary: var(--ax-text-secondary);
+            --neon-blue: var(--ax-blue-bright);
+            --neon-green: var(--ax-green-bright);
+            --neon-red: var(--ax-red-bright);
+            --neon-yellow: var(--ax-amber-bright);
+            --glow-blue: var(--ax-blue-glow);
+            --glow-green: var(--ax-green-glow);
+            --glow-red: var(--ax-red-glow);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
-
-        /* Ambient background glow */
-        body::before {
-            content: '';
-            position: fixed;
-            top: -20%;
-            left: -10%;
-            width: 50%;
-            height: 60%;
-            background: radial-gradient(circle, rgba(0, 240, 255, 0.08) 0%, rgba(0,0,0,0) 70%);
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            bottom: -20%;
-            right: -10%;
-            width: 50%;
-            height: 60%;
-            background: radial-gradient(circle, rgba(0, 255, 102, 0.06) 0%, rgba(0,0,0,0) 70%);
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        header {
-            background-color: rgba(17, 20, 26, 0.85);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            padding: 1rem 2rem;
-            transition: all 0.3s ease;
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .brand-link {
-            text-decoration: none;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 700;
-            font-size: 1.5rem;
-            letter-spacing: 0.5px;
-        }
-
-        .brand-logo {
-            font-size: 1.8rem;
-            filter: drop-shadow(0 0 5px var(--neon-blue));
-        }
-
-        .brand-title span {
-            color: var(--neon-blue);
-            text-shadow: 0 0 10px var(--glow-blue);
-        }
-
-        .stats-panel {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-
-
-        .score-badge {
-            background: rgba(0, 240, 255, 0.08);
-            border: 1px solid var(--neon-blue);
-            padding: 0.4rem 1rem;
-            border-radius: 50px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 0 10px var(--glow-blue);
-        }
-
-        .score-val {
-            color: var(--neon-blue);
-            font-family: 'Fira Code', monospace;
-        }
-
-        .progress-indicator {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .reset-btn {
-            background: transparent;
-            color: var(--neon-red);
-            border: 1px solid rgba(255, 51, 102, 0.4);
-            padding: 0.4rem 1rem;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .reset-btn:hover {
-            background: rgba(255, 51, 102, 0.1);
-            border-color: var(--neon-red);
-            box-shadow: 0 0 10px var(--glow-red);
-            transform: translateY(-1px);
-        }
-
-        main {
-            flex: 1;
-            max-width: 1200px;
-            width: 100%;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
-            display: flex;
-            flex-direction: column;
-        }
-
-        footer {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            border-top: 1px solid var(--border-color);
-            background: #08090d;
-        }
-
-        footer a {
-            color: var(--neon-blue);
-            text-decoration: none;
-        }
-
-        /* Glass Cards */
-        .glass-card {
-            background: var(--container-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Flag submission components */
-        .submit-section {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background: rgba(26, 30, 38, 0.6);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-        }
-
-        .submit-section h3 {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .form-group {
-            display: flex;
-            gap: 1rem;
-        }
-
+        /* Participant challenge page — flag input */
         .flag-input {
             flex: 1;
-            background: #0f1115;
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 0.8rem 1rem;
-            border-radius: 8px;
-            font-family: 'Fira Code', monospace;
-            font-size: 1rem;
-            transition: border-color 0.2s ease;
+            background: var(--ax-bg-component);
+            border: 1px solid var(--ax-border-default);
+            color: var(--ax-text-primary);
+            padding: var(--ax-space-3) var(--ax-space-4);
+            border-radius: var(--ax-radius-lg);
+            font-family: var(--ax-font-mono);
+            font-size: var(--ax-text-sm);
+            transition: border-color var(--ax-dur-micro) var(--ax-ease-out),
+                        box-shadow var(--ax-dur-micro) var(--ax-ease-out);
         }
-
         .flag-input:focus {
             outline: none;
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 8px var(--glow-blue);
+            border-color: var(--ax-blue);
+            background: var(--ax-bg-hover);
+            box-shadow: 0 0 0 3px var(--ax-blue-dim);
         }
+        .flag-input::placeholder { color: var(--ax-text-disabled); }
 
         .submit-btn {
-            background: var(--neon-blue);
-            color: #0b0c10;
+            background: var(--ax-blue);
+            color: #ffffff;
             border: none;
-            padding: 0.8rem 1.8rem;
-            border-radius: 8px;
-            font-weight: 700;
+            padding: var(--ax-space-3) var(--ax-space-5);
+            border-radius: var(--ax-radius-lg);
+            font-family: var(--ax-font-sans);
+            font-size: var(--ax-text-sm);
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 1rem;
+            transition: background var(--ax-dur-micro) var(--ax-ease-out),
+                        transform var(--ax-dur-micro) var(--ax-ease-out);
+            white-space: nowrap;
+        }
+        .submit-btn:hover {
+            background: var(--ax-blue-bright);
+            transform: translateY(-1px);
+        }
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
         }
 
-        .submit-btn:hover {
-            box-shadow: 0 0 15px var(--glow-blue);
-            transform: translateY(-1px);
-            opacity: 0.9;
+        .submit-section {
+            margin-top: var(--ax-space-6);
+            padding: var(--ax-space-5);
+            background: var(--ax-bg-component);
+            border: 1px solid var(--ax-border-subtle);
+            border-radius: var(--ax-radius-xl);
+        }
+        .submit-section h3 {
+            font-size: var(--ax-text-md);
+            font-weight: 600;
+            color: var(--ax-text-primary);
+            margin-bottom: var(--ax-space-4);
+        }
+        .form-group {
+            display: flex;
+            gap: var(--ax-space-3);
         }
 
         .solved-banner {
-            background: rgba(0, 255, 102, 0.1);
-            border: 1px solid var(--neon-green);
-            color: var(--neon-green);
-            padding: 1rem;
-            border-radius: 8px;
+            background: var(--ax-green-dim);
+            border: 1px solid var(--ax-green-border);
+            color: var(--ax-green-bright);
+            padding: var(--ax-space-4);
+            border-radius: var(--ax-radius-lg);
             font-weight: 600;
             text-align: center;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
-            text-shadow: 0 0 5px rgba(0, 255, 102, 0.3);
+            gap: var(--ax-space-2);
+            margin-top: var(--ax-space-5);
+        }
+
+        .glass-card {
+            background: var(--ax-bg-elevated);
+            border: 1px solid var(--ax-border-subtle);
+            border-radius: var(--ax-radius-2xl);
+            padding: var(--ax-space-8);
         }
 
         /* Toast system */
         #toast-container {
             position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            z-index: 1000;
+            bottom: var(--ax-space-6);
+            right: var(--ax-space-6);
+            z-index: var(--ax-z-toast);
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: var(--ax-space-3);
         }
-
         .toast {
-            min-width: 300px;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            background: var(--card-bg);
-            border-left: 4px solid var(--text-secondary);
-            color: var(--text-primary);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            min-width: 280px;
+            max-width: 380px;
+            padding: var(--ax-space-4);
+            border-radius: var(--ax-radius-xl);
+            background: var(--ax-bg-elevated);
+            border: 1px solid var(--ax-border-default);
+            border-left: 3px solid var(--ax-text-muted);
+            color: var(--ax-text-primary);
+            box-shadow: var(--ax-shadow-lg);
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
-            animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            gap: var(--ax-space-3);
+            font-size: var(--ax-text-sm);
             font-weight: 500;
+            animation: ax-toast-in var(--ax-dur-base) var(--ax-ease-spring);
+        }
+        .toast.success { border-left-color: var(--ax-green); }
+        .toast.error   { border-left-color: var(--ax-red); }
+        .toast.info    { border-left-color: var(--ax-blue); }
+        @keyframes ax-toast-in {
+            from { transform: translateX(100%); opacity: 0; }
+            to   { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes ax-toast-out {
+            to { transform: translateX(20px); opacity: 0; }
         }
 
-        .toast.success {
-            border-left-color: var(--neon-green);
-            box-shadow: 0 0 15px rgba(0, 255, 102, 0.1), 0 10px 25px rgba(0,0,0,0.5);
+        /* Code / pre blocks */
+        pre, code {
+            font-family: var(--ax-font-mono);
+        }
+        .code-box {
+            background: var(--ax-bg-surface);
+            border: 1px solid var(--ax-border-default);
+            border-radius: var(--ax-radius-lg);
+            padding: var(--ax-space-4);
+            color: var(--ax-blue-bright);
+            overflow-x: auto;
+            font-family: var(--ax-font-mono);
+            font-size: var(--ax-text-sm);
+            margin: var(--ax-space-4) 0;
         }
 
-        .toast.error {
-            border-left-color: var(--neon-red);
-            box-shadow: 0 0 15px rgba(255, 51, 102, 0.1), 0 10px 25px rgba(0,0,0,0.5);
-        }
+        .back-nav { margin-bottom: var(--ax-space-4); }
 
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes fadeOut {
-            to {
-                transform: translateY(10px);
-                opacity: 0;
-            }
-        }
-
-        /* Utilities */
         .btn-secondary {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s ease;
+            gap: var(--ax-space-2);
+            padding: var(--ax-space-2) var(--ax-space-4);
+            background: transparent;
+            border: 1px solid var(--ax-border-default);
+            color: var(--ax-text-secondary);
+            border-radius: var(--ax-radius-lg);
+            text-decoration: none;
+            font-size: var(--ax-text-sm);
+            font-weight: 500;
+            transition: background var(--ax-dur-micro) var(--ax-ease-out),
+                        color var(--ax-dur-micro) var(--ax-ease-out);
         }
-
         .btn-secondary:hover {
-            color: var(--text-primary);
-            border-color: var(--text-primary);
-            background: rgba(255,255,255,0.05);
+            background: var(--ax-bg-hover);
+            color: var(--ax-text-primary);
+            border-color: var(--ax-border-strong);
         }
 
-        .badge-category {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-secondary);
-            padding: 0.2rem 0.6rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        /* Code block style */
-        pre, code {
-            font-family: 'Fira Code', monospace;
-        }
-
-        .code-box {
-            background: #090a0f;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1.2rem;
-            color: var(--neon-blue);
-            overflow-x: auto;
-            position: relative;
-            margin: 1.5rem 0;
-        }
-
-        /* Back to Dashboard Link */
-        .back-nav {
-            margin-bottom: 1.5rem;
-        }
-
-        @media (max-width: 768px) {
-            .nav-container {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            .stats-panel {
-                width: 100%;
-                justify-content: space-between;
-            }
-            main {
-                margin: 1rem auto;
-            }
+        /* Hint cards */
+        .hint-card {
+            background: var(--ax-amber-dim);
+            border: 1px solid var(--ax-amber-border);
+            padding: var(--ax-space-4);
+            border-radius: var(--ax-radius-lg);
         }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body class="ax-public-shell">
 
     {# Calculate total score and number solved #}
     {% set ns = namespace(score=0, solved_count=0) %}
@@ -409,183 +215,241 @@
         {% set ns.solved_count = ns.solved_count + 1 %}
     {% endfor %}
 
-    <header>
-        <div class="nav-container">
-            <a href="/" class="brand-link" id="brand-logo-link">
-                <span class="brand-logo">🚩</span>
-                <div class="brand-title">CTF <span>Arena</span><div style="font-size:0.6rem;font-weight:400;color:var(--text-secondary);letter-spacing:0.3px;margin-top:1px;">by EthicBids Technologies™</div></div>
-            </a>
-            
-            <div class="stats-panel">
-                <span class="progress-indicator" id="scoreboard-progress">
-                    👤 <strong style="color: var(--neon-blue);">{{ username }}</strong>
-                </span>
-                <span class="progress-indicator" id="solved-progress">
-                    Solved: <strong style="color: var(--text-primary);">{{ ns.solved_count }} / {{ challenges | length }}</strong>
-                </span>
-                <div class="score-badge" id="scoreboard-total">
-                    <span>🏆 Score:</span>
-                    <span class="score-val">{{ ns.score }} pts</span>
-                </div>
-                <a href="/scoreboard" class="reset-btn" style="border-color:var(--neon-green);color:var(--neon-green);" id="btn-view-scoreboard">SCOREBOARD</a>
-                <a href="/reset" class="reset-btn" id="btn-reset-ctf">RESET</a>
-                <a href="/logout" class="reset-btn" style="border-color:rgba(0,240,255,0.3);color:var(--neon-blue);" id="btn-logout">LOGOUT</a>
+    <!-- ── Topbar ──────────────────────────────────────── -->
+    <header class="ax-public-topbar" role="banner">
+
+        <!-- Brand -->
+        <a href="/" class="ax-brand-link" id="brand-logo-link" aria-label="CTF Arena home">
+            <div class="ax-brand-mark" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18m0-9h18"/>
+                </svg>
             </div>
+            <span class="ax-brand-name">CTF <em>Arena</em></span>
+        </a>
+
+        <!-- Navigation links -->
+        <nav class="ax-public-nav" aria-label="Primary navigation">
+            <a href="/" class="ax-public-nav-link" id="nav-challenges">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18m0-9h18"/>
+                </svg>
+                Challenges
+            </a>
+            <a href="/scoreboard" class="ax-public-nav-link" id="nav-scoreboard">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12"/>
+                </svg>
+                Scoreboard
+            </a>
+            {% if username %}
+            <a href="/profile" class="ax-public-nav-link" id="nav-profile">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+                </svg>
+                Profile
+            </a>
+            {% endif %}
+        </nav>
+
+        <!-- Right side: user info + actions -->
+        <div class="ax-public-topbar-right">
+            {% if username %}
+            <!-- Solved progress -->
+            <span class="ax-badge ax-badge-zinc" style="font-family:var(--ax-font-mono);font-weight:500;" id="solved-progress">
+                {{ ns.solved_count }} / {{ challenges | length }} solved
+            </span>
+            <!-- Score chip -->
+            <div class="ax-score-chip" id="scoreboard-total">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:12px;height:12px;" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0"/>
+                </svg>
+                {{ ns.score }} pts
+            </div>
+            <!-- User -->
+            <span class="ax-text-secondary ax-text-sm" id="scoreboard-progress" style="font-weight:500;">{{ username }}</span>
+            <!-- Reset -->
+            <a href="/reset" class="ax-btn ax-btn-ghost ax-btn-sm" id="btn-reset-ctf" aria-label="Reset your progress" title="Reset progress">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
+                </svg>
+                Reset
+            </a>
+            <!-- Logout -->
+            <a href="/logout" class="ax-btn ax-btn-default ax-btn-sm" id="btn-logout">
+                Sign out
+            </a>
+            {% else %}
+            <a href="/login" class="ax-btn ax-btn-primary ax-btn-sm" id="btn-login">Sign in</a>
+            {% endif %}
         </div>
     </header>
 
-    <main>
+    <!-- ── Main content ──────────────────────────────── -->
+    <main class="ax-public-main" role="main">
         {% block content %}{% endblock %}
     </main>
 
-    <footer>
-        <p>Powered by <a href="https://ethicbids.vercel.app/" target="_blank" rel="noopener">EthicBids Technologies™</a></p>
-        <p style="margin-top:0.4rem;font-size:0.8rem;opacity:0.6;">© 2026 EthicBids Technologies™. All Rights Reserved.</p>
+    <!-- ── Footer ────────────────────────────────────── -->
+    <footer style="border-top:1px solid var(--ax-border-subtle);padding:var(--ax-space-6) var(--ax-space-6);display:flex;align-items:center;justify-content:space-between;gap:var(--ax-space-4);flex-wrap:wrap;">
+        <span style="font-size:var(--ax-text-xs);color:var(--ax-text-muted);">
+            <a href="https://ethicbids.vercel.app/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">EthicBids Technologies™</a>
+        </span>
+        <span style="font-size:var(--ax-text-xs);color:var(--ax-text-disabled);">© 2026 EthicBids Technologies™. All Rights Reserved.</span>
     </footer>
 
-    <!-- Toast message container -->
-    <div id="toast-container"></div>
+    <!-- Toast container -->
+    <div id="toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
 
     <script>
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            
-            let icon = 'ℹ️';
-            if (type === 'success') icon = '🎉';
-            if (type === 'error') icon = '❌';
+        /* ── Toast system ── */
+        function showToast(message, type) {
+            type = type || 'info';
+            var container = document.getElementById('toast-container');
+            var toast = document.createElement('div');
+            toast.className = 'toast ' + type;
 
-            toast.innerHTML = `
-                <span>${icon} &nbsp; ${message}</span>
-                <span style="cursor:pointer; margin-left: 1rem; font-weight:bold; opacity: 0.7;" onclick="this.parentElement.remove()">×</span>
-            `;
+            var icons = {
+                success: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:16px;height:16px;flex-shrink:0;color:var(--ax-green-bright);"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+                error:   '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:16px;height:16px;flex-shrink:0;color:var(--ax-red-bright);"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>',
+                info:    '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:16px;height:16px;flex-shrink:0;color:var(--ax-blue-bright);"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>',
+            };
+
+            toast.innerHTML =
+                '<div style="display:flex;align-items:flex-start;gap:var(--ax-space-3);flex:1;">' +
+                    (icons[type] || icons.info) +
+                    '<span>' + message + '</span>' +
+                '</div>' +
+                '<button onclick="this.closest(\'.toast\').remove()" style="background:none;border:none;color:var(--ax-text-muted);cursor:pointer;padding:0;flex-shrink:0;" aria-label="Dismiss notification">✕</button>';
+
             container.appendChild(toast);
 
-            setTimeout(() => {
-                toast.style.animation = 'fadeOut 0.5s ease forwards';
-                setTimeout(() => toast.remove(), 500);
+            setTimeout(function () {
+                toast.style.animation = 'ax-toast-out 0.4s var(--ax-ease-in) forwards';
+                setTimeout(function () { toast.remove(); }, 400);
             }, 4000);
         }
 
-        // Shared AJAX submit flag utility
+        /* ── Flag submission utility ── */
         async function submitFlag(chId, event) {
             event.preventDefault();
-            const form = event.target;
-            const submitBtn = form.querySelector('.submit-btn');
-            const flagInput = form.querySelector('.flag-input');
-            const originalBtnText = submitBtn.textContent;
-            
+            var form = event.target;
+            var submitBtn = form.querySelector('.submit-btn');
+            var flagInput = form.querySelector('.flag-input');
+            var origText = submitBtn.textContent;
+
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Verifying...';
+            submitBtn.textContent = 'Verifying…';
 
             try {
-                const formData = new FormData(form);
-                const response = await fetch(`/submit/${chId}`, {
+                var formData = new FormData(form);
+                var response = await fetch('/submit/' + chId, {
                     method: 'POST',
                     body: formData,
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token() }}'
-                    }
+                    headers: { 'X-CSRFToken': '{{ csrf_token() }}' }
                 });
-                
-                const data = await response.json();
-                
+                var data = await response.json();
+
                 if (data.success) {
                     showToast(data.msg, 'success');
-                    // Refresh after a delay to update score in header
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
+                    setTimeout(function () { window.location.reload(); }, 1500);
                 } else {
                     showToast(data.msg, 'error');
-                    flagInput.focus();
+                    if (flagInput) flagInput.focus();
                     submitBtn.disabled = false;
-                    submitBtn.textContent = originalBtnText;
+                    submitBtn.textContent = origText;
                 }
             } catch (err) {
                 console.error(err);
                 showToast('Failed to contact the server.', 'error');
                 submitBtn.disabled = false;
-                submitBtn.textContent = originalBtnText;
+                submitBtn.textContent = origText;
             }
         }
-    
+
     <!-- Dynamic CMS Resources (Hints & Files) -->
     {% if hints or files %}
-    <div id="dynamic-cms-resources" style="display:none; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 2rem; width: 100%;">
+    <div id="dynamic-cms-resources" style="display:none;margin-top:var(--ax-space-6);border-top:1px solid var(--ax-border-subtle);padding-top:var(--ax-space-6);">
         {% if files %}
-            <div class="files-container" style="margin-bottom: 2rem; text-align: left;">
-                <h4 style="color: var(--text-primary); margin-bottom: 1rem; font-size: 1.1rem; font-weight: 600;">📥 Challenge Attachments:</h4>
-                <div style="display: flex; flex-direction: column; gap: 0.6rem;">
-                    {% for f in files %}
-                        <a href="/uploads/{{ f.stored_filename }}" class="download-btn" style="display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; padding: 0.6rem 1.2rem; background: rgba(0,240,255,0.05); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 8px; font-weight: 600; width: fit-content; font-size: 0.95rem; transition: background 0.2s;" onmouseover="this.style.background='rgba(0,240,255,0.1)'" onmouseout="this.style.background='rgba(0,240,255,0.05)'" id="btn-download-file-{{ f.id }}" download>
-                            📁 {{ f.original_filename }} ({{ (f.size / 1024)|round(1) }} KB)
-                        </a>
-                    {% endfor %}
-                </div>
+        <div style="margin-bottom:var(--ax-space-5);">
+            <h4 style="font-size:var(--ax-text-sm);font-weight:600;color:var(--ax-text-secondary);text-transform:uppercase;letter-spacing:var(--ax-tracking-wider);margin-bottom:var(--ax-space-3);">Attachments</h4>
+            <div style="display:flex;flex-direction:column;gap:var(--ax-space-2);">
+                {% for f in files %}
+                <a href="/uploads/{{ f.stored_filename }}"
+                   class="ax-btn ax-btn-default ax-btn-sm"
+                   style="width:fit-content;justify-content:flex-start;gap:var(--ax-space-2);"
+                   id="btn-download-file-{{ f.id }}"
+                   download>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+                    </svg>
+                    {{ f.original_filename }}
+                    <span style="color:var(--ax-text-muted);font-family:var(--ax-font-mono);font-size:var(--ax-text-xs);">({{ (f.size / 1024)|round(1) }} KB)</span>
+                </a>
+                {% endfor %}
             </div>
+        </div>
         {% endif %}
 
         {% if hints %}
-            <div class="hints-container" style="margin-bottom: 2rem; text-align: left;">
-                <h4 style="color: var(--text-primary); margin-bottom: 1rem; font-size: 1.1rem; font-weight: 600;">💡 Hints:</h4>
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    {% for hint in hints %}
-                        <div class="hint-card" style="background: rgba(255, 215, 0, 0.02); border: 1px solid rgba(255, 215, 0, 0.15); padding: 1.2rem; border-radius: 8px;" id="hint-card-{{ hint.id }}">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <strong style="color: var(--neon-yellow); font-size: 1rem;">{{ hint.title }}</strong>
-                                {% if not hint.is_unlocked %}
-                                    <button onclick="unlockHint({{ hint.id }}, {{ hint.cost }})" class="submit-btn" style="background: rgba(255,215,0,0.1); border: 1px solid var(--neon-yellow); color: var(--neon-yellow); padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.85rem; font-weight: 700; cursor: pointer; height: auto; width: auto;" id="btn-unlock-hint-{{ hint.id }}">
-                                        🔓 Unlock ({{ hint.cost }} pts)
-                                    </button>
-                                {% endif %}
-                            </div>
-                            <div class="hint-content" style="margin-top: 0.6rem; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5;">
-                                {% if hint.is_unlocked %}
-                                    {{ hint.content }}
-                                {% else %}
-                                    <span style="color: var(--muted); font-style: italic;">Locked hint content. Click unlock to review.</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                    {% endfor %}
+        <div>
+            <h4 style="font-size:var(--ax-text-sm);font-weight:600;color:var(--ax-text-secondary);text-transform:uppercase;letter-spacing:var(--ax-tracking-wider);margin-bottom:var(--ax-space-3);">Hints</h4>
+            <div style="display:flex;flex-direction:column;gap:var(--ax-space-3);">
+                {% for hint in hints %}
+                <div class="hint-card" id="hint-card-{{ hint.id }}">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--ax-space-2);">
+                        <strong style="font-size:var(--ax-text-sm);font-weight:600;color:var(--ax-amber-bright);">{{ hint.title }}</strong>
+                        {% if not hint.is_unlocked %}
+                        <button onclick="unlockHint({{ hint.id }}, {{ hint.cost }})"
+                                class="ax-btn ax-btn-sm"
+                                style="background:var(--ax-amber-dim);border-color:var(--ax-amber-border);color:var(--ax-amber-bright);"
+                                id="btn-unlock-hint-{{ hint.id }}"
+                                type="button">
+                            Unlock · {{ hint.cost }} pts
+                        </button>
+                        {% endif %}
+                    </div>
+                    <div style="font-size:var(--ax-text-sm);color:var(--ax-text-secondary);line-height:var(--ax-leading-relaxed);">
+                        {% if hint.is_unlocked %}
+                            {{ hint.content }}
+                        {% else %}
+                            <span style="color:var(--ax-text-muted);font-style:italic;">Locked. Click Unlock to reveal.</span>
+                        {% endif %}
+                    </div>
                 </div>
+                {% endfor %}
             </div>
+        </div>
         {% endif %}
     </div>
     {% endif %}
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const glassCard = document.querySelector(".glass-card");
-            const cmsResources = document.getElementById("dynamic-cms-resources");
+        document.addEventListener('DOMContentLoaded', function () {
+            var glassCard = document.querySelector('.glass-card');
+            var cmsResources = document.getElementById('dynamic-cms-resources');
             if (glassCard && cmsResources) {
-                const submitSection = glassCard.querySelector(".submit-section");
+                var submitSection = glassCard.querySelector('.submit-section');
                 if (submitSection) {
                     glassCard.insertBefore(cmsResources, submitSection);
                 } else {
                     glassCard.appendChild(cmsResources);
                 }
-                cmsResources.style.display = "block";
+                cmsResources.style.display = 'block';
             }
         });
 
         async function unlockHint(hintId, cost) {
-            if (!confirm(`Unlock this hint for ${cost} points?`)) return;
+            if (!confirm('Unlock this hint for ' + cost + ' points?')) return;
             try {
-                const response = await fetch(`/hints/${hintId}/unlock`, {
+                var response = await fetch('/hints/' + hintId + '/unlock', {
                     method: 'POST',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token() }}'
-                    }
+                    headers: { 'X-CSRFToken': '{{ csrf_token() }}' }
                 });
-                const data = await response.json();
+                var data = await response.json();
                 if (data.success) {
-                    showToast('Hint unlocked successfully!', 'success');
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
+                    showToast('Hint unlocked.', 'success');
+                    setTimeout(function () { window.location.reload(); }, 1000);
                 } else {
                     showToast(data.msg, 'error');
                 }

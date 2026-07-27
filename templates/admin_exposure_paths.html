@@ -2,16 +2,16 @@
 {% block title %}Logical Attack Paths — Cyber Defense Platform{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
+<div class="ax-page-header">
   <div>
-    <h1 class="ui-page-title">Logical Attack Paths &amp; Lateral Traversals</h1>
-    <p class="ui-page-subtitle">Evaluated attack paths showing hop counts, path risk scores, confidence levels, and entry-to-target traversal chains.</p>
+    <h1 class="ax-page-title">Logical Attack Paths &amp; Lateral Traversals</h1>
+    <p class="ax-page-subtitle">Evaluated attack paths showing hop counts, path risk scores, confidence levels, and entry-to-target traversal chains.</p>
   </div>
-  <a class="ui-btn ui-btn-ghost" href="/admin/exposure-fabric">← Back to Exposure Fabric</a>
+  <a class="ax-btn ax-btn-ghost" href="/admin/exposure-fabric">← Back to Exposure Fabric</a>
 </div>
 
-<div class="ui-glass-card" style="overflow-x:auto;">
-  <table class="ui-table" aria-label="Attack paths list">
+<div class="ax-card ui-glass-card" style="overflow-x:auto;">
+  <table class="ax-table" aria-label="Attack paths list">
     <thead>
       <tr>
         <th scope="col">Path ID</th>
@@ -43,11 +43,11 @@
         <td style="font-family:'Fira Code',monospace;color:var(--ui-text-secondary);">{{ p.confidence }}</td>
         <td>
           {% if p.status == 'active' %}
-            <span class="ui-badge ui-badge-danger">ACTIVE</span>
+            <span class="ax-badge ax-badge-red">ACTIVE</span>
           {% elif p.status == 'mitigated' %}
-            <span class="ui-badge ui-badge-success">MITIGATED</span>
+            <span class="ax-badge ax-badge-green">MITIGATED</span>
           {% else %}
-            <span class="ui-badge ui-badge-muted">{{ p.status.upper() }}</span>
+            <span class="ax-badge ax-badge-zinc">{{ p.status.upper() }}</span>
           {% endif %}
         </td>
         <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">

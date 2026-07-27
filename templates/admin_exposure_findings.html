@@ -2,16 +2,16 @@
 {% block title %}Exposure Findings — Cyber Defense Platform{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
+<div class="ax-page-header">
   <div>
-    <h1 class="ui-page-title">Vulnerability Findings &amp; Exposure Gaps</h1>
-    <p class="ui-page-subtitle">Detailed exposure findings registry with severity scoring, impact analysis, and remediation status tracking.</p>
+    <h1 class="ax-page-title">Vulnerability Findings &amp; Exposure Gaps</h1>
+    <p class="ax-page-subtitle">Detailed exposure findings registry with severity scoring, impact analysis, and remediation status tracking.</p>
   </div>
-  <a class="ui-btn ui-btn-ghost" href="/admin/exposure-fabric">← Back to Exposure Fabric</a>
+  <a class="ax-btn ax-btn-ghost" href="/admin/exposure-fabric">← Back to Exposure Fabric</a>
 </div>
 
-<div class="ui-glass-card" style="overflow-x:auto;">
-  <table class="ui-table" aria-label="Exposure findings list">
+<div class="ax-card ui-glass-card" style="overflow-x:auto;">
+  <table class="ax-table" aria-label="Exposure findings list">
     <thead>
       <tr>
         <th scope="col">Finding ID</th>
@@ -35,13 +35,13 @@
         <td style="color:var(--ui-text-secondary);">{{ f.finding_type }}</td>
         <td>
           {% if f.severity == 'critical' %}
-            <span class="ui-badge ui-badge-danger">CRITICAL</span>
+            <span class="ax-badge ax-badge-red">CRITICAL</span>
           {% elif f.severity == 'high' %}
-            <span class="ui-badge ui-badge-warning">HIGH</span>
+            <span class="ax-badge ax-badge-amber">HIGH</span>
           {% elif f.severity == 'medium' %}
-            <span class="ui-badge ui-badge-info">MEDIUM</span>
+            <span class="ax-badge ax-badge-blue">MEDIUM</span>
           {% else %}
-            <span class="ui-badge ui-badge-muted">{{ f.severity.upper() }}</span>
+            <span class="ax-badge ax-badge-zinc">{{ f.severity.upper() }}</span>
           {% endif %}
         </td>
         <td style="font-family:'Fira Code',monospace;color:var(--ui-accent-warning);">{{ f.likelihood * 100 }}%</td>
@@ -50,13 +50,13 @@
         <td style="color:var(--ui-muted);">{{ f.source_type }}</td>
         <td>
           {% if f.status == 'open' %}
-            <span class="ui-badge ui-badge-danger">OPEN</span>
+            <span class="ax-badge ax-badge-red">OPEN</span>
           {% elif f.status == 'mitigated' %}
-            <span class="ui-badge ui-badge-warning">MITIGATED</span>
+            <span class="ax-badge ax-badge-amber">MITIGATED</span>
           {% elif f.status == 'closed' %}
-            <span class="ui-badge ui-badge-success">CLOSED</span>
+            <span class="ax-badge ax-badge-green">CLOSED</span>
           {% else %}
-            <span class="ui-badge ui-badge-muted">{{ f.status.upper() }}</span>
+            <span class="ax-badge ax-badge-zinc">{{ f.status.upper() }}</span>
           {% endif %}
         </td>
       </tr>

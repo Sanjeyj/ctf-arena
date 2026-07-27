@@ -2,41 +2,41 @@
 {% block title %}Continuous Validation Fabric — Cyber Defense Platform{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
+<div class="ax-page-header">
   <div>
-    <h1 class="ui-page-title">Continuous Security Validation &amp; Defense Effectiveness Fabric</h1>
-    <p class="ui-page-subtitle">Continuous validation engine mapping control campaign runs, playbook check metrics, and active regression checks.</p>
+    <h1 class="ax-page-title">Continuous Security Validation &amp; Defense Effectiveness Fabric</h1>
+    <p class="ax-page-subtitle">Continuous validation engine mapping control campaign runs, playbook check metrics, and active regression checks.</p>
   </div>
 </div>
 
 <!-- Sub-navigation -->
-<nav class="ui-glass-card" style="margin-bottom:1.5rem;padding:1rem 1.5rem;" aria-label="Validation sub-navigation">
+<nav class="ax-card ui-glass-card" style="margin-bottom:1.5rem;padding:1rem 1.5rem;" aria-label="Validation sub-navigation">
   <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;">
     <span style="color:var(--ui-muted);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Navigate:</span>
-    <a class="ui-btn ui-btn-ghost" href="/admin/validation-fabric/campaigns">Validation Campaigns</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/validation-fabric/scenarios">Validation Scenarios</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/validation-fabric/executions">Execution Run Logs</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/validation-fabric/detections">Detection Validations</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/validation-fabric/readiness">Playbook Readiness</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/validation-fabric/effectiveness">Defense Effectiveness</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/validation-fabric/campaigns">Validation Campaigns</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/validation-fabric/scenarios">Validation Scenarios</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/validation-fabric/executions">Execution Run Logs</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/validation-fabric/detections">Detection Validations</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/validation-fabric/readiness">Playbook Readiness</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/validation-fabric/effectiveness">Defense Effectiveness</a>
   </div>
 </nav>
 
 <!-- Active Campaigns -->
 <h2 class="ui-section-heading">Active Campaigns</h2>
-<div class="ui-bento">
+<div class="ax-grid">
   {% for c in campaigns %}
-  <div class="ui-glass-card ui-bento-card" tabindex="0">
+  <div class="ax-card ui-glass-card ax-grid-card" tabindex="0">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
       <h3 style="font-size:1rem;font-weight:600;color:var(--ui-text-primary);margin:0;">{{ c.name }}</h3>
       {% if c.status == 'running' %}
-        <span class="ui-badge ui-badge-info">RUNNING</span>
+        <span class="ax-badge ax-badge-blue">RUNNING</span>
       {% elif c.status == 'completed' %}
-        <span class="ui-badge ui-badge-success">COMPLETED</span>
+        <span class="ax-badge ax-badge-green">COMPLETED</span>
       {% elif c.status == 'failed' %}
-        <span class="ui-badge ui-badge-danger">FAILED</span>
+        <span class="ax-badge ax-badge-red">FAILED</span>
       {% else %}
-        <span class="ui-badge ui-badge-muted">{{ c.status.upper() }}</span>
+        <span class="ax-badge ax-badge-zinc">{{ c.status.upper() }}</span>
       {% endif %}
     </div>
     <div class="ui-stat-row">
@@ -49,7 +49,7 @@
     </div>
   </div>
   {% else %}
-  <div class="ui-glass-card ui-bento-card ui-empty-state">
+  <div class="ax-card ui-glass-card ax-grid-card ui-empty-state">
     <div class="ui-empty-icon">🛡</div>
     <p class="ui-empty-text">No active validation campaigns mapped.</p>
   </div>
@@ -58,12 +58,12 @@
 
 <!-- Active Regressions -->
 <h2 class="ui-section-heading" style="margin-top:2rem;">Active Regressions</h2>
-<div class="ui-bento">
+<div class="ax-grid">
   {% for r in regressions %}
-  <div class="ui-glass-card ui-bento-card" style="border-color:rgba(239,68,68,0.35);" tabindex="0">
+  <div class="ax-card ui-glass-card ax-grid-card" style="border-color:rgba(239,68,68,0.35);" tabindex="0">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
       <h3 style="font-size:1rem;font-weight:600;color:var(--ui-accent-danger);margin:0;">Drop in: {{ r.resource_type }}</h3>
-      <span class="ui-badge ui-badge-danger">{{ r.severity.upper() }}</span>
+      <span class="ax-badge ax-badge-red">{{ r.severity.upper() }}</span>
     </div>
     <div class="ui-stat-row">
       <span class="ui-stat-label">Previous</span>
@@ -78,7 +78,7 @@
     </div>
   </div>
   {% else %}
-  <div class="ui-glass-card ui-bento-card" style="border-color:rgba(16,185,129,0.3);">
+  <div class="ax-card ui-glass-card ax-grid-card" style="border-color:rgba(16,185,129,0.3);">
     <div class="ui-empty-state">
       <div class="ui-empty-icon">✅</div>
       <p class="ui-empty-text" style="color:var(--ui-accent-success);">No active security posture regressions detected.</p>

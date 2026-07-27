@@ -28,6 +28,20 @@ def create_app(config_name="default"):
     # Initialize Extensions
     from app.extensions import db, migrate, login_manager, csrf, limiter
     db.init_app(app)
+
+    # Auto-initialize database tables if on Vercel and using SQLite
+    if os.environ.get("VERCEL") and "sqlite" in app.config.get("SQLALCHEMY_DATABASE_URI", ""):
+        db_path = app.config.get("SQLALCHEMY_DATABASE_URI").replace("sqlite:///", "")
+        # Handle double or triple slash prefixes depending on OS
+        db_path = db_path.lstrip("/")
+        # Under Linux /tmp/ctf.db starts with /tmp, so it was /var/task//tmp/ctf.db if relative, but since we had 4 slashes it is absolute /tmp/ctf.db
+        if not db_path.startswith("/"):
+            db_path = "/" + db_path
+        if not os.path.exists(db_path):
+            with app.app_context():
+                db.create_all()
+                _seed_vercel_sqlite(app)
+
     migrate.init_app(app, db)
     
     # Configure Flask-Login
@@ -212,6 +226,8 @@ def create_app(config_name="default"):
         # Check filesystem write access
         try:
             inst_dir = os.path.abspath(os.path.join(app.root_path, "..", "instance"))
+            if os.environ.get("VERCEL"):
+                inst_dir = "/tmp"
             os.makedirs(inst_dir, exist_ok=True)
             test_file = os.path.join(inst_dir, ".write_probe")
             with open(test_file, "w") as f:
@@ -244,6 +260,9 @@ def create_app(config_name="default"):
 
         # 3. Uploads directory check
         uploads_dir = os.path.abspath(os.path.join(app.root_path, "..", "uploads"))
+        if os.environ.get("VERCEL"):
+            uploads_dir = "/tmp/uploads"
+            os.makedirs(uploads_dir, exist_ok=True)
         uploads_ok = os.path.exists(uploads_dir) and os.access(uploads_dir, os.W_OK)
 
         # 4. Configuration Check
@@ -397,3 +416,98 @@ def register_error_handlers(app):
     @app.errorhandler(500)
     def internal_server_error(e):
         return render_template("errors/500.html"), 500
+
+
+def _seed_vercel_sqlite(app):
+    from app.repositories.role_repository import RoleRepository
+    from app.repositories.permission_repository import PermissionRepository
+    from app.repositories.user_repository import UserRepository
+    from app.services.auth_service import hash_password
+    import json
+    
+    # 1. Setup roles and permissions
+    try:
+        RoleRepository.setup_default_roles()
+        PermissionRepository.setup_default_permissions_and_roles_map()
+    except Exception as e:
+        app.logger.error(f"Failed to setup default roles/permissions: {e}")
+
+    # 2. Seed Default Administrator
+    try:
+        admin_user = app.config.get("ADMIN_USER", "admin")
+        admin_pass = app.config.get("ADMIN_PASSWORD", "ctf_admin_2024")
+        if not UserRepository.get_by_name(admin_user):
+            UserRepository.create(
+                username=admin_user,
+                password_hash=hash_password(admin_pass),
+                display_name="Administrator",
+                role_name="Admin"
+            )
+    except Exception as e:
+        app.logger.error(f"Failed to seed administrator user: {e}")
+
+    # 3. Seed Default Moderator
+    try:
+        mod_user = "moderator"
+        mod_pass = "ctf_moderator_2024"
+        if not UserRepository.get_by_name(mod_user):
+            UserRepository.create(
+                username=mod_user,
+                password_hash=hash_password(mod_pass),
+                display_name="Moderator",
+                role_name="Moderator"
+            )
+    except Exception as e:
+        app.logger.error(f"Failed to seed moderator user: {e}")
+
+    # 4. Seed Sample Participant
+    try:
+        sample_user = "Sample"
+        sample_pass = "ctf_sample_2024"
+        if not UserRepository.get_by_name(sample_user):
+            UserRepository.create(
+                username=sample_user,
+                password_hash=hash_password(sample_pass),
+                display_name="Sample Participant",
+                role_name="Participant"
+            )
+    except Exception as e:
+        app.logger.error(f"Failed to seed sample user: {e}")
+
+    # 5. Seed challenges from challenges_seed.json
+    seed_file = os.path.join(app.root_path, "utils", "challenges_seed.json")
+    if os.path.exists(seed_file):
+        try:
+            with open(seed_file, encoding='utf-8') as f:
+                data = json.load(f)
+            
+            from app.models.category import Category
+            from app.models.challenge import Challenge
+            from app.models.flag import Flag
+            from app.models.hint import Hint
+            from app.services.challenge_service import ChallengeService
+            
+            for category_name, challenges in data.items():
+                category = Category.query.filter_by(name=category_name).first()
+                if not category:
+                    category = Category(name=category_name)
+                    db.session.add(category)
+                    db.session.commit()
+
+                for ch_data in challenges:
+                    existing = Challenge.query.filter_by(title=ch_data["title"]).first()
+                    if existing:
+                        continue
+
+                    # Parse challenge and create
+                    ChallengeService.create_challenge(
+                        title=ch_data["title"],
+                        description=ch_data["description"],
+                        points=ch_data["points"],
+                        category_id=category.id,
+                        flag_value=ch_data["flag"],
+                        difficulty=ch_data.get("difficulty", "medium"),
+                        hints=ch_data.get("hints", [])
+                    )
+        except Exception as e:
+            app.logger.error(f"Failed to seed challenges: {e}")

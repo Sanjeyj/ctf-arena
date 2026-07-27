@@ -2,26 +2,26 @@
 {% block title %}Contagion Propagation Simulations{% endblock %}
 
 {% block content %}
-<div class="ui-page-header" style="display: flex; justify-content: space-between; align-items: center;">
+<div class="ax-page-header" style="display: flex; justify-content: space-between; align-items: center;">
     <div>
-        <div class="ui-page-title">☣️ Contagion Propagation <em>Simulations</em></div>
-        <div class="ui-page-subtitle">Model systemic stress, cascading failures, and contagion propagation paths across the ecosystem network.</div>
+        <div class="ax-page-title">☣️ Contagion Propagation <em>Simulations</em></div>
+        <div class="ax-page-subtitle">Model systemic stress, cascading failures, and contagion propagation paths across the ecosystem network.</div>
     </div>
     <div>
-        <a class="ui-btn ui-btn-ghost ui-btn-sm" href="/admin/systemic-resilience">← Back to Overview</a>
+        <a class="ax-btn ax-btn-ghost ax-btn-sm" href="/admin/systemic-resilience">← Back to Overview</a>
     </div>
 </div>
 
 <!-- Bento Grid -->
-<div class="ui-bento">
+<div class="ax-grid">
     <!-- Configured Scenarios -->
-    <div class="ui-bento-12 ui-glass-card" style="margin-bottom: 1.5rem;">
-        <div class="ui-card-title" style="margin-bottom: 1rem;">
+    <div class="ax-grid-12 ax-card ui-glass-card" style="margin-bottom: 1.5rem;">
+        <div class="ax-card-title" style="margin-bottom: 1rem;">
             <span><span class="title-icon">⚙️</span> Configured Scenarios</span>
         </div>
         
-        <div class="ui-table-wrap">
-            <table class="ui-table">
+        <div class="ax-table-wrap">
+            <table class="ax-table">
                 <thead>
                     <tr>
                         <th>Scenario Name</th>
@@ -38,11 +38,11 @@
                         <td style="font-weight: 600;">{{ s.name }}</td>
                         <td><span class="mono" style="color: var(--ui-cyan);">{{ s.scenario_type }}</span></td>
                         <td>
-                            <span class="ui-badge {% if s.severity == 'critical' or s.severity == 'high' %}ui-badge-danger{% elif s.severity == 'medium' %}ui-badge-warning{% else %}ui-badge-success{% endif %}">{{ s.severity.upper() }}</span>
+                            <span class="ax-badge {% if s.severity == 'critical' or s.severity == 'high' %}ax-badge-red{% elif s.severity == 'medium' %}ax-badge-amber{% else %}ax-badge-green{% endif %}">{{ s.severity.upper() }}</span>
                         </td>
                         <td class="mono">{{ s.propagation_depth }}</td>
                         <td class="mono text-secondary">{{ s.random_seed }}</td>
-                        <td><span class="ui-badge ui-badge-violet">{{ s.status.upper() }}</span></td>
+                        <td><span class="ax-badge ax-badge-purple">{{ s.status.upper() }}</span></td>
                     </tr>
                     {% else %}
                     <tr>
@@ -60,13 +60,13 @@
     </div>
 
     <!-- Execution Runs History -->
-    <div class="ui-bento-12 ui-glass-card">
-        <div class="ui-card-title" style="margin-bottom: 1rem;">
+    <div class="ax-grid-12 ax-card ui-glass-card">
+        <div class="ax-card-title" style="margin-bottom: 1rem;">
             <span><span class="title-icon">📊</span> Execution Runs History</span>
         </div>
         
-        <div class="ui-table-wrap">
-            <table class="ui-table">
+        <div class="ax-table-wrap">
+            <table class="ax-table">
                 <thead>
                     <tr>
                         <th>Run ID</th>
@@ -93,7 +93,7 @@
                             </div>
                         </td>
                         <td>
-                            <span class="ui-badge {% if run.status == 'completed' %}ui-badge-success{% elif run.status == 'running' %}ui-badge-danger{% else %}ui-badge-violet{% endif %}">{{ run.status.upper() }}</span>
+                            <span class="ax-badge {% if run.status == 'completed' %}ax-badge-green{% elif run.status == 'running' %}ax-badge-red{% else %}ax-badge-purple{% endif %}">{{ run.status.upper() }}</span>
                         </td>
                     </tr>
                     {% else %}

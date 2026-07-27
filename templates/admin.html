@@ -3,464 +3,813 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Admin Dashboard | CTF Arena | EthicBids Technologies™{% endblock %}</title>
-    <meta name="description" content="CTF Arena Admin — Live leaderboard and participant statistics.">
+    <title>{% block title %}Admin | CTF Arena — EthicBids Technologies™{% endblock %}</title>
+    <meta name="description" content="CTF Arena Admin — Cyber Defense Operating System by EthicBids Technologies™">
     <meta name="author" content="EthicBids Technologies">
     <meta name="application-name" content="CTF Arena">
     <meta name="generator" content="EthicBids Technologies">
     <meta name="copyright" content="© 2026 EthicBids Technologies™">
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/ui-modernization.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <!-- AXIOM Design System -->
+    <link rel="stylesheet" href="/static/css/axiom.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+    <!-- Legacy compat: maps old token names → AXIOM tokens -->
     <style>
-        /* Legacy compat vars so existing child templates still work */
         :root {
-            --bg: var(--ui-bg-primary);
-            --surface: var(--ui-bg-secondary);
-            --card: rgba(10, 15, 30, 0.55);
-            --border: rgba(255, 255, 255, 0.08);
-            --neon-blue: var(--ui-cyan);
-            --neon-green: var(--ui-success);
-            --neon-red: var(--ui-danger);
-            --neon-yellow: var(--ui-warning);
-            --neon-purple: var(--ui-violet);
-            --text: var(--ui-text-primary);
-            --muted: var(--ui-text-secondary);
-            --glow-blue: var(--ui-cyan-glow);
+            --bg: var(--ax-bg-base);
+            --surface: var(--ax-bg-surface);
+            --card: var(--ax-bg-elevated);
+            --border: var(--ax-border-default);
+            --neon-blue: var(--ax-blue-bright);
+            --neon-green: var(--ax-green-bright);
+            --neon-red: var(--ax-red-bright);
+            --neon-yellow: var(--ax-amber-bright);
+            --neon-purple: var(--ax-purple-bright);
+            --text: var(--ax-text-primary);
+            --muted: var(--ax-text-muted);
+            --glow-blue: var(--ax-blue-glow);
+            --ui-bg-primary: var(--ax-bg-base);
+            --ui-bg-secondary: var(--ax-bg-surface);
+            --ui-bg-tertiary: var(--ax-bg-elevated);
+            --ui-surface: var(--ax-bg-elevated);
+            --ui-border: var(--ax-border-subtle);
+            --ui-border-strong: var(--ax-border-default);
+            --ui-border-cyan: var(--ax-blue-border);
+            --ui-cyan: var(--ax-blue-bright);
+            --ui-cyan-dim: var(--ax-blue-dim);
+            --ui-cyan-glow: var(--ax-blue-glow);
+            --ui-violet: var(--ax-purple-bright);
+            --ui-violet-dim: var(--ax-purple-dim);
+            --ui-success: var(--ax-green-bright);
+            --ui-success-dim: var(--ax-green-dim);
+            --ui-danger: var(--ax-red-bright);
+            --ui-danger-dim: var(--ax-red-dim);
+            --ui-warning: var(--ax-amber-bright);
+            --ui-warning-dim: var(--ax-amber-dim);
+            --ui-text-primary: var(--ax-text-primary);
+            --ui-text-secondary: var(--ax-text-secondary);
+            --ui-text-muted: var(--ax-text-muted);
+            --ui-font-interface: var(--ax-font-sans);
+            --ui-font-mono: var(--ax-font-mono);
+            --ui-sidebar-width: var(--ax-sidebar-width);
+            --ui-radius-sm: var(--ax-radius-sm);
+            --ui-radius-md: var(--ax-radius-md);
+            --ui-radius-lg: var(--ax-radius-lg);
+            --ui-transition-fast: var(--ax-dur-micro) var(--ax-ease-out);
+            --ui-transition-base: var(--ax-dur-base) var(--ax-ease-out);
         }
-        body {
-            font-family: var(--ui-font-interface);
-            background: var(--ui-bg-primary);
-            color: var(--ui-text-primary);
-            min-height: 100vh;
+        /* Admin workspace positioning */
+        #admin-workspace {
+            margin-left: var(--ax-rail-width);
+            margin-top: var(--ax-topbar-height);
+            padding: var(--ax-space-6);
+            flex: 1;
+            transition: margin-left var(--ax-dur-context) var(--ax-ease-out);
         }
-        /* Chart.js tooltip custom */
+        #admin-workspace.sidebar-open {
+            margin-left: calc(var(--ax-rail-width) + var(--ax-sidebar-width));
+        }
+        /* Chart.js tooltip */
         .ui-chart-wrap canvas { display: block; }
+        /* Sidebar hover reveal */
+        #ax-shell:hover #ax-sidebar { border-right-color: var(--ax-border-default); }
     </style>
+    {% block extra_head %}{% endblock %}
 </head>
-<body class="ui-app-bg">
+<body class="ui-app-bg" style="font-family: var(--ax-font-sans);">
 
-<!-- ── Sidebar Overlay (mobile) ───────────────────────────── -->
-<div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
-
-<!-- ── Admin Sidebar ──────────────────────────────────────── -->
-<nav id="admin-sidebar" role="navigation" aria-label="Admin navigation">
-    <a href="/admin" class="sidebar-brand" id="brand-admin-link">
-        <span class="sidebar-brand-icon">🚩</span>
-        <span class="sidebar-brand-text">CTF&nbsp;<em>Arena</em><span style="display:block;font-size:0.55rem;font-weight:400;color:var(--ui-text-secondary);letter-spacing:0.3px;margin-top:1px;">by EthicBids Technologies™</span></span>
-    </a>
-
-    <div class="sidebar-nav">
-        <!-- Core Section -->
-        <div class="sidebar-section-label">Competition</div>
-        <a href="/admin" class="sidebar-link" id="nav-dashboard">
-            <span class="sidebar-link-icon">⚡</span>
-            <span class="sidebar-link-text">Dashboard</span>
-        </a>
-        <a href="/admin/challenges" class="sidebar-link" id="nav-challenges">
-            <span class="sidebar-link-icon">🏁</span>
-            <span class="sidebar-link-text">Challenges</span>
-        </a>
-        <a href="/admin/categories" class="sidebar-link" id="nav-categories">
-            <span class="sidebar-link-icon">🗂️</span>
-            <span class="sidebar-link-text">Categories</span>
-        </a>
-        <a href="/admin/submissions" class="sidebar-link" id="nav-submissions">
-            <span class="sidebar-link-icon">📨</span>
-            <span class="sidebar-link-text">Submissions</span>
-        </a>
-        <a href="/admin/announcements" class="sidebar-link" id="nav-announcements">
-            <span class="sidebar-link-icon">📢</span>
-            <span class="sidebar-link-text">Announcements</span>
-        </a>
-        <a href="/admin/competition" class="sidebar-link" id="nav-competition">
-            <span class="sidebar-link-icon">🏆</span>
-            <span class="sidebar-link-text">Competition</span>
-        </a>
-        <a href="/admin/competition/stats" class="sidebar-link" id="nav-stats">
-            <span class="sidebar-link-icon">📊</span>
-            <span class="sidebar-link-text">Live Stats</span>
-        </a>
-
-        <!-- Security Operations -->
-        <div class="sidebar-section-label">Security Ops</div>
-        <a href="/admin/soc" class="sidebar-link">
-            <span class="sidebar-link-icon">🛡️</span>
-            <span class="sidebar-link-text">SOC Center</span>
-        </a>
-        <a href="/admin/hunts" class="sidebar-link">
-            <span class="sidebar-link-icon">🔍</span>
-            <span class="sidebar-link-text">Threat Hunts</span>
-        </a>
-        <a href="/admin/research/malware" class="sidebar-link">
-            <span class="sidebar-link-icon">🦠</span>
-            <span class="sidebar-link-text">Malware Analysis</span>
-        </a>
-        <a href="/admin/research/campaigns" class="sidebar-link">
-            <span class="sidebar-link-icon">🎯</span>
-            <span class="sidebar-link-text">Campaigns</span>
-        </a>
-        <a href="/admin/cyberrange/incidents" class="sidebar-link">
-            <span class="sidebar-link-icon">🚨</span>
-            <span class="sidebar-link-text">Incidents</span>
-        </a>
-        <a href="/admin/cyberrange" class="sidebar-link">
-            <span class="sidebar-link-icon">🌐</span>
-            <span class="sidebar-link-text">Cyber Range</span>
-        </a>
-        <a href="/admin/threat-intel" class="sidebar-link">
-            <span class="sidebar-link-icon">🔬</span>
-            <span class="sidebar-link-text">Threat Intel</span>
-        </a>
-
-        <!-- Platform -->
-        <div class="sidebar-section-label">Platform</div>
-        <a href="/admin/mission-control" class="sidebar-link">
-            <span class="sidebar-link-icon">🚀</span>
-            <span class="sidebar-link-text">Mission Control</span>
-        </a>
-        <a href="/admin/organization" class="sidebar-link">
-            <span class="sidebar-link-icon">🏢</span>
-            <span class="sidebar-link-text">Organization</span>
-        </a>
-        <a href="/admin/plugins" class="sidebar-link">
-            <span class="sidebar-link-icon">🔌</span>
-            <span class="sidebar-link-text">Plugins</span>
-        </a>
-        <a href="/admin/users" class="sidebar-link">
-            <span class="sidebar-link-icon">👥</span>
-            <span class="sidebar-link-text">Users</span>
-        </a>
-        <a href="/admin/ai" class="sidebar-link">
-            <span class="sidebar-link-icon">🤖</span>
-            <span class="sidebar-link-text">AI Services</span>
-        </a>
-    </div>
-
-    <div class="sidebar-footer">
-        <a href="/admin/logout" class="sidebar-link" style="margin:0;padding:0.5rem 1rem;border-radius:var(--ui-radius-md);" id="btn-admin-logout">
-            <span class="sidebar-link-icon">↩️</span>
-            <span class="sidebar-link-text">Logout</span>
-        </a>
-        <div style="padding:0.75rem 1rem 0.5rem;font-size:0.6rem;color:var(--ui-text-secondary);opacity:0.55;line-height:1.4;">
-            Powered by<br><a href="https://ethicbids.vercel.app/" target="_blank" rel="noopener" style="color:var(--ui-cyan);text-decoration:none;">EthicBids Technologies™</a>
+<!-- ── Command Palette Backdrop ──────────────────────────── -->
+<div id="ax-palette-backdrop" class="ax-palette-backdrop" role="dialog" aria-modal="true" aria-label="Command palette">
+    <div id="ax-palette" class="ax-palette" role="search">
+        <div class="ax-palette-input-row">
+            <svg class="ax-palette-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z"/>
+            </svg>
+            <input type="text" id="ax-palette-input" class="ax-palette-input" placeholder="Search pages, challenges, teams, settings…" autocomplete="off" spellcheck="false" aria-label="Search command">
         </div>
-    </div>
-</nav>
-
-<!-- ── Top Command Bar ─────────────────────────────────────── -->
-<header class="ui-topbar" role="banner">
-    <button id="sidebar-toggle"
-            aria-label="Toggle navigation sidebar"
-            aria-expanded="true"
-            aria-controls="admin-sidebar"
-            title="Toggle sidebar">
-        ☰
-    </button>
-
-    <span class="topbar-section-title">
-        <strong id="topbar-page-title">Admin Control Center</strong>
-    </span>
-
-    <div class="topbar-actions">
-        <a href="/scoreboard" class="ui-btn ui-btn-ghost ui-btn-sm" target="_blank" id="btn-public-scoreboard"
-           style="border-color:var(--ui-border-cyan);color:var(--ui-cyan);">
-            📺 Scoreboard
-        </a>
-        <span class="ui-status-pill online" title="Platform status">
-            <span class="ui-pulse-dot" id="last-refresh-text"></span>
-            Live
-        </span>
-        <span class="ui-admin-badge">Admin</span>
-    </div>
-</header>
-
-<!-- ── Main Workspace ─────────────────────────────────────── -->
-<main class="ui-workspace" id="admin-workspace">
-{% block content %}
-<!-- ── Admin Dashboard Content ─────────────────────────── -->
-<div class="ui-page-header">
-    <div class="ui-page-title">Admin <em>Dashboard</em></div>
-    <div class="ui-page-subtitle" id="dashboard-subtitle">Live competition overview — auto-refreshes every second</div>
-</div>
-
-<!-- Bento Row 1: Stat cards -->
-<div class="ui-bento" style="margin-bottom:1.25rem;" id="stats-row">
-    <div class="ui-bento-3 ui-glass-card accent-cyan">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Participants</div>
-            <div class="ui-metric-value" id="stat-participants">{{ stats.total_participants }}</div>
-            <div class="ui-metric-sub">Registered users</div>
-        </div>
-    </div>
-    <div class="ui-bento-3 ui-glass-card accent-success">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Total Solves</div>
-            <div class="ui-metric-value success" id="stat-solves">{{ stats.total_solves }}</div>
-            <div class="ui-metric-sub">Across all challenges</div>
-        </div>
-    </div>
-    <div class="ui-bento-3 ui-glass-card accent-warning">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Most Popular</div>
-            <div class="ui-metric-value muted" id="stat-popular">{{ stats.most_popular_ch }}</div>
-            <div class="ui-metric-sub">Most solved challenge</div>
-        </div>
-    </div>
-    <div class="ui-bento-3 ui-glass-card accent-violet">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Max Points</div>
-            <div class="ui-metric-value violet" id="stat-maxpts">{{ stats.max_possible }}</div>
-            <div class="ui-metric-sub">Total available</div>
+        <div id="ax-palette-results" class="ax-palette-results"></div>
+        <div class="ax-palette-footer">
+            <span class="ax-palette-hint">
+                <kbd>↑↓</kbd> navigate
+            </span>
+            <span class="ax-palette-hint">
+                <kbd>↵</kbd> open
+            </span>
+            <span class="ax-palette-hint">
+                <kbd>Esc</kbd> close
+            </span>
         </div>
     </div>
 </div>
 
-<!-- Bento Row 2: Charts -->
-<div class="ui-bento" style="margin-bottom:1.25rem;">
-    <!-- Score distribution chart -->
-    <div class="ui-bento-6 ui-glass-card">
-        <div class="ui-card-title">
-            <span class="title-icon">📊</span> Score Distribution
-        </div>
-        <div class="ui-chart-wrap">
-            <canvas id="scoreChart"></canvas>
-        </div>
-    </div>
+<!-- ── Sidebar Overlay (mobile) ──────────────────────────── -->
+<div id="ax-sidebar-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:240;" aria-hidden="true"></div>
 
-    <!-- Challenge completion bars -->
-    <div class="ui-bento-6 ui-glass-card">
-        <div class="ui-card-title">
-            <span class="title-icon">🏁</span> Challenge Completion Rate
-        </div>
-        <div id="ch-solve-bars">
-            {% set max_solves = stats.total_participants if stats.total_participants > 0 else 1 %}
-            {% for ch_id, ch in challenges.items() %}
-                {% set count = stats.ch_solve_counts.get(ch_id, 0) %}
-                {% set pct = (count / max_solves * 100) | round | int %}
-                <div class="ui-bar-row" id="bar-row-{{ ch_id }}">
-                    <div class="ui-bar-label" title="{{ ch.title }}">{{ ch.icon }} {{ ch.title }}</div>
-                    <div class="ui-bar-track">
-                        <div class="ui-bar-fill" style="width:{{ pct }}%"></div>
-                    </div>
-                    <div class="ui-bar-count">{{ count }}</div>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
+<!-- ── Application Shell ──────────────────────────────────── -->
+<div id="ax-shell" class="ax-shell">
 
-<!-- Bento Row 3: Leaderboard + Actions -->
-<div class="ui-bento">
-    <div class="ui-bento-9 ui-glass-card" style="grid-column: span 12;">
-        <div class="ui-card-title" style="justify-content:space-between;">
-            <span><span class="title-icon">🏆</span> Live Leaderboard</span>
-            <button class="ui-btn ui-btn-danger ui-btn-sm" onclick="confirmReset()" id="btn-reset-all">
-                🗑 Reset All Data
+    <!-- ── Command Rail (56px) ───────────────────────────── -->
+    <nav id="ax-rail" class="ax-rail" role="navigation" aria-label="Primary navigation">
+
+        <!-- Brand mark -->
+        <a href="/admin" class="ax-rail-brand" id="rail-brand" aria-label="CTF Arena Admin Home" title="CTF Arena">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18m0-9h18M12 3v18"/>
+            </svg>
+        </a>
+
+        <!-- Spacer -->
+        <div class="ax-rail-divider"></div>
+
+        <!-- Competition Group -->
+        <div class="ax-rail-section" role="group" aria-label="Competition">
+            <a href="/admin"
+               class="ax-rail-btn"
+               id="rail-btn-dashboard"
+               data-section="/admin"
+               data-panel="ax-panel-competition"
+               data-tooltip="Competition"
+               aria-label="Competition dashboard"
+               title="Competition">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/>
+                </svg>
+            </a>
+        </div>
+
+        <div class="ax-rail-divider"></div>
+
+        <!-- Security Ops Group -->
+        <div class="ax-rail-section" role="group" aria-label="Security Operations">
+            <a href="/admin/soc"
+               class="ax-rail-btn"
+               data-section="/admin/soc"
+               data-panel="ax-panel-security"
+               data-tooltip="Security Ops"
+               aria-label="Security operations"
+               title="Security Ops">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+                </svg>
+            </a>
+        </div>
+
+        <div class="ax-rail-divider"></div>
+
+        <!-- Governance Group -->
+        <div class="ax-rail-section" role="group" aria-label="Governance">
+            <a href="/admin/governance"
+               class="ax-rail-btn"
+               data-section="/admin/governance"
+               data-panel="ax-panel-governance"
+               data-tooltip="Governance"
+               aria-label="Governance"
+               title="Governance">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+                </svg>
+            </a>
+        </div>
+
+        <div class="ax-rail-divider"></div>
+
+        <!-- Platform Group -->
+        <div class="ax-rail-section" role="group" aria-label="Platform">
+            <a href="/admin/mission-control"
+               class="ax-rail-btn"
+               data-section="/admin/mission-control"
+               data-panel="ax-panel-platform"
+               data-tooltip="Platform"
+               aria-label="Platform management"
+               title="Platform">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                </svg>
+            </a>
+        </div>
+
+        <!-- Rail spacer -->
+        <div class="ax-rail-spacer"></div>
+
+        <!-- Search / Command Palette Trigger -->
+        <div class="ax-rail-section" style="margin-bottom: var(--ax-space-2);">
+            <button id="ax-palette-trigger"
+                    class="ax-rail-btn"
+                    data-tooltip="Search (Ctrl+K)"
+                    aria-label="Open command palette (Ctrl+K)"
+                    title="Search (Ctrl+K)"
+                    type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z"/>
+                </svg>
+            </button>
+
+            <!-- Scoreboard link -->
+            <a href="/scoreboard"
+               class="ax-rail-btn"
+               data-tooltip="Scoreboard"
+               target="_blank"
+               rel="noopener"
+               aria-label="Open public scoreboard"
+               title="Scoreboard">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
+                </svg>
+            </a>
+
+            <!-- Logout -->
+            <a href="/admin/logout"
+               class="ax-rail-btn"
+               data-tooltip="Sign Out"
+               id="btn-admin-logout"
+               aria-label="Sign out"
+               title="Sign Out">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
+                </svg>
+            </a>
+        </div>
+    </nav>
+
+    <!-- ── Context Sidebar ──────────────────────────────── -->
+    <aside id="ax-sidebar" class="ax-sidebar collapsed" role="complementary" aria-label="Section navigation">
+
+        <div class="ax-sidebar-header">
+            <span id="ax-sidebar-section-title" class="ax-sidebar-section-title">Competition</span>
+            <button id="ax-sidebar-collapse-btn"
+                    class="ax-sidebar-collapse-btn"
+                    aria-label="Collapse sidebar"
+                    aria-expanded="false"
+                    aria-controls="ax-sidebar"
+                    type="button"
+                    title="Collapse">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5"/>
+                </svg>
             </button>
         </div>
-        <div class="ui-table-wrap">
-            {% if leaderboard %}
-            <table class="ui-table" id="leaderboard-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Score</th>
-                        <th>Solved</th>
-                        {% for ch_id, ch in challenges.items() %}
-                            <th title="{{ ch.title }}">{{ ch.icon }}</th>
-                        {% endfor %}
-                        <th>Last Solve</th>
-                        <th>Registered</th>
-                    </tr>
-                </thead>
-                <tbody id="leaderboard-body">
-                    {% for entry in leaderboard %}
-                    <tr id="row-{{ loop.index }}">
-                        <td>
-                            {% if entry.rank == 1 %}
-                                <span class="ui-rank-gold">🥇 1</span>
-                            {% elif entry.rank == 2 %}
-                                <span class="ui-rank-silver">🥈 2</span>
-                            {% elif entry.rank == 3 %}
-                                <span class="ui-rank-bronze">🥉 3</span>
-                            {% else %}
-                                <span class="ui-rank-other">#{{ entry.rank }}</span>
-                            {% endif %}
-                        </td>
-                        <td style="font-weight:600;">{{ entry.name }}</td>
-                        <td><span class="mono cyan">{{ entry.score }}</span> pts</td>
-                        <td class="muted">{{ entry.solve_count }} / {{ challenges | length }}</td>
-                        {% for ch_id in challenges %}
-                            <td>
-                                {% if ch_id in entry.solved %}
-                                    <span class="ui-ch-badge done" title="{{ challenges[ch_id].title }} — solved">✓</span>
-                                {% else %}
-                                    <span class="ui-ch-badge undone" title="{{ challenges[ch_id].title }} — unsolved">–</span>
-                                {% endif %}
-                            </td>
-                        {% endfor %}
-                        <td class="mono muted">
-                            {% if entry.last_solve and entry.solve_count > 0 %}
-                                {{ entry.last_solve[:16] | replace('T',' ') }}
-                            {% else %}—{% endif %}
-                        </td>
-                        <td class="mono muted">{{ entry.registered_at[:16] | replace('T',' ') }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <div class="ui-empty-state">
-                <span class="icon">👤</span>
-                No participants have registered yet. Share <strong>http://[your-ip]:5000</strong> with your competitors!
+
+        <nav class="ax-sidebar-nav" aria-label="Section links">
+
+            <!-- ── Competition Panel ── -->
+            <div id="ax-panel-competition" class="ax-sidebar-panel">
+                <div class="ax-sidebar-group-label">Competition</div>
+                <a href="/admin" class="ax-sidebar-link" id="nav-dashboard">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="/admin/challenges" class="ax-sidebar-link" id="nav-challenges">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18m0-9h18"/>
+                    </svg>
+                    Challenges
+                </a>
+                <a href="/admin/categories" class="ax-sidebar-link" id="nav-categories">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/>
+                    </svg>
+                    Categories
+                </a>
+                <a href="/admin/submissions" class="ax-sidebar-link" id="nav-submissions">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z"/>
+                    </svg>
+                    Submissions
+                </a>
+                <a href="/admin/announcements" class="ax-sidebar-link" id="nav-announcements">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
+                    </svg>
+                    Announcements
+                </a>
+                <a href="/admin/competition" class="ax-sidebar-link" id="nav-competition">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0"/>
+                    </svg>
+                    Competition
+                </a>
+                <a href="/admin/competition/stats" class="ax-sidebar-link" id="nav-stats">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+                    </svg>
+                    Live Stats
+                </a>
             </div>
-            {% endif %}
+
+            <!-- ── Security Panel ── -->
+            <div id="ax-panel-security" class="ax-sidebar-panel" hidden>
+                <div class="ax-sidebar-group-label">Security Operations</div>
+                <a href="/admin/soc" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+                    </svg>
+                    SOC Center
+                </a>
+                <a href="/admin/hunts" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z"/>
+                    </svg>
+                    Threat Hunts
+                </a>
+                <a href="/admin/threat-intel" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
+                    </svg>
+                    Threat Intel
+                </a>
+                <a href="/admin/cyberrange/incidents" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                    </svg>
+                    Incidents
+                </a>
+                <a href="/admin/research/malware" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 12.75c1.148 0 2.278.08 3.383.237 1.037.146 1.866.966 1.866 2.013 0 3.728-2.35 6.75-5.25 6.75S6.75 18.728 6.75 15c0-1.046.83-1.867 1.866-2.013A24.204 24.204 0 0112 12.75z"/>
+                    </svg>
+                    Malware Analysis
+                </a>
+                <a href="/admin/research/campaigns" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.864 4.243A7.5 7.5 0 0119.5 10.5c0 2.92-.556 5.709-1.568 8.268"/>
+                    </svg>
+                    Campaigns
+                </a>
+                <a href="/admin/cyberrange" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3"/>
+                    </svg>
+                    Cyber Range
+                </a>
+            </div>
+
+            <!-- ── Governance Panel ── -->
+            <div id="ax-panel-governance" class="ax-sidebar-panel" hidden>
+                <div class="ax-sidebar-group-label">Governance</div>
+                <a href="/admin/governance" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+                    </svg>
+                    Governance
+                </a>
+                <a href="/admin/compliance" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Compliance
+                </a>
+                <a href="/admin/risk-quantification" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75z"/>
+                    </svg>
+                    Risk Quantification
+                </a>
+                <a href="/admin/resilience-center" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+                    </svg>
+                    Resilience Center
+                </a>
+                <a href="/admin/governance/intelligence" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
+                    </svg>
+                    Gov Intelligence
+                </a>
+                <a href="/admin/assurance" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+                    </svg>
+                    Assurance
+                </a>
+            </div>
+
+            <!-- ── Platform Panel ── -->
+            <div id="ax-panel-platform" class="ax-sidebar-panel" hidden>
+                <div class="ax-sidebar-group-label">Platform</div>
+                <a href="/admin/mission-control" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                    </svg>
+                    Mission Control
+                </a>
+                <a href="/admin/organization" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"/>
+                    </svg>
+                    Organization
+                </a>
+                <a href="/admin/plugins" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 002.25-2.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v2.25A2.25 2.25 0 006 10.5zm0 9.75h2.25A2.25 2.25 0 0010.5 18v-2.25a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25V18A2.25 2.25 0 006 20.25zm9.75-9.75H18a2.25 2.25 0 002.25-2.25V6A2.25 2.25 0 0018 3.75h-2.25A2.25 2.25 0 0013.5 6v2.25a2.25 2.25 0 002.25 2.25z"/>
+                    </svg>
+                    Plugins
+                </a>
+                <a href="/admin/users" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>
+                    </svg>
+                    Users
+                </a>
+                <a href="/admin/ai" class="ax-sidebar-link">
+                    <svg class="ax-sidebar-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z"/>
+                    </svg>
+                    AI Services
+                </a>
+            </div>
+
+        </nav>
+    </aside>
+
+    <!-- ── Topbar ──────────────────────────────────────── -->
+    <header id="ax-topbar" class="ax-topbar" role="banner">
+        <!-- Mobile hamburger -->
+        <button id="ax-hamburger"
+                class="ax-btn ax-btn-ghost"
+                style="display:none;padding:var(--ax-space-1);min-height:32px;"
+                aria-label="Open navigation"
+                type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:18px;height:18px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+            </svg>
+        </button>
+
+        <!-- Breadcrumb -->
+        <nav class="ax-breadcrumb" aria-label="Breadcrumb">
+            <a href="/admin" class="ax-breadcrumb-item">CTF Arena</a>
+            <span class="ax-breadcrumb-sep" aria-hidden="true">/</span>
+            <span class="ax-breadcrumb-item current" id="ax-topbar-title">Dashboard</span>
+        </nav>
+
+        <!-- Topbar right actions -->
+        <div class="ax-topbar-actions">
+            <!-- Search trigger -->
+            <button id="ax-search-trigger"
+                    class="ax-btn ax-btn-ghost ax-btn-sm"
+                    onclick="document.getElementById('ax-palette-trigger').click()"
+                    aria-label="Search (Ctrl+K)"
+                    type="button"
+                    style="color:var(--ax-text-muted);gap:var(--ax-space-2);">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z"/>
+                </svg>
+                <span style="font-size:var(--ax-text-xs);font-family:var(--ax-font-mono);background:var(--ax-bg-component);border:1px solid var(--ax-border-default);padding:1px 5px;border-radius:var(--ax-radius-sm);">Ctrl K</span>
+            </button>
+
+            <!-- Live status -->
+            <span class="ax-status-dot live" id="topbar-status" title="Platform live">
+                <span class="ax-status-dot-indicator"></span>
+                Live
+            </span>
+
+            <!-- Admin badge -->
+            <span class="ui-admin-badge" aria-label="Administrator">Admin</span>
+        </div>
+    </header>
+
+    <!-- ── Main Workspace ──────────────────────────────── -->
+    <main id="admin-workspace" role="main" aria-label="Admin workspace">
+{% block content %}
+<!-- ── Admin Dashboard Content ──────────────────────── -->
+<div class="ax-page-header">
+    <div class="ax-page-header-row">
+        <div>
+            <div class="ax-page-title" data-page-title="Dashboard">
+                Admin <em>Dashboard</em>
+            </div>
+            <div class="ax-page-subtitle" id="dashboard-subtitle">
+                Live competition overview — auto-refreshes every second
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--ax-space-3);">
+            <a href="/scoreboard" target="_blank" rel="noopener"
+               class="ax-btn ax-btn-default ax-btn-sm"
+               id="btn-public-scoreboard">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
+                </svg>
+                Scoreboard
+            </a>
+            <button class="ax-btn ax-btn-danger ax-btn-sm" onclick="confirmReset()" id="btn-reset-all" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                </svg>
+                Reset All
+            </button>
         </div>
     </div>
 </div>
-{% endblock %}
-</main>
 
-<!-- ── Scripts ────────────────────────────────────────────── -->
-<script src="/static/js/ui-shell.js"></script>
+<!-- Stat cards row -->
+<div class="ax-grid ax-grid-tight" style="margin-bottom:var(--ax-space-4);" id="stats-row">
+    <div class="ax-col-3">
+        <div class="ax-card ax-card-sm ax-card ui-glass-card" style="position:relative;overflow:hidden;">
+            <div class="ax-card-accent ax-card-accent-blue"></div>
+            <div class="ax-metric">
+                <div class="ax-metric-label">Participants</div>
+                <div class="ax-metric-value ax-metric-value-lg ax-blue" id="stat-participants">{{ stats.total_participants }}</div>
+                <div class="ax-metric-sub">Registered users</div>
+            </div>
+        </div>
+    </div>
+    <div class="ax-col-3">
+        <div class="ax-card ax-card-sm" style="position:relative;overflow:hidden;">
+            <div class="ax-card-accent ax-card-accent-green"></div>
+            <div class="ax-metric">
+                <div class="ax-metric-label">Total Solves</div>
+                <div class="ax-metric-value ax-metric-value-lg ax-green" id="stat-solves">{{ stats.total_solves }}</div>
+                <div class="ax-metric-sub">Across all challenges</div>
+            </div>
+        </div>
+    </div>
+    <div class="ax-col-3">
+        <div class="ax-card ax-card-sm" style="position:relative;overflow:hidden;">
+            <div class="ax-card-accent ax-card-accent-amber"></div>
+            <div class="ax-metric">
+                <div class="ax-metric-label">Most Popular</div>
+                <div class="ax-metric-value ax-metric-value-md" style="color:var(--ax-text-primary);" id="stat-popular">{{ stats.most_popular_ch }}</div>
+                <div class="ax-metric-sub">Most solved challenge</div>
+            </div>
+        </div>
+    </div>
+    <div class="ax-col-3">
+        <div class="ax-card ax-card-sm" style="position:relative;overflow:hidden;">
+            <div class="ax-card-accent ax-card-accent-purple"></div>
+            <div class="ax-metric">
+                <div class="ax-metric-label">Max Points</div>
+                <div class="ax-metric-value ax-metric-value-lg ax-purple" id="stat-maxpts">{{ stats.max_possible }}</div>
+                <div class="ax-metric-sub">Total available</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts row -->
+<div class="ax-grid ax-grid-tight" style="margin-bottom:var(--ax-space-4);">
+    <div class="ax-col-6">
+        <div class="ax-card">
+            <div class="ax-card-header">
+                <span class="ax-card-title">Score Distribution</span>
+                <span class="ax-badge ax-badge-blue">Live</span>
+            </div>
+            <div class="ax-chart-wrap ax-chart-wrap-h240">
+                <canvas id="scoreChart" aria-label="Score distribution chart" role="img"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="ax-col-6">
+        <div class="ax-card">
+            <div class="ax-card-header">
+                <span class="ax-card-title">Challenge Completion</span>
+                <span class="ax-badge ax-badge-zinc">{{ challenges | length }} challenges</span>
+            </div>
+            <div id="ch-solve-bars" style="display:flex;flex-direction:column;gap:var(--ax-space-2);">
+                {% set max_solves = stats.total_participants if stats.total_participants > 0 else 1 %}
+                {% for ch_id, ch in challenges.items() %}
+                    {% set count = stats.ch_solve_counts.get(ch_id, 0) %}
+                    {% set pct = (count / max_solves * 100) | round | int %}
+                    <div class="ui-bar-row" id="bar-row-{{ ch_id }}">
+                        <div class="ui-bar-label" title="{{ ch.title }}">{{ ch.title }}</div>
+                        <div class="ui-bar-track" style="flex:1;">
+                            <div class="ui-bar-fill" style="width:{{ pct }}%;"></div>
+                        </div>
+                        <div class="ui-bar-count">{{ count }}</div>
+                    </div>
+                {% endfor %}
+                {% if not challenges %}
+                <div class="ax-empty" style="min-height:120px;">
+                    <div class="ax-empty-title">No challenges configured</div>
+                    <div class="ax-empty-desc">Add challenges to see completion data</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leaderboard -->
+<div class="ax-card" style="margin-bottom:var(--ax-space-4);">
+    <div class="ax-card-header">
+        <span class="ax-card-title">Live Leaderboard</span>
+        <span id="last-refresh-text" class="ax-badge ax-badge-green">
+            <span class="ax-badge-dot"></span>
+            Updating
+        </span>
+    </div>
+    <div class="ax-table-wrap">
+        {% if leaderboard %}
+        <table class="ax-table" id="leaderboard-table">
+            <thead>
+                <tr>
+                    <th style="width:48px;">#</th>
+                    <th>Participant</th>
+                    <th>Score</th>
+                    <th>Solved</th>
+                    {% for ch_id, ch in challenges.items() %}
+                        <th title="{{ ch.title }}" style="text-align:center;">{{ ch.title[:6] }}</th>
+                    {% endfor %}
+                    <th>Last Solve</th>
+                    <th>Registered</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+                {% for entry in leaderboard %}
+                <tr id="row-{{ loop.index }}">
+                    <td>
+                        {% if entry.rank == 1 %}
+                            <span class="ax-rank ax-rank-1">01</span>
+                        {% elif entry.rank == 2 %}
+                            <span class="ax-rank ax-rank-2">02</span>
+                        {% elif entry.rank == 3 %}
+                            <span class="ax-rank ax-rank-3">03</span>
+                        {% else %}
+                            <span class="ax-rank">#{{ '%02d' | format(entry.rank) }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-weight:500;">{{ entry.name }}</td>
+                    <td>
+                        <span class="ax-table-mono ax-text-blue">{{ entry.score }}</span>
+                        <span class="ax-table-muted" style="font-size:var(--ax-text-xs);"> pts</span>
+                    </td>
+                    <td class="ax-table-muted ax-table-mono">{{ entry.solve_count }} / {{ challenges | length }}</td>
+                    {% for ch_id in challenges %}
+                        <td style="text-align:center;">
+                            {% if ch_id in entry.solved %}
+                                <span class="ui-ch-badge done" title="{{ challenges[ch_id].title }} — solved">✓</span>
+                            {% else %}
+                                <span class="ui-ch-badge undone" title="{{ challenges[ch_id].title }} — unsolved">–</span>
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                    <td class="ax-table-mono ax-table-muted" style="font-size:var(--ax-text-xs);">
+                        {% if entry.last_solve and entry.solve_count > 0 %}
+                            {{ entry.last_solve[:16] | replace('T',' ') }}
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="ax-table-mono ax-table-muted" style="font-size:var(--ax-text-xs);">{{ entry.registered_at[:16] | replace('T',' ') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="ax-empty">
+            <svg class="ax-empty-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>
+            </svg>
+            <div class="ax-empty-title">No participants yet</div>
+            <div class="ax-empty-desc">Share your platform URL with competitors to get started. Registrations will appear here in real time.</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+    </main>
+
+</div><!-- /.ax-shell -->
+
+<!-- ── Scripts ────────────────────────────────────────── -->
+<script src="/static/js/axiom-shell.js"></script>
 <script>
-/* ── Dashboard-only scripts (guarded) ─────────────────────
-   Only runs if the dashboard canvas element exists.
-   Child pages extending this layout do NOT have scoreChart,
-   so this block is safely skipped for them.
-   ─────────────────────────────────────────────────────── */
+/* ── Dashboard-only scripts (guarded by canvas presence) ── */
 (function () {
     var chartCanvas = document.getElementById('scoreChart');
-    if (!chartCanvas) return; // Not the dashboard page — abort.
+    if (!chartCanvas) return;
 
-    /* Chart.js initialization */
-    var initialLabels = {{ leaderboard | map(attribute='name') | list | tojson }};
-    var initialScores = {{ leaderboard | map(attribute='score') | list | tojson }};
+    // Wait for Chart.js to be available
+    function initChart() {
+        if (typeof Chart === 'undefined') {
+            setTimeout(initChart, 50);
+            return;
+        }
 
-    var scoreCtx = chartCanvas.getContext('2d');
-    var scoreChart = new Chart(scoreCtx, {
-        type: 'bar',
-        data: {
-            labels: initialLabels,
-            datasets: [{
-                label: 'Score (pts)',
-                data: initialScores,
-                backgroundColor: 'rgba(0,240,255,0.55)',
-                borderColor: 'rgba(0,240,255,0.9)',
-                borderWidth: 1,
-                borderRadius: 5,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: { callbacks: { label: function(ctx) { return ' ' + ctx.parsed.y + ' pts'; } } }
+        var scoreCtx = chartCanvas.getContext('2d');
+        var scoreChart = new Chart(scoreCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ leaderboard | map(attribute='name') | list | tojson }},
+                datasets: [{
+                    label: 'Score',
+                    data: {{ leaderboard | map(attribute='score') | list | tojson }},
+                    backgroundColor: 'rgba(59, 125, 216, 0.6)',
+                    borderColor: 'rgba(91, 155, 232, 0.9)',
+                    borderWidth: 1,
+                    borderRadius: 3,
+                    borderSkipped: false,
+                }]
             },
-            scales: {
-                x: {
-                    ticks: { color: '#94a3b8', font: { family: 'Outfit, sans-serif' } },
-                    grid: { color: 'rgba(255,255,255,0.06)' }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) { return ' ' + ctx.parsed.y + ' pts'; }
+                        }
+                    }
                 },
-                y: {
-                    beginAtZero: true,
-                    max: {{ stats.max_possible }},
-                    ticks: { color: '#94a3b8', font: { family: 'Fira Code, monospace' }, stepSize: 50 },
-                    grid: { color: 'rgba(255,255,255,0.06)' }
+                scales: {
+                    x: {
+                        ticks: { color: '#5A7490', font: { family: "'Inter', system-ui", size: 11 } },
+                        grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: {{ stats.max_possible }},
+                        ticks: { color: '#5A7490', font: { family: "'JetBrains Mono', monospace", size: 10 }, stepSize: 50 },
+                        grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false }
+                    }
                 }
             }
-        }
-    });
+        });
 
-    /* Auto-refresh every 1 second */
-    var lastDataSignature = '';
+        /* Auto-refresh every 1s */
+        var lastSig = '';
+        function fetchAndUpdate() {
+            fetch('/admin/api/stats')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.error) return;
+                    var sig = JSON.stringify(data.leaderboard);
+                    if (sig === lastSig) return;
+                    lastSig = sig;
 
-    function fetchAndUpdate() {
-        fetch('/admin/api/stats')
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-                if (data.error) return;
+                    var ep  = document.getElementById('stat-participants');
+                    var es  = document.getElementById('stat-solves');
+                    var epp = document.getElementById('stat-popular');
+                    if (ep)  ep.textContent  = data.stats.total_participants;
+                    if (es)  es.textContent  = data.stats.total_solves;
+                    if (epp) epp.textContent = data.stats.most_popular_ch;
 
-                var sig = JSON.stringify(data.leaderboard);
-                if (sig === lastDataSignature) return;
-                lastDataSignature = sig;
+                    scoreChart.data.labels = data.leaderboard.map(function(e) { return e.name; });
+                    scoreChart.data.datasets[0].data = data.leaderboard.map(function(e) { return e.score; });
+                    scoreChart.update('active');
 
-                /* Update stat cards */
-                var ep = document.getElementById('stat-participants');
-                var es = document.getElementById('stat-solves');
-                var epp = document.getElementById('stat-popular');
-                if (ep) ep.textContent = data.stats.total_participants;
-                if (es) es.textContent = data.stats.total_solves;
-                if (epp) epp.textContent = data.stats.most_popular_ch;
+                    var tbody = document.getElementById('leaderboard-body');
+                    if (!tbody) return;
+                    tbody.innerHTML = '';
+                    var chList = Object.keys(data.challenges);
 
-                /* Update chart */
-                scoreChart.data.labels = data.leaderboard.map(function(e) { return e.name; });
-                scoreChart.data.datasets[0].data = data.leaderboard.map(function(e) { return e.score; });
-                scoreChart.update('active');
+                    data.leaderboard.forEach(function(entry) {
+                        var tr = document.createElement('tr');
+                        var rankNum = ('0' + entry.rank).slice(-2);
+                        var rankClass = entry.rank === 1 ? 'ax-rank-1' : entry.rank === 2 ? 'ax-rank-2' : entry.rank === 3 ? 'ax-rank-3' : '';
+                        var rankHtml = '<span class="ax-rank ' + rankClass + '">' + (rankClass ? '#' : '#') + rankNum + '</span>';
 
-                /* Rebuild leaderboard table */
-                var tbody = document.getElementById('leaderboard-body');
-                if (!tbody) return;
+                        var badgesHtml = '';
+                        chList.forEach(function(id) {
+                            var title = (data.challenges[id] ? data.challenges[id].title : id);
+                            if (id in entry.solved) {
+                                badgesHtml += '<td style="text-align:center;"><span class="ui-ch-badge done" title="' + title + ' \u2014 solved">\u2713</span></td>';
+                            } else {
+                                badgesHtml += '<td style="text-align:center;"><span class="ui-ch-badge undone" title="' + title + ' \u2014 unsolved">\u2013</span></td>';
+                            }
+                        });
 
-                tbody.innerHTML = '';
-                var challengesList = Object.keys(data.challenges);
+                        var lastSolve = (entry.last_solve && entry.solve_count > 0)
+                            ? entry.last_solve.substring(0,16).replace('T',' ') : '\u2014';
+                        var regTime = entry.registered_at.substring(0,16).replace('T',' ');
 
-                data.leaderboard.forEach(function(entry) {
-                    var tr = document.createElement('tr');
-
-                    var rankHtml = '<span class="ui-rank-other">#' + entry.rank + '</span>';
-                    if (entry.rank === 1) rankHtml = '<span class="ui-rank-gold">🥇 1</span>';
-                    else if (entry.rank === 2) rankHtml = '<span class="ui-rank-silver">🥈 2</span>';
-                    else if (entry.rank === 3) rankHtml = '<span class="ui-rank-bronze">🥉 3</span>';
-
-                    var badgesHtml = '';
-                    challengesList.forEach(function(ch_id) {
-                        if (ch_id in entry.solved) {
-                            badgesHtml += '<td><span class="ui-ch-badge done" title="' + (data.challenges[ch_id] ? data.challenges[ch_id].title : ch_id) + ' — solved">✓</span></td>';
-                        } else {
-                            badgesHtml += '<td><span class="ui-ch-badge undone" title="' + (data.challenges[ch_id] ? data.challenges[ch_id].title : ch_id) + ' — unsolved">–</span></td>';
-                        }
+                        tr.innerHTML =
+                            '<td>' + rankHtml + '</td>' +
+                            '<td style="font-weight:500;">' + entry.name + '</td>' +
+                            '<td><span class="ax-table-mono ax-text-blue">' + entry.score + '</span> <span class="ax-table-muted" style="font-size:var(--ax-text-xs);">pts</span></td>' +
+                            '<td class="ax-table-muted ax-table-mono">' + entry.solve_count + ' / ' + chList.length + '</td>' +
+                            badgesHtml +
+                            '<td class="ax-table-mono ax-table-muted" style="font-size:var(--ax-text-xs);">' + lastSolve + '</td>' +
+                            '<td class="ax-table-mono ax-table-muted" style="font-size:var(--ax-text-xs);">' + regTime + '</td>';
+                        tbody.appendChild(tr);
                     });
-
-                    var lastSolveTime = (entry.last_solve && entry.solve_count > 0)
-                        ? entry.last_solve.substring(0, 19).replace('T', ' ')
-                        : '—';
-                    var regTime = entry.registered_at.substring(0, 19).replace('T', ' ');
-
-                    tr.innerHTML =
-                        '<td>' + rankHtml + '</td>' +
-                        '<td style="font-weight:600;">' + entry.name + '</td>' +
-                        '<td><span class="mono cyan">' + entry.score + '</span> pts</td>' +
-                        '<td class="muted">' + entry.solve_count + ' / ' + challengesList.length + '</td>' +
-                        badgesHtml +
-                        '<td class="mono muted">' + lastSolveTime + '</td>' +
-                        '<td class="mono muted">' + regTime + '</td>';
-                    tbody.appendChild(tr);
-                });
-            })
-            .catch(function(e) { console.warn('Stats fetch failed', e); });
+                })
+                .catch(function(e) { console.warn('Stats fetch failed', e); });
+        }
+        setInterval(fetchAndUpdate, 1000);
     }
 
-    setInterval(fetchAndUpdate, 1000);
+    initChart();
 })();
 
-/* ── Admin reset (also dashboard-only but safe to run globally — button only exists on dashboard) */
+/* ── Admin reset ── */
 function confirmReset() {
-    if (!confirm('⚠️ This will permanently delete ALL participant data and scores.\n\nAre you sure?')) return;
+    if (!confirm('This will permanently delete ALL participant data and scores.\n\nThis action cannot be undone. Proceed?')) return;
     fetch('/admin/reset', {
         method: 'POST',
         headers: { 'X-CSRFToken': '{{ csrf_token() }}' }
     })
-    .then(function(res) { return res.json(); })
-    .then(function(data) {
-        if (data.success) { alert('All data has been reset.'); location.reload(); }
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.success) { alert('All data has been reset.'); location.reload(); }
     });
 }
 </script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -2,39 +2,39 @@
 {% block title %}Assurance &amp; Verification Fabric — Cyber Defense Platform{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
+<div class="ax-page-header">
   <div>
-    <h1 class="ui-page-title">Cyber Trust, Assurance &amp; Verification Fabric</h1>
-    <p class="ui-page-subtitle">Continuous validation of Zero Trust parameters, compliance assurance cases, SBOM metrics, and control effectiveness.</p>
+    <h1 class="ax-page-title">Cyber Trust, Assurance &amp; Verification Fabric</h1>
+    <p class="ax-page-subtitle">Continuous validation of Zero Trust parameters, compliance assurance cases, SBOM metrics, and control effectiveness.</p>
   </div>
 </div>
 
 <!-- Quick Navigation -->
-<nav class="ui-glass-card" style="margin-bottom:1.5rem;padding:1rem 1.5rem;" aria-label="Assurance sub-navigation">
+<nav class="ax-card ui-glass-card" style="margin-bottom:1.5rem;padding:1rem 1.5rem;" aria-label="Assurance sub-navigation">
   <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;">
     <span style="color:var(--ui-muted);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Navigate:</span>
-    <a class="ui-btn ui-btn-ghost" href="/admin/assurance/identities">Identity Trust</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/assurance/devices">Device Posture</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/assurance/trust">Zero Trust Ledger</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/assurance/cases">Assurance Cases</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/assurance/supply-chain">Supply Chain</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/assurance/controls">Control Validation</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/assurance/identities">Identity Trust</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/assurance/devices">Device Posture</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/assurance/trust">Zero Trust Ledger</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/assurance/cases">Assurance Cases</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/assurance/supply-chain">Supply Chain</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/assurance/controls">Control Validation</a>
   </div>
 </nav>
 
 <!-- Assurance Claims Overview -->
 <h2 class="ui-section-heading">Assurance Claims Overview</h2>
-<div class="ui-bento">
+<div class="ax-grid">
   {% for c in cases %}
-  <div class="ui-glass-card ui-bento-card" tabindex="0">
+  <div class="ax-card ui-glass-card ax-grid-card" tabindex="0">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
       <h3 style="font-size:1rem;font-weight:600;color:var(--ui-text-primary);margin:0;">{{ c.title }}</h3>
       {% if c.status == 'verified' %}
-        <span class="ui-badge ui-badge-success">{{ c.status.upper() }}</span>
+        <span class="ax-badge ax-badge-green">{{ c.status.upper() }}</span>
       {% elif c.status == 'restricted' %}
-        <span class="ui-badge ui-badge-warning">{{ c.status.upper() }}</span>
+        <span class="ax-badge ax-badge-amber">{{ c.status.upper() }}</span>
       {% else %}
-        <span class="ui-badge ui-badge-muted">{{ c.status.upper() }}</span>
+        <span class="ax-badge ax-badge-zinc">{{ c.status.upper() }}</span>
       {% endif %}
     </div>
     <div style="margin-bottom:0.5rem;">
@@ -49,7 +49,7 @@
     <p style="font-size:0.8rem;color:var(--ui-muted);margin:0.5rem 0 0;line-height:1.5;">{{ c.claim }}</p>
   </div>
   {% else %}
-  <div class="ui-glass-card ui-bento-card ui-empty-state">
+  <div class="ax-card ui-glass-card ax-grid-card ui-empty-state">
     <div class="ui-empty-icon">🛡</div>
     <p class="ui-empty-text">No active assurance cases claims registered.</p>
   </div>

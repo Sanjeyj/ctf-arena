@@ -2,49 +2,49 @@
 {% block title %}Cyber Risk Quantification Control Center — Admin{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
-    <div class="ui-page-title">📉 Risk Quantification <em>Control Center</em></div>
-    <div class="ui-page-subtitle">Model annualized loss exposures, simulate impacts, evaluate risk treatment effectiveness, and optimize security budgets.</div>
+<div class="ax-page-header">
+    <div class="ax-page-title">📉 Risk Quantification <em>Control Center</em></div>
+    <div class="ax-page-subtitle">Model annualized loss exposures, simulate impacts, evaluate risk treatment effectiveness, and optimize security budgets.</div>
 </div>
 
 <!-- Bento Grid -->
-<div class="ui-bento">
+<div class="ax-grid">
     <!-- Top Row: KPI Cards -->
-    <div class="ui-bento-3 ui-glass-card accent-danger">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Expected Annual Loss</div>
-            <div class="ui-metric-value" id="kpi-eal">$142,500.00</div>
-            <div class="ui-metric-sub">Mean calculated risk exposure</div>
+    <div class="ax-grid-3 ax-card ui-glass-card accent-danger">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Expected Annual Loss</div>
+            <div class="ax-metric-value" id="kpi-eal">$142,500.00</div>
+            <div class="ax-metric-sub">Mean calculated risk exposure</div>
         </div>
     </div>
 
-    <div class="ui-bento-3 ui-glass-card accent-warning">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Residual Risk</div>
-            <div class="ui-metric-value warning" id="kpi-residual">$38,200.00</div>
-            <div class="ui-metric-sub">Exposure post-remediation</div>
+    <div class="ax-grid-3 ax-card ui-glass-card accent-warning">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Residual Risk</div>
+            <div class="ax-metric-value warning" id="kpi-residual">$38,200.00</div>
+            <div class="ax-metric-sub">Exposure post-remediation</div>
         </div>
     </div>
 
-    <div class="ui-bento-3 ui-glass-card accent-success">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Avg ROSI</div>
-            <div class="ui-metric-value success" id="kpi-rosi">184%</div>
-            <div class="ui-metric-sub">Return on security investment</div>
+    <div class="ax-grid-3 ax-card ui-glass-card accent-success">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Avg ROSI</div>
+            <div class="ax-metric-value success" id="kpi-rosi">184%</div>
+            <div class="ax-metric-sub">Return on security investment</div>
         </div>
     </div>
 
-    <div class="ui-bento-3 ui-glass-card accent-violet">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Investment Efficiency</div>
-            <div class="ui-metric-value violet" id="kpi-efficiency">8.2/10</div>
-            <div class="ui-metric-sub">Weighted cost-benefit index</div>
+    <div class="ax-grid-3 ax-card ui-glass-card accent-violet">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Investment Efficiency</div>
+            <div class="ax-metric-value violet" id="kpi-efficiency">8.2/10</div>
+            <div class="ax-metric-sub">Weighted cost-benefit index</div>
         </div>
     </div>
 
     <!-- Middle Left: Monte Carlo Simulation Summaries -->
-    <div class="ui-bento-8 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-8 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span><span class="title-icon">🎲</span> Monte Carlo Simulation Engine</span>
         </div>
         <p class="muted" style="font-size: 0.85rem; margin-bottom: 1.25rem;">Deterministic modeling outputs based on 10,000 simulated trial iterations.</p>
@@ -85,60 +85,60 @@
                 <div style="font-size: 0.9rem; font-weight: 600; color: var(--ui-text-primary); margin-top: 0.25rem;">95% Double-tailed</div>
             </div>
             <div style="flex: 1; text-align: right;">
-                <a href="/admin/risk-quantification/simulations" class="ui-btn ui-btn-primary ui-btn-sm" style="display: inline-block; text-decoration: none;">Execute Simulation →</a>
+                <a href="/admin/risk-quantification/simulations" class="ax-btn ax-btn-primary ax-btn-sm" style="display: inline-block; text-decoration: none;">Execute Simulation →</a>
             </div>
         </div>
     </div>
 
     <!-- Middle Right: PERT / Triangular Input Editor -->
-    <div class="ui-bento-4 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-4 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">📐</span> PERT Distribution Inputs
         </div>
         <p class="muted" style="font-size: 0.85rem; margin-bottom: 1.25rem;">Adjust parameters to recalculate simulated trial distributions.</p>
         
         <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
-            <div class="ui-form-group" style="margin: 0;">
-                <label class="ui-label" style="font-size: 0.75rem;">Minimum Loss ($)</label>
-                <input type="text" class="ui-input" style="padding: 0.4rem 0.6rem; font-size: 0.85rem;" value="50,000" id="pert-min">
+            <div class="ax-form-group" style="margin: 0;">
+                <label class="ax-label" style="font-size: 0.75rem;">Minimum Loss ($)</label>
+                <input type="text" class="ax-input" style="padding: 0.4rem 0.6rem; font-size: 0.85rem;" value="50,000" id="pert-min">
             </div>
             
-            <div class="ui-form-group" style="margin: 0;">
-                <label class="ui-label" style="font-size: 0.75rem;">Most Likely Loss ($)</label>
-                <input type="text" class="ui-input" style="padding: 0.4rem 0.6rem; font-size: 0.85rem;" value="130,000" id="pert-likely">
+            <div class="ax-form-group" style="margin: 0;">
+                <label class="ax-label" style="font-size: 0.75rem;">Most Likely Loss ($)</label>
+                <input type="text" class="ax-input" style="padding: 0.4rem 0.6rem; font-size: 0.85rem;" value="130,000" id="pert-likely">
             </div>
 
-            <div class="ui-form-group" style="margin: 0;">
-                <label class="ui-label" style="font-size: 0.75rem;">Maximum Loss ($)</label>
-                <input type="text" class="ui-input" style="padding: 0.4rem 0.6rem; font-size: 0.85rem;" value="300,000" id="pert-max">
+            <div class="ax-form-group" style="margin: 0;">
+                <label class="ax-label" style="font-size: 0.75rem;">Maximum Loss ($)</label>
+                <input type="text" class="ax-input" style="padding: 0.4rem 0.6rem; font-size: 0.85rem;" value="300,000" id="pert-max">
             </div>
         </div>
 
-        <button class="ui-btn ui-btn-violet ui-btn-sm" style="width: 100%;" onclick="recalculatePert()">Recalculate Bounds</button>
+        <button class="ax-btn ax-btn-violet ax-btn-sm" style="width: 100%;" onclick="recalculatePert()">Recalculate Bounds</button>
     </div>
 
     <!-- Bottom Row: Navigation Sub-Consoles -->
-    <div class="ui-bento-6 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-6 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">📂</span> Risk Scenarios & Treatments
         </div>
         <p class="muted" style="font-size: 0.85rem; margin-bottom: 1.25rem;">Identify, classify, and apply risk reduction treatment controls to critical threat vectors.</p>
         
         <div style="display: flex; gap: 0.75rem;">
-            <a href="/admin/risk-quantification/scenarios" class="ui-btn ui-btn-ghost ui-btn-sm" style="flex: 1; text-decoration: none; text-align: center;">Risk Scenarios →</a>
-            <a href="/admin/risk-quantification/treatments" class="ui-btn ui-btn-ghost ui-btn-sm" style="flex: 1; text-decoration: none; text-align: center;">Mitigate Risks →</a>
+            <a href="/admin/risk-quantification/scenarios" class="ax-btn ax-btn-ghost ax-btn-sm" style="flex: 1; text-decoration: none; text-align: center;">Risk Scenarios →</a>
+            <a href="/admin/risk-quantification/treatments" class="ax-btn ax-btn-ghost ax-btn-sm" style="flex: 1; text-decoration: none; text-align: center;">Mitigate Risks →</a>
         </div>
     </div>
 
-    <div class="ui-bento-6 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-6 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">💰</span> Investment & Optimization
         </div>
         <p class="muted" style="font-size: 0.85rem; margin-bottom: 1.25rem;">Optimize and balance security budgets by prioritising high-ROSI investments.</p>
         
         <div style="display: flex; gap: 0.75rem;">
-            <a href="/admin/risk-quantification/investments" class="ui-btn ui-btn-ghost ui-btn-sm" style="flex: 1; text-decoration: none; text-align: center;">Prioritize Investments →</a>
-            <a href="/admin/risk-quantification/portfolio" class="ui-btn ui-btn-ghost ui-btn-sm" style="flex: 1; text-decoration: none; text-align: center;">Risk Portfolio →</a>
+            <a href="/admin/risk-quantification/investments" class="ax-btn ax-btn-ghost ax-btn-sm" style="flex: 1; text-decoration: none; text-align: center;">Prioritize Investments →</a>
+            <a href="/admin/risk-quantification/portfolio" class="ax-btn ax-btn-ghost ax-btn-sm" style="flex: 1; text-decoration: none; text-align: center;">Risk Portfolio →</a>
         </div>
     </div>
 </div>

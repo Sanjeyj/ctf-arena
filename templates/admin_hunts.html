@@ -3,61 +3,61 @@
 {% block title %}Threat Hunting Console — CTF Arena SOC{% endblock %}
 
 {% block content %}
-<div class="ui-page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+<div class="ax-page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
     <div>
-        <div class="ui-page-title">🎯 Threat Hunting <em>Console</em></div>
-        <div class="ui-page-subtitle">Proactive hunt query engine: IOC, behavioral, MITRE ATT&CK, and anomaly search campaigns.</div>
+        <div class="ax-page-title">🎯 Threat Hunting <em>Console</em></div>
+        <div class="ax-page-subtitle">Proactive hunt query engine: IOC, behavioral, MITRE ATT&CK, and anomaly search campaigns.</div>
     </div>
-    <button class="ui-btn ui-btn-primary ui-btn-sm" onclick="document.getElementById('huntModal').style.display='flex'">+ New Hunt</button>
+    <button class="ax-btn ax-btn-primary ax-btn-sm" onclick="document.getElementById('huntModal').style.display='flex'">+ New Hunt</button>
 </div>
 
 <!-- Bento Grid -->
-<div class="ui-bento">
+<div class="ax-grid">
     <!-- TOP ROW: Hunt Type Selectors -->
-    <div class="ui-bento-3 ui-glass-card hunt-type-card active" data-type="ioc" onclick="selectType('ioc', this)" style="padding: 1.25rem; text-align: center; cursor: pointer;">
+    <div class="ax-grid-3 ax-card ui-glass-card hunt-type-card active" data-type="ioc" onclick="selectType('ioc', this)" style="padding: 1.25rem; text-align: center; cursor: pointer;">
         <div class="ht-icon" style="font-size: 1.75rem; margin-bottom: 0.5rem;">🔍</div>
         <div class="ht-label" style="font-weight: 600; font-size: 0.95rem; color: var(--ui-text-primary);">IOC Hunt</div>
-        <div class="ui-metric-sub">Search known indicators</div>
+        <div class="ax-metric-sub">Search known indicators</div>
     </div>
     
-    <div class="ui-bento-3 ui-glass-card hunt-type-card" data-type="behavioral" onclick="selectType('behavioral', this)" style="padding: 1.25rem; text-align: center; cursor: pointer;">
+    <div class="ax-grid-3 ax-card ui-glass-card hunt-type-card" data-type="behavioral" onclick="selectType('behavioral', this)" style="padding: 1.25rem; text-align: center; cursor: pointer;">
         <div class="ht-icon" style="font-size: 1.75rem; margin-bottom: 0.5rem;">👁️</div>
         <div class="ht-label" style="font-weight: 600; font-size: 0.95rem; color: var(--ui-text-primary);">Behavioral</div>
-        <div class="ui-metric-sub">Pattern detection query</div>
+        <div class="ax-metric-sub">Pattern detection query</div>
     </div>
     
-    <div class="ui-bento-3 ui-glass-card hunt-type-card" data-type="mitre" onclick="selectType('mitre', this)" style="padding: 1.25rem; text-align: center; cursor: pointer;">
+    <div class="ax-grid-3 ax-card ui-glass-card hunt-type-card" data-type="mitre" onclick="selectType('mitre', this)" style="padding: 1.25rem; text-align: center; cursor: pointer;">
         <div class="ht-icon" style="font-size: 1.75rem; margin-bottom: 0.5rem;">🗺️</div>
         <div class="ht-label" style="font-weight: 600; font-size: 0.95rem; color: var(--ui-text-primary);">MITRE ATT&CK</div>
-        <div class="ui-metric-sub">Technique-based hunt</div>
+        <div class="ax-metric-sub">Technique-based hunt</div>
     </div>
     
-    <div class="ui-bento-3 ui-glass-card hunt-type-card" data-type="anomaly" onclick="selectType('anomaly', this)" style="padding: 1.25rem; text-align: center; cursor: pointer;">
+    <div class="ax-grid-3 ax-card ui-glass-card hunt-type-card" data-type="anomaly" onclick="selectType('anomaly', this)" style="padding: 1.25rem; text-align: center; cursor: pointer;">
         <div class="ht-icon" style="font-size: 1.75rem; margin-bottom: 0.5rem;">📈</div>
         <div class="ht-label" style="font-weight: 600; font-size: 0.95rem; color: var(--ui-text-primary);">Anomaly</div>
-        <div class="ui-metric-sub">Statistical deviations</div>
+        <div class="ax-metric-sub">Statistical deviations</div>
     </div>
 
     <!-- MIDDLE ROW: Hunt Query Builder & Live Execution Output -->
     <!-- Query Builder -->
-    <div class="ui-bento-6 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-6 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">⚙️</span> Hunt Query Builder
         </div>
         
-        <div class="ui-form-group" id="ioc-panel">
-            <label class="ui-label">IOC Values (one per line)</label>
-            <textarea id="ioc-values" class="ui-input" style="font-family: var(--ui-font-mono); font-size: 0.85rem;" rows="5" placeholder="192.168.1.100&#10;malware.example.com&#10;evil.hash.here"></textarea>
+        <div class="ax-form-group" id="ioc-panel">
+            <label class="ax-label">IOC Values (one per line)</label>
+            <textarea id="ioc-values" class="ax-input" style="font-family: var(--ui-font-mono); font-size: 0.85rem;" rows="5" placeholder="192.168.1.100&#10;malware.example.com&#10;evil.hash.here"></textarea>
         </div>
         
-        <div class="ui-form-group" id="behavioral-panel" style="display:none">
-            <label class="ui-label">Behavioral Pattern (regex)</label>
-            <input type="text" id="behavior-pattern" class="ui-input" placeholder="e.g. brute.?force|spray">
+        <div class="ax-form-group" id="behavioral-panel" style="display:none">
+            <label class="ax-label">Behavioral Pattern (regex)</label>
+            <input type="text" id="behavior-pattern" class="ax-input" placeholder="e.g. brute.?force|spray">
         </div>
         
-        <div class="ui-form-group" id="mitre-panel" style="display:none">
-            <label class="ui-label">MITRE Technique ID</label>
-            <select id="mitre-technique" class="ui-select">
+        <div class="ax-form-group" id="mitre-panel" style="display:none">
+            <label class="ax-label">MITRE Technique ID</label>
+            <select id="mitre-technique" class="ax-select">
                 <option value="T1078">T1078 - Valid Accounts</option>
                 <option value="T1055">T1055 - Process Injection</option>
                 <option value="T1071">T1071 - Application Layer Protocol</option>
@@ -67,9 +67,9 @@
             </select>
         </div>
         
-        <div class="ui-form-group" id="anomaly-panel" style="display:none">
-            <label class="ui-label">Baseline Period</label>
-            <select id="anomaly-baseline" class="ui-select">
+        <div class="ax-form-group" id="anomaly-panel" style="display:none">
+            <label class="ax-label">Baseline Period</label>
+            <select id="anomaly-baseline" class="ax-select">
                 <option value="7d">Last 7 days</option>
                 <option value="30d">Last 30 days</option>
                 <option value="90d">Last 90 days</option>
@@ -77,13 +77,13 @@
         </div>
         
         <div style="margin-top: 1.25rem;">
-            <button class="ui-btn ui-btn-primary run-hunt-btn" onclick="quickHunt()">▶ Execute Hunt</button>
+            <button class="ax-btn ax-btn-primary run-hunt-btn" onclick="quickHunt()">▶ Execute Hunt</button>
         </div>
     </div>
 
     <!-- Live Hunt Output -->
-    <div class="ui-bento-6 ui-glass-card" id="huntResults" style="display:none; border-color: rgba(16,185,129,0.35);">
-        <div class="ui-card-title" style="color: var(--ui-success);">
+    <div class="ax-grid-6 ax-card ui-glass-card" id="huntResults" style="display:none; border-color: rgba(16,185,129,0.35);">
+        <div class="ax-card-title" style="color: var(--ui-success);">
             <span class="title-icon">🟢</span> Hunt Results Log
         </div>
         <div style="background: rgba(6, 8, 20, 0.85); border-radius: var(--ui-radius-md); padding: 1rem; border: 1px solid var(--ui-border); max-height: 250px; overflow-y: auto;">
@@ -92,13 +92,13 @@
     </div>
 
     <!-- BOTTOM ROW: Hunt History -->
-    <div class="ui-bento-12 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-12 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">⏳</span> Proactive Hunt History
         </div>
         
-        <div class="ui-table-wrap">
-            <table class="ui-table">
+        <div class="ax-table-wrap">
+            <table class="ax-table">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -118,24 +118,24 @@
                         <td style="font-weight: 600;">{{ hunt.name }}</td>
                         <td>
                             {% if hunt.hunt_type == 'ioc' %}
-                                <span class="ui-badge ui-badge-danger">IOC</span>
+                                <span class="ax-badge ax-badge-red">IOC</span>
                             {% elif hunt.hunt_type == 'behavioral' %}
-                                <span class="ui-badge ui-badge-warning">BEHAVIORAL</span>
+                                <span class="ax-badge ax-badge-amber">BEHAVIORAL</span>
                             {% elif hunt.hunt_type == 'mitre' %}
-                                <span class="ui-badge ui-badge-violet">MITRE ATT&CK</span>
+                                <span class="ax-badge ax-badge-purple">MITRE ATT&CK</span>
                             {% else %}
-                                <span class="ui-badge ui-badge-success">{{ hunt.hunt_type|upper }}</span>
+                                <span class="ax-badge ax-badge-green">{{ hunt.hunt_type|upper }}</span>
                             {% endif %}
                         </td>
                         <td>
                             {% if hunt.status == 'planned' %}
-                                <span class="ui-badge ui-badge-muted">PLANNED</span>
+                                <span class="ax-badge ax-badge-zinc">PLANNED</span>
                             {% elif hunt.status == 'active' %}
-                                <span class="ui-badge ui-badge-warning">ACTIVE</span>
+                                <span class="ax-badge ax-badge-amber">ACTIVE</span>
                             {% elif hunt.status == 'completed' %}
-                                <span class="ui-badge ui-badge-success">COMPLETED</span>
+                                <span class="ax-badge ax-badge-green">COMPLETED</span>
                             {% else %}
-                                <span class="ui-badge ui-badge-muted">{{ hunt.status|upper }}</span>
+                                <span class="ax-badge ax-badge-zinc">{{ hunt.status|upper }}</span>
                             {% endif %}
                         </td>
                         <td class="mono" style="font-weight: 700; color: var(--ui-cyan);">{{ hunt.artifacts_found }}</td>
@@ -143,7 +143,7 @@
                         <td class="mono muted">{{ hunt.started_at.strftime('%Y-%m-%d %H:%M') if hunt.started_at else '—' }}</td>
                         <td>
                             {% if hunt.status == 'planned' %}
-                                <button class="ui-btn ui-btn-primary ui-btn-sm" style="padding: 0.2rem 0.65rem;" onclick="runHunt({{ hunt.id }})">▶ Run</button>
+                                <button class="ax-btn ax-btn-primary ax-btn-sm" style="padding: 0.2rem 0.65rem;" onclick="runHunt({{ hunt.id }})">▶ Run</button>
                             {% else %}
                                 <span class="muted">—</span>
                             {% endif %}
@@ -173,14 +173,14 @@
             <button onclick="document.getElementById('huntModal').style.display='none'" class="modal-close" style="background: none; border: none; color: var(--ui-text-secondary); font-size: 1.2rem; cursor: pointer;">✕</button>
         </div>
         <form onsubmit="createHunt(event)">
-            <div class="ui-form-group">
-                <label class="ui-label">Hunt Name</label>
-                <input type="text" id="hunt-name" class="ui-input" placeholder="e.g. Behavioral search brute-force" required>
+            <div class="ax-form-group">
+                <label class="ax-label">Hunt Name</label>
+                <input type="text" id="hunt-name" class="ax-input" placeholder="e.g. Behavioral search brute-force" required>
             </div>
             
-            <div class="ui-form-group">
-                <label class="ui-label">Type</label>
-                <select id="hunt-type-select" class="ui-select">
+            <div class="ax-form-group">
+                <label class="ax-label">Type</label>
+                <select id="hunt-type-select" class="ax-select">
                     <option value="ioc">IOC</option>
                     <option value="behavioral">Behavioral</option>
                     <option value="mitre">MITRE ATT&CK</option>
@@ -188,14 +188,14 @@
                 </select>
             </div>
             
-            <div class="ui-form-group">
-                <label class="ui-label">Hypothesis</label>
-                <textarea id="hunt-hypothesis" class="ui-input" rows="3" placeholder="What pattern or indicator are you searching for?"></textarea>
+            <div class="ax-form-group">
+                <label class="ax-label">Hypothesis</label>
+                <textarea id="hunt-hypothesis" class="ax-input" rows="3" placeholder="What pattern or indicator are you searching for?"></textarea>
             </div>
             
             <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
-                <button type="button" class="ui-btn ui-btn-ghost" onclick="document.getElementById('huntModal').style.display='none'">Cancel</button>
-                <button type="submit" class="ui-btn ui-btn-primary">Create Hunt</button>
+                <button type="button" class="ax-btn ax-btn-ghost" onclick="document.getElementById('huntModal').style.display='none'">Cancel</button>
+                <button type="submit" class="ax-btn ax-btn-primary">Create Hunt</button>
             </div>
         </form>
     </div>

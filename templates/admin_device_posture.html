@@ -2,27 +2,27 @@
 {% block title %}Device Posture Dashboard — Cyber Defense Platform{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
+<div class="ax-page-header">
   <div>
-    <h1 class="ui-page-title">Device Compliance &amp; Posture</h1>
-    <p class="ui-page-subtitle">Endpoint compliance verification, patch levels, encryption status, and Zero Trust device posture scores.</p>
+    <h1 class="ax-page-title">Device Compliance &amp; Posture</h1>
+    <p class="ax-page-subtitle">Endpoint compliance verification, patch levels, encryption status, and Zero Trust device posture scores.</p>
   </div>
-  <a class="ui-btn ui-btn-ghost" href="/admin/assurance">← Back to Assurance Fabric</a>
+  <a class="ax-btn ax-btn-ghost" href="/admin/assurance">← Back to Assurance Fabric</a>
 </div>
 
-<div class="ui-bento">
+<div class="ax-grid">
   {% for d in devices %}
-  <div class="ui-glass-card ui-bento-card" tabindex="0">
+  <div class="ax-card ui-glass-card ax-grid-card" tabindex="0">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
       <h3 style="font-size:1rem;font-weight:600;color:var(--ui-text-primary);margin:0;">{{ d.device_name }}</h3>
       {% if d.compliance_status == 'compliant' %}
-        <span class="ui-badge ui-badge-success">COMPLIANT</span>
+        <span class="ax-badge ax-badge-green">COMPLIANT</span>
       {% elif d.compliance_status == 'restricted' %}
-        <span class="ui-badge ui-badge-warning">RESTRICTED</span>
+        <span class="ax-badge ax-badge-amber">RESTRICTED</span>
       {% elif d.compliance_status == 'non_compliant' %}
-        <span class="ui-badge ui-badge-danger">NON-COMPLIANT</span>
+        <span class="ax-badge ax-badge-red">NON-COMPLIANT</span>
       {% else %}
-        <span class="ui-badge ui-badge-muted">{{ d.compliance_status.upper() }}</span>
+        <span class="ax-badge ax-badge-zinc">{{ d.compliance_status.upper() }}</span>
       {% endif %}
     </div>
 
@@ -61,7 +61,7 @@
     </div>
   </div>
   {% else %}
-  <div class="ui-glass-card ui-bento-card ui-empty-state">
+  <div class="ax-card ui-glass-card ax-grid-card ui-empty-state">
     <div class="ui-empty-icon">💻</div>
     <p class="ui-empty-text">No devices registered.</p>
   </div>

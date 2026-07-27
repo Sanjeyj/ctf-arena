@@ -3,19 +3,19 @@
 {% block title %}Campaign Timelines — CTI Platform{% endblock %}
 
 {% block content %}
-<div class="ui-page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+<div class="ax-page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
     <div>
-        <div class="ui-page-title">📅 Campaign Tracking</div>
-        <div class="ui-page-subtitle">Trace active threat campaigns, timeline schedules, and targeted industry sectors.</div>
+        <div class="ax-page-title">📅 Campaign Tracking</div>
+        <div class="ax-page-subtitle">Trace active threat campaigns, timeline schedules, and targeted industry sectors.</div>
     </div>
-    <button class="ui-btn ui-btn-primary ui-btn-sm" onclick="document.getElementById('createModal').style.display='flex'">+ Add Campaign</button>
+    <button class="ax-btn ax-btn-primary ax-btn-sm" onclick="document.getElementById('createModal').style.display='flex'">+ Add Campaign</button>
 </div>
 
 <!-- Bento Grid -->
-<div class="ui-bento">
+<div class="ax-grid">
     <!-- Main Timeline Content Area -->
-    <div class="ui-bento-12 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-12 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">📅</span> Active Campaign Timeline
         </div>
         
@@ -35,42 +35,42 @@
         </div>
         
         <form id="createCampaignForm">
-            <div class="ui-form-group">
-                <label class="ui-label">Campaign Name</label>
-                <input type="text" id="campaign-name" class="ui-input" placeholder="e.g. Operation Windigo" required>
+            <div class="ax-form-group">
+                <label class="ax-label">Campaign Name</label>
+                <input type="text" id="campaign-name" class="ax-input" placeholder="e.g. Operation Windigo" required>
             </div>
             
-            <div class="ui-form-group">
-                <label class="ui-label">Target Threat Actor Group</label>
-                <select id="campaign-actor" class="ui-select" required>
+            <div class="ax-form-group">
+                <label class="ax-label">Target Threat Actor Group</label>
+                <select id="campaign-actor" class="ax-select" required>
                     <!-- Loaded dynamically -->
                 </select>
             </div>
             
-            <div class="ui-form-group">
-                <label class="ui-label">Target Sector</label>
-                <input type="text" id="campaign-sector" class="ui-input" placeholder="e.g. Healthcare, Defense">
+            <div class="ax-form-group">
+                <label class="ax-label">Target Sector</label>
+                <input type="text" id="campaign-sector" class="ax-input" placeholder="e.g. Healthcare, Defense">
             </div>
             
             <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                <div class="ui-form-group" style="margin: 0;">
-                    <label class="ui-label">Malware Deployed</label>
-                    <input type="text" id="campaign-malware" class="ui-input" placeholder="Cobalt Strike, Mimikatz">
+                <div class="ax-form-group" style="margin: 0;">
+                    <label class="ax-label">Malware Deployed</label>
+                    <input type="text" id="campaign-malware" class="ax-input" placeholder="Cobalt Strike, Mimikatz">
                 </div>
-                <div class="ui-form-group" style="margin: 0;">
-                    <label class="ui-label">MITRE Techniques</label>
-                    <input type="text" id="campaign-techniques" class="ui-input" placeholder="T1190, T1078">
+                <div class="ax-form-group" style="margin: 0;">
+                    <label class="ax-label">MITRE Techniques</label>
+                    <input type="text" id="campaign-techniques" class="ax-input" placeholder="T1190, T1078">
                 </div>
             </div>
             
-            <div class="ui-form-group">
-                <label class="ui-label">Description</label>
-                <textarea id="campaign-desc" class="ui-input" rows="3" placeholder="Brief details about target campaign indicators..."></textarea>
+            <div class="ax-form-group">
+                <label class="ax-label">Description</label>
+                <textarea id="campaign-desc" class="ax-input" rows="3" placeholder="Brief details about target campaign indicators..."></textarea>
             </div>
             
             <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
-                <button type="button" class="ui-btn ui-btn-ghost" onclick="document.getElementById('createModal').style.display='none'">Cancel</button>
-                <button type="submit" class="ui-btn ui-btn-primary">Create Campaign</button>
+                <button type="button" class="ax-btn ax-btn-ghost" onclick="document.getElementById('createModal').style.display='none'">Cancel</button>
+                <button type="submit" class="ax-btn ax-btn-primary">Create Campaign</button>
             </div>
         </form>
     </div>
@@ -125,21 +125,21 @@ async function loadCampaigns() {
     
     data.campaigns.forEach(camp => {
       const card = document.createElement('div');
-      card.className = "campaign-timeline-item ui-glass-card accent-cyan";
+      card.className = "campaign-timeline-item ax-card ui-glass-card accent-cyan";
       card.style.marginBottom = "1.25rem";
       card.style.position = "relative";
       card.style.paddingLeft = "2.5rem";
       card.innerHTML = `
         <div style="position: absolute; left: 0.9rem; top: 1.5rem; width: 10px; height: 10px; background: var(--ui-cyan); border-radius: 50%; box-shadow: var(--ui-shadow-glow-cyan);"></div>
-        <div class="ui-metric-label" style="margin-bottom: 0.4rem;">Target Sector: ${camp.target_sector || 'Global'}</div>
+        <div class="ax-metric-label" style="margin-bottom: 0.4rem;">Target Sector: ${camp.target_sector || 'Global'}</div>
         <div class="cti-content">
-          <h4 class="ui-card-title" style="margin-bottom: 0.5rem; font-size: 1.05rem;">${camp.name}</h4>
-          <p class="ui-metric-sub" style="margin-bottom: 1rem; color: var(--ui-text-secondary); line-height: 1.5;">${camp.description || 'No description provided.'}</p>
+          <h4 class="ax-card-title" style="margin-bottom: 0.5rem; font-size: 1.05rem;">${camp.name}</h4>
+          <p class="ax-metric-sub" style="margin-bottom: 1rem; color: var(--ui-text-secondary); line-height: 1.5;">${camp.description || 'No description provided.'}</p>
           <div style="display: flex; gap: 1.5rem; font-size: 0.8rem; color: var(--ui-text-muted); margin-bottom: 0.75rem;">
             <span>🦠 Malware: <span class="mono cyan">${camp.malware_used || 'None'}</span></span>
             <span>🎯 Techniques: <span class="mono violet">${camp.techniques_used || 'None'}</span></span>
           </div>
-          <button class="ui-btn ui-btn-violet ui-btn-sm" onclick="summarizeCampaign(${camp.id})">🤖 AI Summarize</button>
+          <button class="ax-btn ax-btn-violet ax-btn-sm" onclick="summarizeCampaign(${camp.id})">🤖 AI Summarize</button>
         </div>
       `;
       container.appendChild(card);

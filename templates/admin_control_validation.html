@@ -2,16 +2,16 @@
 {% block title %}Control Validation Results — Cyber Defense Platform{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
+<div class="ax-page-header">
   <div>
-    <h1 class="ui-page-title">Continuous Control Validation Results</h1>
-    <p class="ui-page-subtitle">Compliance control execution ledger — effectiveness scores, expected vs actual outcomes, and verification status.</p>
+    <h1 class="ax-page-title">Continuous Control Validation Results</h1>
+    <p class="ax-page-subtitle">Compliance control execution ledger — effectiveness scores, expected vs actual outcomes, and verification status.</p>
   </div>
-  <a class="ui-btn ui-btn-ghost" href="/admin/assurance">← Back to Assurance Fabric</a>
+  <a class="ax-btn ax-btn-ghost" href="/admin/assurance">← Back to Assurance Fabric</a>
 </div>
 
-<div class="ui-glass-card" style="overflow-x:auto;">
-  <table class="ui-table" aria-label="Control validation results">
+<div class="ax-card ui-glass-card" style="overflow-x:auto;">
+  <table class="ax-table" aria-label="Control validation results">
     <thead>
       <tr>
         <th scope="col">ID</th>
@@ -38,13 +38,13 @@
         </td>
         <td>
           {% if v.status == 'passed' %}
-            <span class="ui-badge ui-badge-success">PASSED</span>
+            <span class="ax-badge ax-badge-green">PASSED</span>
           {% elif v.status == 'partially_effective' %}
-            <span class="ui-badge ui-badge-info">PARTIAL</span>
+            <span class="ax-badge ax-badge-blue">PARTIAL</span>
           {% elif v.status == 'failed' %}
-            <span class="ui-badge ui-badge-danger">FAILED</span>
+            <span class="ax-badge ax-badge-red">FAILED</span>
           {% else %}
-            <span class="ui-badge ui-badge-muted">{{ v.status.upper() }}</span>
+            <span class="ax-badge ax-badge-zinc">{{ v.status.upper() }}</span>
           {% endif %}
         </td>
       </tr>

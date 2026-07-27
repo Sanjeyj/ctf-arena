@@ -3,68 +3,68 @@
 {% block title %}Threat Intelligence — CTF Arena SOC{% endblock %}
 
 {% block content %}
-<div class="ui-page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+<div class="ax-page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
     <div>
-        <div class="ui-page-title">🌐 Threat <em>Intelligence</em></div>
-        <div class="ui-page-subtitle">IOC management, enrichment, and feed aggregation.</div>
+        <div class="ax-page-title">🌐 Threat <em>Intelligence</em></div>
+        <div class="ax-page-subtitle">IOC management, enrichment, and feed aggregation.</div>
     </div>
     <div style="display: flex; gap: 0.75rem;">
-        <button class="ui-btn ui-btn-primary ui-btn-sm" onclick="document.getElementById('iocModal').style.display='flex'">+ Add IOC</button>
-        <button class="ui-btn ui-btn-ghost ui-btn-sm" onclick="document.getElementById('feedModal').style.display='flex'">⚡ Feeds</button>
+        <button class="ax-btn ax-btn-primary ax-btn-sm" onclick="document.getElementById('iocModal').style.display='flex'">+ Add IOC</button>
+        <button class="ax-btn ax-btn-ghost ax-btn-sm" onclick="document.getElementById('feedModal').style.display='flex'">⚡ Feeds</button>
     </div>
 </div>
 
 <!-- Bento Grid -->
-<div class="ui-bento">
+<div class="ax-grid">
     <!-- TOP ROW: IOC Type Counts -->
     {% for ioc_type in ['ip', 'domain', 'url', 'hash', 'email'] %}
-    <div class="ui-bento-2 ui-glass-card">
-        <div class="ui-metric-card" style="align-items: center; text-align: center;">
+    <div class="ax-grid-2 ax-card ui-glass-card">
+        <div class="ax-metric" style="align-items: center; text-align: center;">
             <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">
                 {% if ioc_type == 'ip' %}🖥️{% elif ioc_type == 'domain' %}🌐{% elif ioc_type == 'url' %}🔗{% elif ioc_type == 'hash' %}🔒{% else %}📧{% endif %}
             </div>
-            <div class="ui-metric-value" style="font-size: 1.75rem;">{{ ioc_counts.get(ioc_type, 0) }}</div>
-            <div class="ui-metric-label">{{ ioc_type|upper }}</div>
+            <div class="ax-metric-value" style="font-size: 1.75rem;">{{ ioc_counts.get(ioc_type, 0) }}</div>
+            <div class="ax-metric-label">{{ ioc_type|upper }}</div>
         </div>
     </div>
     {% endfor %}
     
-    <div class="ui-bento-2 ui-glass-card accent-danger">
-        <div class="ui-metric-card" style="align-items: center; text-align: center;">
+    <div class="ax-grid-2 ax-card ui-glass-card accent-danger">
+        <div class="ax-metric" style="align-items: center; text-align: center;">
             <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">🚫</div>
-            <div class="ui-metric-value" style="font-size: 1.75rem;">{{ blocked_count }}</div>
-            <div class="ui-metric-label">Blocked</div>
+            <div class="ax-metric-value" style="font-size: 1.75rem;">{{ blocked_count }}</div>
+            <div class="ax-metric-label">Blocked</div>
         </div>
     </div>
 
     <!-- MIDDLE ROW: IOC List Table with Filters -->
-    <div class="ui-bento-12 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-12 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">🔍</span> Threat Indicators
         </div>
         
         <!-- Filter controls -->
         <div style="display: flex; gap: 0.75rem; margin-bottom: 1.25rem;">
-            <select id="type-filter" class="ui-select" style="max-width: 180px;" onchange="filterIOCs()">
+            <select id="type-filter" class="ax-select" style="max-width: 180px;" onchange="filterIOCs()">
                 <option value="">All Types</option>
                 {% for t in ['ip','domain','url','hash','email'] %}
                 <option value="{{ t }}">{{ t|upper }}</option>
                 {% endfor %}
             </select>
             
-            <select id="sev-filter" class="ui-select" style="max-width: 180px;" onchange="filterIOCs()">
+            <select id="sev-filter" class="ax-select" style="max-width: 180px;" onchange="filterIOCs()">
                 <option value="">All Severities</option>
                 {% for s in ['critical','high','medium','low','info'] %}
                 <option value="{{ s }}">{{ s|capitalize }}</option>
                 {% endfor %}
             </select>
             
-            <input type="text" id="search-ioc" class="ui-input" placeholder="Search IOC value..." oninput="filterIOCs()">
+            <input type="text" id="search-ioc" class="ax-input" placeholder="Search IOC value..." oninput="filterIOCs()">
         </div>
 
         <!-- IOC Table -->
-        <div class="ui-table-wrap">
-            <table class="ui-table" id="iocTable">
+        <div class="ax-table-wrap">
+            <table class="ax-table" id="iocTable">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -85,29 +85,29 @@
                         <td class="mono muted">#{{ ioc.id }}</td>
                         <td>
                             {% if ioc.type == 'ip' %}
-                                <span class="ui-badge ui-badge-cyan">IP</span>
+                                <span class="ax-badge ax-badge-blue">IP</span>
                             {% elif ioc.type == 'domain' %}
-                                <span class="ui-badge ui-badge-violet">DOMAIN</span>
+                                <span class="ax-badge ax-badge-purple">DOMAIN</span>
                             {% elif ioc.type == 'url' %}
-                                <span class="ui-badge ui-badge-warning">URL</span>
+                                <span class="ax-badge ax-badge-amber">URL</span>
                             {% elif ioc.type == 'hash' %}
-                                <span class="ui-badge ui-badge-muted">HASH</span>
+                                <span class="ax-badge ax-badge-zinc">HASH</span>
                             {% else %}
-                                <span class="ui-badge ui-badge-success">{{ ioc.type|upper }}</span>
+                                <span class="ax-badge ax-badge-green">{{ ioc.type|upper }}</span>
                             {% endif %}
                         </td>
                         <td class="mono"><code>{{ ioc.value[:60] }}{% if ioc.value|length > 60 %}…{% endif %}</code></td>
                         <td>
                             {% if ioc.severity == 'critical' %}
-                                <span class="ui-badge ui-badge-danger">CRITICAL</span>
+                                <span class="ax-badge ax-badge-red">CRITICAL</span>
                             {% elif ioc.severity == 'high' %}
-                                <span class="ui-badge ui-badge-warning">HIGH</span>
+                                <span class="ax-badge ax-badge-amber">HIGH</span>
                             {% elif ioc.severity == 'medium' %}
-                                <span class="ui-badge ui-badge-violet">MEDIUM</span>
+                                <span class="ax-badge ax-badge-purple">MEDIUM</span>
                             {% elif ioc.severity == 'low' %}
-                                <span class="ui-badge ui-badge-success">LOW</span>
+                                <span class="ax-badge ax-badge-green">LOW</span>
                             {% else %}
-                                <span class="ui-badge ui-badge-muted">{{ ioc.severity|upper }}</span>
+                                <span class="ax-badge ax-badge-zinc">{{ ioc.severity|upper }}</span>
                             {% endif %}
                         </td>
                         <td>
@@ -123,11 +123,11 @@
                         <td>
                             {% if ioc.reputation_score is not none %}
                                 {% if ioc.reputation_score < 40 %}
-                                    <span class="ui-badge ui-badge-danger">{{ ioc.reputation_score }} (Bad)</span>
+                                    <span class="ax-badge ax-badge-red">{{ ioc.reputation_score }} (Bad)</span>
                                 {% elif ioc.reputation_score < 70 %}
-                                    <span class="ui-badge ui-badge-warning">{{ ioc.reputation_score }} (Warn)</span>
+                                    <span class="ax-badge ax-badge-amber">{{ ioc.reputation_score }} (Warn)</span>
                                 {% else %}
-                                    <span class="ui-badge ui-badge-success">{{ ioc.reputation_score }} (Good)</span>
+                                    <span class="ax-badge ax-badge-green">{{ ioc.reputation_score }} (Good)</span>
                                 {% endif %}
                             {% else %}
                                 <span class="muted">—</span>
@@ -135,17 +135,17 @@
                         </td>
                         <td>
                             {% if ioc.is_blocked %}
-                                <span class="ui-badge ui-badge-danger">BLOCKED</span>
+                                <span class="ax-badge ax-badge-red">BLOCKED</span>
                             {% elif not ioc.is_active %}
-                                <span class="ui-badge ui-badge-muted">INACTIVE</span>
+                                <span class="ax-badge ax-badge-zinc">INACTIVE</span>
                             {% else %}
-                                <span class="ui-badge ui-badge-success">ACTIVE</span>
+                                <span class="ax-badge ax-badge-green">ACTIVE</span>
                             {% endif %}
                         </td>
                         <td>
                             <div style="display: flex; gap: 0.35rem;">
-                                <button class="ui-btn ui-btn-ghost ui-btn-sm" style="padding: 0.25rem 0.5rem;" title="Enrich IOC" onclick="enrichIOC({{ ioc.id }})">🔍</button>
-                                <button class="ui-btn ui-btn-danger ui-btn-sm" style="padding: 0.25rem 0.5rem;" title="Block IOC" onclick="blockIOC({{ ioc.id }})">🚫</button>
+                                <button class="ax-btn ax-btn-ghost ax-btn-sm" style="padding: 0.25rem 0.5rem;" title="Enrich IOC" onclick="enrichIOC({{ ioc.id }})">🔍</button>
+                                <button class="ax-btn ax-btn-danger ax-btn-sm" style="padding: 0.25rem 0.5rem;" title="Block IOC" onclick="blockIOC({{ ioc.id }})">🚫</button>
                             </div>
                         </td>
                     </tr>
@@ -165,23 +165,23 @@
     </div>
 
     <!-- BOTTOM ROW: Threat Feeds -->
-    <div class="ui-bento-12 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-12 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">📡</span> Active Threat Intelligence Feeds
         </div>
         
-        <div class="ui-bento">
+        <div class="ax-grid">
             {% for feed in feeds %}
-            <div class="ui-bento-3 ui-glass-card {% if feed.enabled %}accent-success{% else %}accent-danger{% endif %}" style="padding: 1rem; position: relative;">
+            <div class="ax-grid-3 ax-card ui-glass-card {% if feed.enabled %}accent-success{% else %}accent-danger{% endif %}" style="padding: 1rem; position: relative;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
                     <div style="font-weight: 600; color: var(--ui-text-primary); font-size: 0.95rem;">{{ feed.name }}</div>
-                    <span class="ui-pulse-dot" style="background: {% if feed.enabled %}var(--ui-success){% else %}var(--ui-danger){% endif %};"></span>
+                    <span class="ax-status-dot-indicator" style="background: {% if feed.enabled %}var(--ui-success){% else %}var(--ui-danger){% endif %};"></span>
                 </div>
-                <div class="ui-metric-sub" style="margin-bottom: 0.25rem;">Type: {{ feed.feed_type }} • Count: <span class="mono cyan">{{ feed.ioc_count }}</span> IOCs</div>
-                <div class="ui-metric-sub" style="font-size: 0.72rem;">Last pull: {{ feed.last_fetched.strftime('%m/%d %H:%M') if feed.last_fetched else 'Never' }}</div>
+                <div class="ax-metric-sub" style="margin-bottom: 0.25rem;">Type: {{ feed.feed_type }} • Count: <span class="mono cyan">{{ feed.ioc_count }}</span> IOCs</div>
+                <div class="ax-metric-sub" style="font-size: 0.72rem;">Last pull: {{ feed.last_fetched.strftime('%m/%d %H:%M') if feed.last_fetched else 'Never' }}</div>
             </div>
             {% else %}
-            <div class="ui-bento-12">
+            <div class="ax-grid-12">
                 <div class="ui-empty-state">No threat feeds registered in the platform.</div>
             </div>
             {% endfor %}
@@ -198,9 +198,9 @@
         </div>
         <form onsubmit="addIOC(event)">
             <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                <div class="ui-form-group" style="margin: 0;">
-                    <label class="ui-label">Type</label>
-                    <select id="ioc-type" class="ui-select">
+                <div class="ax-form-group" style="margin: 0;">
+                    <label class="ax-label">Type</label>
+                    <select id="ioc-type" class="ax-select">
                         <option value="ip">IP</option>
                         <option value="domain">Domain</option>
                         <option value="url">URL</option>
@@ -208,9 +208,9 @@
                         <option value="email">Email</option>
                     </select>
                 </div>
-                <div class="ui-form-group" style="margin: 0;">
-                    <label class="ui-label">Severity</label>
-                    <select id="ioc-severity" class="ui-select">
+                <div class="ax-form-group" style="margin: 0;">
+                    <label class="ax-label">Severity</label>
+                    <select id="ioc-severity" class="ax-select">
                         <option value="info">Info</option>
                         <option value="low">Low</option>
                         <option value="medium" selected>Medium</option>
@@ -219,27 +219,27 @@
                     </select>
                 </div>
             </div>
-            <div class="ui-form-group">
-                <label class="ui-label">Value</label>
-                <input type="text" id="ioc-value" class="ui-input" placeholder="e.g. 185.220.101.5 or evil-domain.ru" required>
+            <div class="ax-form-group">
+                <label class="ax-label">Value</label>
+                <input type="text" id="ioc-value" class="ax-input" placeholder="e.g. 185.220.101.5 or evil-domain.ru" required>
             </div>
             <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                <div class="ui-form-group" style="margin: 0;">
-                    <label class="ui-label">Source</label>
-                    <input type="text" id="ioc-source" class="ui-input" placeholder="manual" value="manual">
+                <div class="ax-form-group" style="margin: 0;">
+                    <label class="ax-label">Source</label>
+                    <input type="text" id="ioc-source" class="ax-input" placeholder="manual" value="manual">
                 </div>
-                <div class="ui-form-group" style="margin: 0;">
-                    <label class="ui-label">Confidence %</label>
-                    <input type="number" id="ioc-confidence" class="ui-input" min="0" max="100" value="75">
+                <div class="ax-form-group" style="margin: 0;">
+                    <label class="ax-label">Confidence %</label>
+                    <input type="number" id="ioc-confidence" class="ax-input" min="0" max="100" value="75">
                 </div>
             </div>
-            <div class="ui-form-group">
-                <label class="ui-label">Description</label>
-                <textarea id="ioc-desc" class="ui-input" rows="2" placeholder="Describe the indicator context..."></textarea>
+            <div class="ax-form-group">
+                <label class="ax-label">Description</label>
+                <textarea id="ioc-desc" class="ax-input" rows="2" placeholder="Describe the indicator context..."></textarea>
             </div>
             <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
-                <button type="button" class="ui-btn ui-btn-ghost" onclick="document.getElementById('iocModal').style.display='none'">Cancel</button>
-                <button type="submit" class="ui-btn ui-btn-primary">Add IOC</button>
+                <button type="button" class="ax-btn ax-btn-ghost" onclick="document.getElementById('iocModal').style.display='none'">Cancel</button>
+                <button type="submit" class="ax-btn ax-btn-primary">Add IOC</button>
             </div>
         </form>
     </div>
@@ -252,9 +252,9 @@
             <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700;">📡 Threat Intel Feeds</h3>
             <button onclick="document.getElementById('feedModal').style.display='none'" class="modal-close" style="background: none; border: none; color: var(--ui-text-secondary); font-size: 1.2rem; cursor: pointer;">✕</button>
         </div>
-        <p class="ui-metric-sub" style="margin-bottom: 1.5rem;">Threat feeds are managed via scheduled background collectors. You can toggle feeds or change collection intervals in config.</p>
+        <p class="ax-metric-sub" style="margin-bottom: 1.5rem;">Threat feeds are managed via scheduled background collectors. You can toggle feeds or change collection intervals in config.</p>
         <div style="display: flex; justify-content: flex-end;">
-            <button type="button" class="ui-btn ui-btn-ghost" onclick="document.getElementById('feedModal').style.display='none'">Close</button>
+            <button type="button" class="ax-btn ax-btn-ghost" onclick="document.getElementById('feedModal').style.display='none'">Close</button>
         </div>
     </div>
 </div>

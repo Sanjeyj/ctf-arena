@@ -2,18 +2,18 @@
 {% block title %}Third-Party Vendor Risk Management — Admin{% endblock %}
 
 {% block content %}
-<div class="ui-page-header" style="display: flex; justify-content: space-between; align-items: center;">
+<div class="ax-page-header" style="display: flex; justify-content: space-between; align-items: center;">
     <div>
-        <div class="ui-page-title">🏢 Third-Party Vendor <em>Risk Register</em></div>
-        <div class="ui-page-subtitle">Monitor supply chain suppliers, assess security posture, and manage compliance audits for all vendors.</div>
+        <div class="ax-page-title">🏢 Third-Party Vendor <em>Risk Register</em></div>
+        <div class="ax-page-subtitle">Monitor supply chain suppliers, assess security posture, and manage compliance audits for all vendors.</div>
     </div>
     <div>
-        <button class="ui-btn ui-btn-primary ui-btn-sm" onclick="openVendorModal()">+ Register Vendor</button>
+        <button class="ax-btn ax-btn-primary ax-btn-sm" onclick="openVendorModal()">+ Register Vendor</button>
     </div>
 </div>
 
 <!-- Bento Grid -->
-<div class="ui-bento">
+<div class="ax-grid">
     <!-- Top Row: KPI Cards -->
     {% set total_count = vendors|length %}
     {% set critical_count = namespace(val=0) %}
@@ -31,46 +31,46 @@
     
     {% set avg_risk = (total_risk.val / total_count) if total_count > 0 else 0.0 %}
 
-    <div class="ui-bento-3 ui-glass-card">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Vendor Count</div>
-            <div class="ui-metric-value" id="vendor-count">{{ total_count }}</div>
-            <div class="ui-metric-sub">Total registered third parties</div>
+    <div class="ax-grid-3 ax-card ui-glass-card">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Vendor Count</div>
+            <div class="ax-metric-value" id="vendor-count">{{ total_count }}</div>
+            <div class="ax-metric-sub">Total registered third parties</div>
         </div>
     </div>
 
-    <div class="ui-bento-3 ui-glass-card accent-danger">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Critical Vendors</div>
-            <div class="ui-metric-value success" id="critical-vendors">{{ critical_count.val }}</div>
-            <div class="ui-metric-sub">Risk score &ge; 70</div>
+    <div class="ax-grid-3 ax-card ui-glass-card accent-danger">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Critical Vendors</div>
+            <div class="ax-metric-value success" id="critical-vendors">{{ critical_count.val }}</div>
+            <div class="ax-metric-sub">Risk score &ge; 70</div>
         </div>
     </div>
 
-    <div class="ui-bento-3 ui-glass-card accent-warning">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">High/Medium Risk</div>
-            <div class="ui-metric-value warning" id="high-risk-vendors">{{ high_count.val }}</div>
-            <div class="ui-metric-sub">Risk score between 40 and 69</div>
+    <div class="ax-grid-3 ax-card ui-glass-card accent-warning">
+        <div class="ax-metric">
+            <div class="ax-metric-label">High/Medium Risk</div>
+            <div class="ax-metric-value warning" id="high-risk-vendors">{{ high_count.val }}</div>
+            <div class="ax-metric-sub">Risk score between 40 and 69</div>
         </div>
     </div>
 
-    <div class="ui-bento-3 ui-glass-card accent-violet">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Average Risk</div>
-            <div class="ui-metric-value violet" id="avg-risk">{{ avg_risk|round(1) }}%</div>
-            <div class="ui-metric-sub">Mean organizational risk exposure</div>
+    <div class="ax-grid-3 ax-card ui-glass-card accent-violet">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Average Risk</div>
+            <div class="ax-metric-value violet" id="avg-risk">{{ avg_risk|round(1) }}%</div>
+            <div class="ax-metric-sub">Mean organizational risk exposure</div>
         </div>
     </div>
 
     <!-- Middle: Table Card -->
-    <div class="ui-bento-8 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-8 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span><span class="title-icon">📋</span> Registered Vendors</span>
         </div>
         
-        <div class="ui-table-wrap">
-            <table class="ui-table">
+        <div class="ax-table-wrap">
+            <table class="ax-table">
                 <thead>
                     <tr>
                         <th>Vendor Name</th>
@@ -95,15 +95,15 @@
                         </td>
                         <td>
                             {% if v.risk_score >= 70 %}
-                                <span class="ui-badge ui-badge-danger">HIGH</span>
+                                <span class="ax-badge ax-badge-red">HIGH</span>
                             {% elif v.risk_score >= 40 %}
-                                <span class="ui-badge ui-badge-warning">MEDIUM</span>
+                                <span class="ax-badge ax-badge-amber">MEDIUM</span>
                             {% else %}
-                                <span class="ui-badge ui-badge-success">LOW</span>
+                                <span class="ax-badge ax-badge-green">LOW</span>
                             {% endif %}
                         </td>
                         <td>
-                            <span class="ui-badge {% if v.contract_status == 'active' %}ui-badge-success{% else %}ui-badge-danger{% endif %}">{{ v.contract_status|upper }}</span>
+                            <span class="ax-badge {% if v.contract_status == 'active' %}ax-badge-green{% else %}ax-badge-red{% endif %}">{{ v.contract_status|upper }}</span>
                         </td>
                     </tr>
                     {% else %}
@@ -122,8 +122,8 @@
     </div>
 
     <!-- Right Side: Risk distribution details -->
-    <div class="ui-bento-4 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-4 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">📊</span> Risk Allocation Analysis
         </div>
         <p class="muted" style="font-size: 0.85rem; margin-bottom: 1.25rem;">Compliance check bounds for third-party supply chain audits.</p>
@@ -153,30 +153,30 @@
 <!-- Modal Dialog for Registering Vendor -->
 <div class="modal-overlay" id="vendorModal" style="display: none;">
     <div class="ui-glass-strong" style="max-width: 480px; width: 100%; padding: 2rem; border-radius: var(--ui-radius-lg); position: relative; border: 1px solid var(--ui-border-cyan); box-shadow: var(--ui-shadow-glow-cyan);">
-        <div class="ui-card-title" style="margin-bottom: 1.5rem; justify-content: space-between;">
+        <div class="ax-card-title" style="margin-bottom: 1.5rem; justify-content: space-between;">
             <span><span class="title-icon">🏢</span> Register Third-Party Vendor</span>
             <span style="cursor: pointer; opacity: 0.7;" onclick="closeVendorModal()">&times;</span>
         </div>
         
         <form id="add-vendor-form" onsubmit="submitVendor(event)">
-            <div class="ui-form-group">
-                <label for="vendor-name-input" class="ui-label">Vendor / Supplier Name</label>
-                <input type="text" id="vendor-name-input" class="ui-input" placeholder="e.g. CyberCloud Solutions" required>
+            <div class="ax-form-group">
+                <label for="vendor-name-input" class="ax-label">Vendor / Supplier Name</label>
+                <input type="text" id="vendor-name-input" class="ax-input" placeholder="e.g. CyberCloud Solutions" required>
             </div>
             
-            <div class="ui-form-group">
-                <label for="vendor-service-input" class="ui-label">Service Type</label>
-                <input type="text" id="vendor-service-input" class="ui-input" placeholder="e.g. Infrastructure Hosting" required>
+            <div class="ax-form-group">
+                <label for="vendor-service-input" class="ax-label">Service Type</label>
+                <input type="text" id="vendor-service-input" class="ax-input" placeholder="e.g. Infrastructure Hosting" required>
             </div>
 
-            <div class="ui-form-group">
-                <label for="vendor-risk-input" class="ui-label">Initial Risk Score (0 - 100)</label>
-                <input type="number" id="vendor-risk-input" class="ui-input" min="0" max="100" value="30" required>
+            <div class="ax-form-group">
+                <label for="vendor-risk-input" class="ax-label">Initial Risk Score (0 - 100)</label>
+                <input type="number" id="vendor-risk-input" class="ax-input" min="0" max="100" value="30" required>
             </div>
 
             <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.75rem;">
-                <button type="button" class="ui-btn ui-btn-ghost" onclick="closeVendorModal()">Cancel</button>
-                <button type="submit" class="ui-btn ui-btn-primary">Register Vendor</button>
+                <button type="button" class="ax-btn ax-btn-ghost" onclick="closeVendorModal()">Cancel</button>
+                <button type="submit" class="ax-btn ax-btn-primary">Register Vendor</button>
             </div>
         </form>
     </div>

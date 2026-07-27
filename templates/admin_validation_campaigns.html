@@ -2,16 +2,16 @@
 {% block title %}Validation Campaigns — Cyber Defense Platform{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
+<div class="ax-page-header">
   <div>
-    <h1 class="ui-page-title">Validation Campaigns</h1>
-    <p class="ui-page-subtitle">Active and scheduled security validation campaign registry with priority, scope, and execution timelines.</p>
+    <h1 class="ax-page-title">Validation Campaigns</h1>
+    <p class="ax-page-subtitle">Active and scheduled security validation campaign registry with priority, scope, and execution timelines.</p>
   </div>
-  <a class="ui-btn ui-btn-ghost" href="/admin/validation-fabric">← Back to Validation Fabric</a>
+  <a class="ax-btn ax-btn-ghost" href="/admin/validation-fabric">← Back to Validation Fabric</a>
 </div>
 
-<div class="ui-glass-card" style="overflow-x:auto;">
-  <table class="ui-table" aria-label="Validation campaigns list">
+<div class="ax-card ui-glass-card" style="overflow-x:auto;">
+  <table class="ax-table" aria-label="Validation campaigns list">
     <thead>
       <tr>
         <th scope="col">Campaign ID</th>
@@ -34,24 +34,24 @@
         <td style="color:var(--ui-muted);font-size:0.85rem;">{{ c.scope or 'N/A' }}</td>
         <td>
           {% if c.priority == 'critical' %}
-            <span class="ui-badge ui-badge-danger">CRITICAL</span>
+            <span class="ax-badge ax-badge-red">CRITICAL</span>
           {% elif c.priority == 'high' %}
-            <span class="ui-badge ui-badge-warning">HIGH</span>
+            <span class="ax-badge ax-badge-amber">HIGH</span>
           {% elif c.priority == 'medium' %}
-            <span class="ui-badge ui-badge-info">MEDIUM</span>
+            <span class="ax-badge ax-badge-blue">MEDIUM</span>
           {% else %}
-            <span class="ui-badge ui-badge-muted">{{ c.priority.upper() }}</span>
+            <span class="ax-badge ax-badge-zinc">{{ c.priority.upper() }}</span>
           {% endif %}
         </td>
         <td>
           {% if c.status == 'running' %}
-            <span class="ui-badge ui-badge-info">RUNNING</span>
+            <span class="ax-badge ax-badge-blue">RUNNING</span>
           {% elif c.status == 'completed' %}
-            <span class="ui-badge ui-badge-success">COMPLETED</span>
+            <span class="ax-badge ax-badge-green">COMPLETED</span>
           {% elif c.status == 'failed' %}
-            <span class="ui-badge ui-badge-danger">FAILED</span>
+            <span class="ax-badge ax-badge-red">FAILED</span>
           {% else %}
-            <span class="ui-badge ui-badge-muted">{{ c.status.upper() }}</span>
+            <span class="ax-badge ax-badge-zinc">{{ c.status.upper() }}</span>
           {% endif %}
         </td>
         <td style="color:var(--ui-muted);font-size:0.82rem;font-family:'Fira Code',monospace;">{{ c.scheduled_at or 'N/A' }}</td>

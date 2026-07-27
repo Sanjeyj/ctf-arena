@@ -2,29 +2,29 @@
 {% block title %}Software Supply Chain Assurance — Cyber Defense Platform{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
+<div class="ax-page-header">
   <div>
-    <h1 class="ui-page-title">Software Supply Chain Attestations &amp; SBOMs</h1>
-    <p class="ui-page-subtitle">Build provenance attestations, software bill of materials catalog, and dependency risk registry.</p>
+    <h1 class="ax-page-title">Software Supply Chain Attestations &amp; SBOMs</h1>
+    <p class="ax-page-subtitle">Build provenance attestations, software bill of materials catalog, and dependency risk registry.</p>
   </div>
-  <a class="ui-btn ui-btn-ghost" href="/admin/assurance">← Back to Assurance Fabric</a>
+  <a class="ax-btn ax-btn-ghost" href="/admin/assurance">← Back to Assurance Fabric</a>
 </div>
 
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:1.5rem;">
   <!-- Attestations Panel -->
-  <div class="ui-glass-card">
+  <div class="ax-card ui-glass-card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--ui-border);">
       <h2 style="font-size:1rem;font-weight:700;color:var(--ui-text-primary);margin:0;">Build Attestations</h2>
-      <span class="ui-badge ui-badge-info">{{ attestations|length }} registered</span>
+      <span class="ax-badge ax-badge-blue">{{ attestations|length }} registered</span>
     </div>
     {% for a in attestations %}
     <div style="padding:0.75rem;border-bottom:1px solid var(--ui-border);last-child:border-bottom:none;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.4rem;">
         <span style="font-weight:600;color:var(--ui-text-primary);font-size:0.9rem;">{{ a.artifact_name }}</span>
         {% if a.verification_status == 'valid' %}
-          <span class="ui-badge ui-badge-success">VALID</span>
+          <span class="ax-badge ax-badge-green">VALID</span>
         {% else %}
-          <span class="ui-badge ui-badge-danger">INVALID</span>
+          <span class="ax-badge ax-badge-red">INVALID</span>
         {% endif %}
       </div>
       <div style="font-size:0.8rem;color:var(--ui-muted);margin-bottom:0.25rem;">
@@ -46,16 +46,16 @@
   </div>
 
   <!-- SBOMs Panel -->
-  <div class="ui-glass-card">
+  <div class="ax-card ui-glass-card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--ui-border);">
       <h2 style="font-size:1rem;font-weight:700;color:var(--ui-text-primary);margin:0;">SBOM Documents</h2>
-      <span class="ui-badge ui-badge-info">{{ sboms|length }} registered</span>
+      <span class="ax-badge ax-badge-blue">{{ sboms|length }} registered</span>
     </div>
     {% for s in sboms %}
     <div style="padding:0.75rem;border-bottom:1px solid var(--ui-border);">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.4rem;">
         <span style="font-weight:600;color:var(--ui-text-primary);font-size:0.9rem;">{{ s.artifact_name }}</span>
-        <span class="ui-badge ui-badge-muted">{{ s.format_type }}</span>
+        <span class="ax-badge ax-badge-zinc">{{ s.format_type }}</span>
       </div>
       <div style="font-size:0.8rem;color:var(--ui-muted);margin-bottom:0.25rem;">
         Version: <span style="color:var(--ui-text-secondary);">v{{ s.artifact_version }}</span>

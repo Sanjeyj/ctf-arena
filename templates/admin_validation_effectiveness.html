@@ -2,16 +2,16 @@
 {% block title %}Defense Effectiveness Metrics — Cyber Defense Platform{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
+<div class="ax-page-header">
   <div>
-    <h1 class="ui-page-title">Defense Effectiveness Metrics</h1>
-    <p class="ui-page-subtitle">Trend-based defense effectiveness measurements — score deltas, trend direction, and measurement timestamps.</p>
+    <h1 class="ax-page-title">Defense Effectiveness Metrics</h1>
+    <p class="ax-page-subtitle">Trend-based defense effectiveness measurements — score deltas, trend direction, and measurement timestamps.</p>
   </div>
-  <a class="ui-btn ui-btn-ghost" href="/admin/validation-fabric">← Back to Validation Fabric</a>
+  <a class="ax-btn ax-btn-ghost" href="/admin/validation-fabric">← Back to Validation Fabric</a>
 </div>
 
-<div class="ui-glass-card" style="overflow-x:auto;">
-  <table class="ui-table" aria-label="Defense effectiveness metrics">
+<div class="ax-card ui-glass-card" style="overflow-x:auto;">
+  <table class="ax-table" aria-label="Defense effectiveness metrics">
     <thead>
       <tr>
         <th scope="col">Metric ID</th>
@@ -39,13 +39,13 @@
         </td>
         <td>
           {% if m.trend == 'improving' %}
-            <span class="ui-badge ui-badge-success">↑ IMPROVING</span>
+            <span class="ax-badge ax-badge-green">↑ IMPROVING</span>
           {% elif m.trend == 'stable' %}
-            <span class="ui-badge ui-badge-muted">→ STABLE</span>
+            <span class="ax-badge ax-badge-zinc">→ STABLE</span>
           {% elif m.trend == 'declining' %}
-            <span class="ui-badge ui-badge-danger">↓ DECLINING</span>
+            <span class="ax-badge ax-badge-red">↓ DECLINING</span>
           {% else %}
-            <span class="ui-badge ui-badge-muted">{{ m.trend.upper() }}</span>
+            <span class="ax-badge ax-badge-zinc">{{ m.trend.upper() }}</span>
           {% endif %}
         </td>
         <td style="color:var(--ui-muted);font-size:0.82rem;font-family:'Fira Code',monospace;">{{ m.measured_at or 'N/A' }}</td>

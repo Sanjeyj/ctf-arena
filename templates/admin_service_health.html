@@ -2,31 +2,31 @@
 {% block title %}Service Health Dashboard — Cyber Defense Platform{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
+<div class="ax-page-header">
   <div>
-    <h1 class="ui-page-title">Platform Capabilities &amp; Golden Signals Health</h1>
-    <p class="ui-page-subtitle">Real-time service health tracking across the four golden signals — latency, traffic, errors, and saturation.</p>
+    <h1 class="ax-page-title">Platform Capabilities &amp; Golden Signals Health</h1>
+    <p class="ax-page-subtitle">Real-time service health tracking across the four golden signals — latency, traffic, errors, and saturation.</p>
   </div>
-  <a class="ui-btn ui-btn-ghost" href="/admin/operations-fabric">← Back to Operations Fabric</a>
+  <a class="ax-btn ax-btn-ghost" href="/admin/operations-fabric">← Back to Operations Fabric</a>
 </div>
 
 <!-- Capability Cards -->
 <h2 class="ui-section-heading">Capability Registry Current Health</h2>
-<div class="ui-bento">
+<div class="ax-grid">
   {% for s in services %}
-  <div class="ui-glass-card ui-bento-card" tabindex="0">
+  <div class="ax-card ui-glass-card ax-grid-card" tabindex="0">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
       <h3 style="font-size:1rem;font-weight:600;color:var(--ui-text-primary);margin:0;">{{ s.service_name }}</h3>
       {% if s.status == 'healthy' %}
-        <span class="ui-badge ui-badge-success">HEALTHY</span>
+        <span class="ax-badge ax-badge-green">HEALTHY</span>
       {% elif s.status == 'warning' %}
-        <span class="ui-badge ui-badge-warning">WARNING</span>
+        <span class="ax-badge ax-badge-amber">WARNING</span>
       {% elif s.status == 'degraded' %}
-        <span class="ui-badge ui-badge-warning">DEGRADED</span>
+        <span class="ax-badge ax-badge-amber">DEGRADED</span>
       {% elif s.status == 'critical' %}
-        <span class="ui-badge ui-badge-danger">CRITICAL</span>
+        <span class="ax-badge ax-badge-red">CRITICAL</span>
       {% else %}
-        <span class="ui-badge ui-badge-muted">{{ s.status.upper() }}</span>
+        <span class="ax-badge ax-badge-zinc">{{ s.status.upper() }}</span>
       {% endif %}
     </div>
     <div style="margin-bottom:0.5rem;">
@@ -48,7 +48,7 @@
     </div>
   </div>
   {% else %}
-  <div class="ui-glass-card ui-bento-card ui-empty-state">
+  <div class="ax-card ui-glass-card ax-grid-card ui-empty-state">
     <div class="ui-empty-icon">🏥</div>
     <p class="ui-empty-text">No platform capability services registered.</p>
   </div>
@@ -57,8 +57,8 @@
 
 <!-- Health Snapshots Ledger -->
 <h2 class="ui-section-heading" style="margin-top:2rem;">Service Health Snapshots Ledger</h2>
-<div class="ui-glass-card" style="overflow-x:auto;">
-  <table class="ui-table" aria-label="Service health snapshots">
+<div class="ax-card ui-glass-card" style="overflow-x:auto;">
+  <table class="ax-table" aria-label="Service health snapshots">
     <thead>
       <tr>
         <th scope="col">Service ID</th>
@@ -92,13 +92,13 @@
         </td>
         <td>
           {% if s.status == 'healthy' %}
-            <span class="ui-badge ui-badge-success">HEALTHY</span>
+            <span class="ax-badge ax-badge-green">HEALTHY</span>
           {% elif s.status == 'warning' %}
-            <span class="ui-badge ui-badge-warning">WARNING</span>
+            <span class="ax-badge ax-badge-amber">WARNING</span>
           {% elif s.status in ['degraded', 'critical'] %}
-            <span class="ui-badge ui-badge-danger">{{ s.status.upper() }}</span>
+            <span class="ax-badge ax-badge-red">{{ s.status.upper() }}</span>
           {% else %}
-            <span class="ui-badge ui-badge-muted">{{ s.status.upper() }}</span>
+            <span class="ax-badge ax-badge-zinc">{{ s.status.upper() }}</span>
           {% endif %}
         </td>
         <td style="color:var(--ui-muted);font-size:0.82rem;font-family:'Fira Code',monospace;">{{ s.measured_at }}</td>

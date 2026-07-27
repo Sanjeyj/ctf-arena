@@ -3,683 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Public Scoreboard | CTF Arena | EthicBids Technologies™</title>
-    <meta name="description" content="CTF Arena Public Scoreboard — Live competition stats and rankings.">
+    <title>Scoreboard — CTF Arena | EthicBids Technologies™</title>
+    <meta name="description" content="CTF Arena Public Scoreboard — Live competition rankings.">
     <meta name="author" content="EthicBids Technologies">
     <meta name="application-name" content="CTF Arena">
     <meta name="copyright" content="© 2026 EthicBids Technologies™">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/axiom.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
     <style>
-        :root {
-            --bg: #0b0c10;
-            --surface: #11141a;
-            --card: #1a1e26;
-            --border: #2b313d;
-            --neon-blue: #00f0ff;
-            --neon-green: #00ff66;
-            --neon-red: #ff3366;
-            --neon-yellow: #ffd700;
-            --neon-purple: #bf5af2;
-            --text: #f0f2f5;
-            --muted: #8b949e;
-            --glow-blue: rgba(0,240,255,0.15);
-            --glow-green: rgba(0,255,102,0.15);
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-        }
-        body::before {
-            content: '';
-            position: fixed;
-            top: -15%; left: -10%;
-            width: 50%; height: 60%;
-            background: radial-gradient(circle, rgba(0,240,255,0.06) 0%, transparent 70%);
-            z-index: -1; pointer-events: none;
-        }
+        /* Sticky topbar */
+        .ax-public-topbar { position: sticky; }
 
-        /* ── Header ─────────────────────────────────────── */
-        header {
-            background: rgba(17,20,26,0.9);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border);
-            padding: 0.9rem 2rem;
-            position: sticky; top: 0; z-index: 100;
-        }
-        .header-inner {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .brand {
-            display: flex; align-items: center; gap: 0.6rem;
-            font-size: 1.3rem; font-weight: 700;
-            text-decoration: none; color: var(--text);
-        }
-        .brand span { color: var(--neon-blue); text-shadow: 0 0 8px var(--glow-blue); }
-        .public-badge {
-            background: rgba(0, 240, 255, 0.1);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            color: var(--neon-blue);
-            padding: 0.2rem 0.7rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-        .header-actions { display: flex; align-items: center; gap: 1rem; }
-        .refresh-indicator {
-            font-size: 0.8rem;
-            color: var(--muted);
-            display: flex; align-items: center; gap: 0.4rem;
-        }
-        .pulse-dot {
-            width: 8px; height: 8px;
-            background: var(--neon-green);
-            border-radius: 50%;
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.8)} }
+        /* Score history chart */
+        #scoreHistoryChart { max-height: 280px; }
 
-        .btn-back {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--muted);
-            padding: 0.4rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 600;
-            font-family: 'Outfit', sans-serif;
-            text-decoration: none;
-            transition: all 0.2s;
+        /* Podium mobile */
+        @media (max-width: 640px) {
+            .ax-podium { flex-direction: column; align-items: center; }
+            .ax-podium-entry.rank-1 { order: -1; }
         }
-        .btn-back:hover { color: var(--text); border-color: var(--text); }
-
-        /* ── Layout ─────────────────────────────────────── */
-        .page {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem 1.5rem;
-        }
-        .page-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 0.3rem;
-        }
-        .page-title span { color: var(--neon-blue); }
-        .page-sub { color: var(--muted); margin-bottom: 2rem; font-size: 0.95rem; }
-
-        /* ── Stat Cards ──────────────────────────────────── */
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.2rem;
-            margin-bottom: 2.5rem;
-        }
-        .stat-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 1.4rem 1.5rem;
-            position: relative;
-            overflow: hidden;
-        }
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-        }
-        .stat-card.blue::before  { background: var(--neon-blue); }
-        .stat-card.green::before { background: var(--neon-green); }
-        .stat-card.yellow::before{ background: var(--neon-yellow); }
-        .stat-card.purple::before{ background: var(--neon-purple); }
-
-        .stat-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        .stat-value { font-size: 2.4rem; font-weight: 700; margin: 0.3rem 0; line-height: 1; font-family: 'Fira Code', monospace; }
-        .stat-card.blue  .stat-value { color: var(--neon-blue); }
-        .stat-card.green .stat-value { color: var(--neon-green); }
-        .stat-card.yellow .stat-value{ color: var(--neon-yellow); }
-        .stat-card.purple .stat-value{ color: var(--neon-purple); }
-        .stat-sub { font-size: 0.82rem; color: var(--muted); }
-
-        /* ── Charts + Leaderboard layout ─────────────────── */
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        @media(max-width:900px){ .main-grid{ grid-template-columns:1fr; } }
-
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1.5rem;
-        }
-        .card-title {
-            font-size: 1rem;
-            font-weight: 700;
-            margin-bottom: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text);
-        }
-
-        /* ── Leaderboard Table ───────────────────────────── */
-        .leaderboard-wrap { overflow-x: auto; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.92rem;
-        }
-        th {
-            text-align: left;
-            padding: 0.6rem 0.8rem;
-            color: var(--muted);
-            font-weight: 600;
-            font-size: 0.78rem;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            border-bottom: 1px solid var(--border);
-        }
-        td {
-            padding: 0.85rem 0.8rem;
-            border-bottom: 1px solid rgba(43,49,61,0.5);
-            vertical-align: middle;
-        }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: rgba(255,255,255,0.02); }
-
-        .rank-gold   { color: #ffd700; font-weight: 700; font-family: 'Fira Code', monospace; }
-        .rank-silver { color: #c0c0c0; font-weight: 700; font-family: 'Fira Code', monospace; }
-        .rank-bronze { color: #cd7f32; font-weight: 700; font-family: 'Fira Code', monospace; }
-        .rank-other  { color: var(--muted); font-weight: 600; font-family: 'Fira Code', monospace; }
-
-        .participant-name { font-weight: 600; color: var(--text); }
-        .score-val { font-family: 'Fira Code', monospace; font-weight: 700; color: var(--neon-blue); }
-
-        .ch-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 26px; height: 26px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            border: 1px solid transparent;
-        }
-        .ch-badge.done  {
-            background: rgba(0,255,102,0.12);
-            border-color: rgba(0,255,102,0.3);
-            color: var(--neon-green);
-        }
-        .ch-badge.undone {
-            background: rgba(43,49,61,0.4);
-            border-color: var(--border);
-            color: var(--muted);
-        }
-
-        .time-val { font-family: 'Fira Code', monospace; font-size: 0.8rem; color: var(--muted); }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--muted);
-            font-size: 1rem;
-        }
-        .empty-state .icon { font-size: 3rem; margin-bottom: 0.8rem; display: block; }
-
-        /* ── Challenge solve count bar ────────────────────── */
-        .ch-solve-bars { display: flex; flex-direction: column; gap: 0.9rem; }
-        .ch-bar-row { display: flex; align-items: center; gap: 0.8rem; }
-        .ch-bar-label { width: 160px; flex-shrink: 0; font-size: 0.85rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .ch-bar-track { flex: 1; height: 10px; background: var(--border); border-radius: 999px; overflow: hidden; }
-        .ch-bar-fill { height: 100%; border-radius: 999px; background: var(--neon-blue); transition: width 0.3s cubic-bezier(.4,0,.2,1); }
-        .ch-bar-count { width: 30px; text-align: right; font-family: 'Fira Code', monospace; font-size: 0.85rem; color: var(--neon-blue); }
-
-        /* Chart container */
-        .chart-wrap { position: relative; height: 240px; }
-
-        /* ── Freeze Banner ───────────────────────────────── */
-        .freeze-banner {
-            background: rgba(0,240,255,0.05);
-            border: 1px solid rgba(0,240,255,0.3);
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            animation: freeze-pulse 2s ease-in-out infinite;
-        }
-        @keyframes freeze-pulse {
-            0%,100% { box-shadow: 0 0 0 0 rgba(0,240,255,0); }
-            50% { box-shadow: 0 0 16px 2px rgba(0,240,255,0.15); }
-        }
-        .freeze-icon { font-size: 2rem; flex-shrink: 0; }
-        .freeze-text { font-size: 1rem; font-weight: 600; color: var(--neon-blue); }
-        .freeze-sub  { font-size: 0.85rem; color: var(--muted); margin-top: 0.2rem; }
-
-        /* ── Competition Timer ───────────────────────────── */
-        .timer-bar {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .timer-state { font-size: 0.8rem; text-transform: uppercase; font-weight: 700;
-            letter-spacing: 0.5px; padding: 0.2rem 0.8rem; border-radius: 20px; }
-        .timer-state.running { background: rgba(0,255,102,0.1); color: var(--neon-green); border: 1px solid rgba(0,255,102,0.3); }
-        .timer-state.frozen  { background: rgba(0,240,255,0.1); color: var(--neon-blue);  border: 1px solid rgba(0,240,255,0.3); }
-        .timer-state.ended   { background: rgba(255,51,102,0.1); color: var(--neon-red);  border: 1px solid rgba(255,51,102,0.3); }
-        .timer-state.practice{ background: rgba(255,215,0,0.1);  color: var(--neon-yellow); border: 1px solid rgba(255,215,0,0.3); }
-        .timer-state.scheduled { background: rgba(191,90,242,0.1); color: var(--neon-purple); border: 1px solid rgba(191,90,242,0.3); }
-        .timer-countdown { font-family: 'Fira Code', monospace; font-size: 1.4rem; font-weight: 700; color: var(--text); }
-        .timer-label { font-size: 0.82rem; color: var(--muted); }
-
-        /* ── Announcements ───────────────────────────────── */
-        .announcement-card {
-            background: rgba(0,240,255,0.03);
-            border: 1px solid rgba(0,240,255,0.15);
-            border-left: 3px solid var(--neon-blue);
-            border-radius: 0 12px 12px 0;
-            padding: 1rem 1.2rem;
-            margin-bottom: 0.8rem;
-        }
-        .announcement-card.pinned {
-            border-left-color: var(--neon-yellow);
-            background: rgba(255,215,0,0.03);
-            border-color: rgba(255,215,0,0.2);
-        }
-        .ann-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.3rem; }
-        .ann-title .pin-icon { color: var(--neon-yellow); margin-right: 0.4rem; }
-        .ann-content { font-size: 0.9rem; color: var(--muted); line-height: 1.5; }
-        .ann-time { font-size: 0.78rem; color: var(--border); margin-top: 0.4rem; font-family: 'Fira Code', monospace; }
     </style>
 </head>
-<body>
+<body class="ax-public-shell">
 
-<header>
-    <div class="header-inner">
-        <div style="display:flex;align-items:center;gap:1rem;">
-            <a href="/scoreboard" class="brand" id="brand-scoreboard-link">
-                🚩 CTF <span>Arena</span>
+    <!-- ── Topbar ──────────────────────────────────────── -->
+    <header class="ax-public-topbar" role="banner">
+
+        <!-- Brand -->
+        <a href="/" class="ax-brand-link" id="brand-logo-link" aria-label="CTF Arena home">
+            <div class="ax-brand-mark" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18m0-9h18"/>
+                </svg>
+            </div>
+            <span class="ax-brand-name">CTF <em>Arena</em></span>
+        </a>
+
+        <!-- Nav -->
+        <nav class="ax-public-nav" aria-label="Primary navigation">
+            <a href="/" class="ax-public-nav-link" id="nav-challenges">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18m0-9h18"/></svg>
+                Challenges
             </a>
-            <span class="public-badge">Scoreboard</span>
-        </div>
-        <div class="header-actions">
-            <div class="refresh-indicator">
-                <span class="pulse-dot"></span>
-                <span id="last-refresh-text">Live (updating...)</span>
-            </div>
+            <a href="/scoreboard" class="ax-public-nav-link active" id="nav-scoreboard" aria-current="page">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12"/></svg>
+                Scoreboard
+            </a>
+        </nav>
+
+        <!-- Right side -->
+        <div class="ax-public-topbar-right">
+            <span class="ax-status-dot live" title="Live updates enabled">
+                <span class="ax-status-dot-indicator"></span>
+                Live
+            </span>
             {% if username %}
-                <a href="/" class="btn-back" id="btn-back-dashboard">← Dashboard</a>
+            <span class="ax-text-secondary ax-text-sm" style="font-weight:500;">{{ username }}</span>
+            <a href="/logout" class="ax-btn ax-btn-default ax-btn-sm" id="btn-logout">Sign out</a>
             {% else %}
-                <a href="/register" class="btn-back" id="btn-back-register">← Join Arena</a>
+            <a href="/login" class="ax-btn ax-btn-primary ax-btn-sm" id="btn-login">Sign in</a>
             {% endif %}
         </div>
-    </div>
-</header>
+    </header>
 
-<div class="page">
-    <div class="page-title">Arena <span>Scoreboard</span></div>
-    <div class="page-sub" id="scoreboard-subtitle">Live competition overview — auto-refreshes every 5 seconds</div>
+    <!-- ── Main ──────────────────────────────────────── -->
+    <main class="ax-public-main ax-public-main-full" role="main">
 
-    <!-- Competition Timer Bar -->
-    <div class="timer-bar" id="timer-bar" style="display:none;">
-        <div>
-            <span class="timer-state" id="timer-state-badge">Live</span>
+        <!-- Page header -->
+        <div class="ax-page-hero" style="max-width:1200px;margin:0 auto var(--ax-space-8) auto;">
+            <h1 class="ax-page-hero-title">Scoreboard</h1>
+            <p class="ax-page-hero-desc">
+                Live competition rankings.
+                {% if leaderboard %}
+                    {{ leaderboard | length }} registered participant{{ 's' if leaderboard | length != 1 else '' }}.
+                    {{ leaderboard | selectattr('solve_count', 'gt', 0) | list | length }} with solves.
+                {% else %}
+                    The competition is ready. Participants will appear here once they start.
+                {% endif %}
+            </p>
         </div>
-        <div style="text-align:center;">
-            <div class="timer-label" id="timer-label">Time Remaining</div>
-            <div class="timer-countdown" id="timer-countdown">––:––:––</div>
-        </div>
-        <div style="font-size:0.82rem;color:var(--muted);text-align:right;">
-            Auto-refreshes every 5s
-            <br><span id="last-refresh-time" style="font-family:'Fira Code',monospace;"></span>
-        </div>
-    </div>
 
-    <!-- Freeze Banner -->
-    <div class="freeze-banner" id="freeze-banner" style="display:none;">
-        <div class="freeze-icon">🧊</div>
-        <div>
-            <div class="freeze-text">Scoreboard is Frozen</div>
-            <div class="freeze-sub">Solves submitted after the freeze time are hidden from public view until the scoreboard unfreezes.</div>
-        </div>
-    </div>
-
-    <!-- Announcements -->
-    {% if announcements %}
-    <div class="card" style="margin-bottom:2rem;">
-        <div class="card-title">📢 Announcements</div>
-        {% for ann in announcements %}
-        <div class="announcement-card {% if ann.pinned %}pinned{% endif %}">
-            <div class="ann-title">
-                {% if ann.pinned %}<span class="pin-icon">📌</span>{% endif %}
-                {{ ann.title }}
+        <!-- Timer Bar and Freeze Notice -->
+        <div style="max-width:1200px;margin:0 auto var(--ax-space-6) auto;display:flex;flex-direction:column;gap:var(--ax-space-4);">
+            <div id="timer-bar" class="timer-bar" style="display:none;background:var(--ax-bg-surface);border:1px solid var(--ax-border-subtle);padding:var(--ax-space-4);border-radius:var(--ax-radius-xl);align-items:center;justify-content:space-between;gap:var(--ax-space-4);">
+                <div style="display:flex;align-items:center;gap:var(--ax-space-2);">
+                    <span id="timer-indicator">🟢</span>
+                    <span id="timer-state" style="font-weight:600;text-transform:uppercase;font-size:var(--ax-text-xs);letter-spacing:var(--ax-tracking-wider);">Running</span>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:var(--ax-text-xs);color:var(--ax-text-muted);text-transform:uppercase;letter-spacing:var(--ax-tracking-wider);">Time Remaining</div>
+                    <div id="timer-countdown" style="font-family:var(--ax-font-mono);font-size:var(--ax-text-xl);font-weight:600;margin-top:2px;">––:––:––</div>
+                </div>
+                <div style="font-size:var(--ax-text-xs);color:var(--ax-text-muted);text-align:right;" id="timer-competition-name">
+                    Competition: Live
+                </div>
             </div>
-            <div class="ann-content">{{ ann.content }}</div>
-            <div class="ann-time">{{ ann.created_at.strftime('%Y-%m-%d %H:%M UTC') }}</div>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <!-- Stat cards -->
-    <div class="stats-row" id="stats-row">
-        <div class="stat-card blue">
-            <div class="stat-label">Participants</div>
-            <div class="stat-value" id="stat-participants">{{ stats.total_participants }}</div>
-            <div class="stat-sub">Registered users</div>
-        </div>
-        <div class="stat-card green">
-            <div class="stat-label">Total Solves</div>
-            <div class="stat-value" id="stat-solves">{{ stats.total_solves }}</div>
-            <div class="stat-sub">Across all challenges</div>
-        </div>
-        <div class="stat-card yellow">
-            <div class="stat-label">Most Popular</div>
-            <div class="stat-value" style="font-size:1.1rem;margin-top:0.6rem;font-family:'Outfit',sans-serif;" id="stat-popular">{{ stats.most_popular_ch }}</div>
-            <div class="stat-sub">Most solved challenge</div>
-        </div>
-        <div class="stat-card purple">
-            <div class="stat-label">Max Points</div>
-            <div class="stat-value" id="stat-maxpts">{{ stats.max_possible }}</div>
-            <div class="stat-sub">Total available</div>
-        </div>
-    </div>
-
-    <!-- Charts row -->
-    <div class="main-grid">
-        <!-- Score bar chart -->
-        <div class="card">
-            <div class="card-title">📊 Score Distribution</div>
-            <div class="chart-wrap">
-                <canvas id="scoreChart"></canvas>
-            </div>
-        </div>
-        <!-- Challenge solve counts -->
-        <div class="card">
-            <div class="card-title">🏁 Challenge Completion Rate</div>
-            <div class="ch-solve-bars" id="ch-solve-bars">
-                {% set max_solves = stats.total_participants if stats.total_participants > 0 else 1 %}
-                {% for ch_id, ch in challenges.items() %}
-                    {% set count = stats.ch_solve_counts.get(ch_id, 0) %}
-                    {% set pct = (count / max_solves * 100) | round | int %}
-                    <div class="ch-bar-row" id="bar-row-{{ ch_id }}">
-                        <div class="ch-bar-label" title="{{ ch.title }}">{{ ch.icon }} {{ ch.title }}</div>
-                        <div class="ch-bar-track">
-                            <div class="ch-bar-fill" style="width:{{ pct }}%"></div>
-                        </div>
-                        <div class="ch-bar-count">{{ count }}</div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Full leaderboard -->
-    <div class="card" style="margin-bottom:2rem;">
-        <div class="card-title">🏆 Live Leaderboard</div>
-        <div class="leaderboard-wrap">
-            {% if leaderboard %}
-            <table id="leaderboard-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Score</th>
-                        <th>Solved</th>
-                        {% for ch_id, ch in challenges.items() %}
-                            <th title="{{ ch.title }}">{{ ch.icon }}</th>
-                        {% endfor %}
-                        <th>Last Solve</th>
-                        <th>Registered</th>
-                    </tr>
-                </thead>
-                <tbody id="leaderboard-body">
-                    {% for entry in leaderboard %}
-                    <tr id="row-{{ loop.index }}">
-                        <td>
-                            {% if entry.rank == 1 %}
-                                <span class="rank-gold">🥇 1</span>
-                            {% elif entry.rank == 2 %}
-                                <span class="rank-silver">🥈 2</span>
-                            {% elif entry.rank == 3 %}
-                                <span class="rank-bronze">🥉 3</span>
-                            {% else %}
-                                <span class="rank-other">#{{ entry.rank }}</span>
-                            {% endif %}
-                        </td>
-                        <td class="participant-name">
-                            {{ entry.name }}
-                            {% if entry.name == username %}
-                                <span style="color:var(--neon-blue); font-size:0.8rem; font-weight:700;">(YOU)</span>
-                            {% endif %}
-                        </td>
-                        <td><span class="score-val">{{ entry.score }}</span> pts</td>
-                        <td style="color:var(--muted);">{{ entry.solve_count }} / {{ challenges | length }}</td>
-                        {% for ch_id in challenges %}
-                            <td>
-                                {% if ch_id in entry.solved %}
-                                    <span class="ch-badge done" title="{{ challenges[ch_id].title }} — solved">✓</span>
-                                {% else %}
-                                    <span class="ch-badge undone" title="{{ challenges[ch_id].title }} — unsolved">–</span>
-                                {% endif %}
-                            </td>
-                        {% endfor %}
-                        <td class="time-val">
-                            {% if entry.last_solve and entry.solve_count > 0 %}
-                                {{ entry.last_solve[:19] | replace('T',' ') }}
-                            {% else %}
-                                —
-                            {% endif %}
-                        </td>
-                        <td class="time-val">{{ entry.registered_at[:19] | replace('T',' ') }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <div class="empty-state">
-                <span class="icon">👤</span>
-                No participants have registered yet. Share <strong>http://[your-ip]:5000</strong> with your competitors!
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</div>
-
-<script>
-// ── Chart.js Score Distribution ─────────────────────────────
-const initialLabels = {{ leaderboard | map(attribute='name') | list | tojson }};
-const initialScores = {{ leaderboard | map(attribute='score') | list | tojson }};
-
-const NEON_BLUE   = 'rgba(0,240,255,0.8)';
-const NEON_BORDER = 'rgba(0,240,255,1)';
-
-const scoreCtx = document.getElementById('scoreChart').getContext('2d');
-const scoreChart = new Chart(scoreCtx, {
-    type: 'bar',
-    data: {
-        labels: initialLabels,
-        datasets: [{
-            label: 'Score (pts)',
-            data: initialScores,
-            backgroundColor: NEON_BLUE,
-            borderColor: NEON_BORDER,
-            borderWidth: 1,
-            borderRadius: 6,
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false },
-            tooltip: {
-                callbacks: {
-                    label: ctx => ` ${ctx.parsed.y} pts`
-                }
-            }
-        },
-        scales: {
-            x: {
-                ticks: { color: '#8b949e', font: { family: 'Outfit' } },
-                grid: { color: 'rgba(43,49,61,0.6)' }
-            },
-            y: {
-                beginAtZero: true,
-                max: {{ stats.max_possible }},
-                ticks: { color: '#8b949e', font: { family: 'Fira Code' }, stepSize: 50 },
-                grid: { color: 'rgba(43,49,61,0.6)' }
-            }
-        }
-    }
-});
-
-// ── Auto-refresh every 5 seconds ──────────────────────────────────
-setInterval(async () => {
-    await fetchAndUpdate();
-}, 5000);
-
-let lastDataSignature = '';
-
-async function fetchAndUpdate() {
-    try {
-        const res  = await fetch('/api/scoreboard');
-        const data = await res.json();
-        if (data.error) return;
-
-        // Update timer bar
-        if (data.timer) {
-            const timerBar = document.getElementById('timer-bar');
-            const timerBadge = document.getElementById('timer-state-badge');
-            const timerLabel = document.getElementById('timer-label');
-            const timerCountdown = document.getElementById('timer-countdown');
-
-            timerBar.style.display = 'flex';
-            const state = data.timer.state || 'practice';
-            timerBadge.textContent = state.charAt(0).toUpperCase() + state.slice(1);
-            timerBadge.className = 'timer-state ' + (state === 'running' ? 'running' :
-                state === 'frozen' ? 'frozen' : state === 'ended' ? 'ended' :
-                state === 'scheduled' ? 'scheduled' : 'practice');
-
-            const secs = data.timer.remaining_seconds || 0;
-            if (secs > 0 && state !== 'ended' && state !== 'practice') {
-                const h = Math.floor(secs / 3600);
-                const m = Math.floor((secs % 3600) / 60);
-                const s = secs % 60;
-                timerCountdown.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-                timerLabel.textContent = state === 'scheduled' ? 'Starts In' :
-                    state === 'registration_open' ? 'Registration Closes In' : 'Time Remaining';
-            } else {
-                timerCountdown.textContent = state === 'ended' ? 'ENDED' : '––:––:––';
-            }
-        }
-
-        // Freeze banner
-        const freezeBanner = document.getElementById('freeze-banner');
-        if (data.freeze_active) {
-            freezeBanner.style.display = 'flex';
-        } else {
-            freezeBanner.style.display = 'none';
-        }
-
-        // Check if data actually changed before regenerating table to prevent flickering
-        const sig = JSON.stringify(data.leaderboard);
-        if (sig === lastDataSignature) {
-            document.getElementById('last-refresh-time').textContent = new Date().toLocaleTimeString();
-            return;
-        }
-        lastDataSignature = sig;
-
-        // Update stat cards
-        document.getElementById('stat-participants').textContent = data.stats.total_participants;
-        document.getElementById('stat-solves').textContent       = data.stats.total_solves;
-        document.getElementById('stat-popular').textContent      = data.stats.most_popular_ch;
-
-        // Update chart
-        scoreChart.data.labels = data.leaderboard.map(e => e.name);
-        scoreChart.data.datasets[0].data = data.leaderboard.map(e => e.score);
-        scoreChart.update('active');
-
-        // Dynamically rebuild table to avoid hard reload flicker
-        const tbody = document.getElementById('leaderboard-body');
-        if (!tbody) return;
-        
-        tbody.innerHTML = '';
-        const currentUsername = "{{ username }}";
-        const challengesList = Object.keys(data.challenges);
-
-        data.leaderboard.forEach(entry => {
-            const tr = document.createElement('tr');
             
-            let rankHtml = `<span class="rank-other">#${entry.rank}</span>`;
-            if (entry.rank === 1) rankHtml = '<span class="rank-gold">🥇 1</span>';
-            else if (entry.rank === 2) rankHtml = '<span class="rank-silver">🥈 2</span>';
-            else if (entry.rank === 3) rankHtml = '<span class="rank-bronze">🥉 3</span>';
+            <div id="freeze-banner" class="freeze-banner" style="display:none;background:var(--ax-amber-dim);border:1px solid var(--ax-amber-border);padding:var(--ax-space-4);border-radius:var(--ax-radius-xl);align-items:center;gap:var(--ax-space-3);color:var(--ax-amber-bright);">
+                <span style="font-size:1.5rem;">🧊</span>
+                <div>
+                    <strong style="font-size:var(--ax-text-sm);font-weight:600;">Public Scoreboard Frozen</strong>
+                    <div style="font-size:var(--ax-text-xs);color:var(--ax-text-muted);margin-top:2px;">Rankings and scores are locked at the freeze cutoff limit.</div>
+                </div>
+            </div>
+        </div>
 
-            let nameHtml = entry.name;
-            if (entry.name === currentUsername) {
-                nameHtml += ' <span style="color:var(--neon-blue); font-size:0.8rem; font-weight:700;">(YOU)</span>';
+        {% if leaderboard %}
+
+        <!-- Podium (top 3) -->
+        {% if leaderboard | length >= 3 %}
+        <div style="max-width:1200px;margin:0 auto var(--ax-space-8) auto;">
+            <div class="ax-podium" id="podium-display" aria-label="Top 3 competitors">
+                <!-- 2nd place -->
+                <div class="ax-podium-entry rank-2">
+                    <div class="ax-podium-rank" style="color:var(--ax-zinc-bright);">2nd</div>
+                    <div class="ax-podium-avatar" style="width:40px;height:40px;font-size:var(--ax-text-md);">
+                        {{ leaderboard[1].name[:2] | upper }}
+                    </div>
+                    <div class="ax-podium-name">{{ leaderboard[1].name }}</div>
+                    <div class="ax-podium-score">{{ leaderboard[1].score }} pts</div>
+                </div>
+                <!-- 1st place -->
+                <div class="ax-podium-entry rank-1">
+                    <div class="ax-podium-rank" style="color:#C8960A;">1st Place</div>
+                    <div class="ax-podium-avatar" style="width:52px;height:52px;font-size:var(--ax-text-lg);border-color:#C8960A;box-shadow:0 0 0 3px rgba(200,150,10,0.15);">
+                        {{ leaderboard[0].name[:2] | upper }}
+                    </div>
+                    <div class="ax-podium-name" style="color:var(--ax-text-primary);">{{ leaderboard[0].name }}</div>
+                    <div class="ax-podium-score" style="color:#C8960A;font-weight:600;">{{ leaderboard[0].score }} pts</div>
+                </div>
+                <!-- 3rd place -->
+                <div class="ax-podium-entry rank-3">
+                    <div class="ax-podium-rank" style="color:#7B5E42;">3rd</div>
+                    <div class="ax-podium-avatar" style="width:36px;height:36px;font-size:var(--ax-text-sm);">
+                        {{ leaderboard[2].name[:2] | upper }}
+                    </div>
+                    <div class="ax-podium-name">{{ leaderboard[2].name }}</div>
+                    <div class="ax-podium-score">{{ leaderboard[2].score }} pts</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Charts -->
+        <div style="max-width:1200px;margin:0 auto var(--ax-space-6) auto;display:grid;grid-template-columns:1fr 1fr;gap:var(--ax-space-4);">
+            <div class="ax-card">
+                <div class="ax-card-header">
+                    <span class="ax-card-title">Score Distribution</span>
+                    <span class="ax-badge ax-badge-blue">Bar</span>
+                </div>
+                <div class="ax-chart-wrap ax-chart-wrap-h200">
+                    <canvas id="scoreBarChart" aria-label="Score distribution bar chart" role="img"></canvas>
+                </div>
+            </div>
+            <div class="ax-card">
+                <div class="ax-card-header">
+                    <span class="ax-card-title">Challenge Completion</span>
+                    <span class="ax-badge ax-badge-zinc">All challenges</span>
+                </div>
+                <div id="scoreboard-bar-rows" style="display:flex;flex-direction:column;gap:var(--ax-space-2);">
+                    {% set max_solves = leaderboard | length %}
+                    {% for ch_id, ch in challenges.items() %}
+                        {% set count = ch_stats.get(ch_id, {}).get('solve_count', 0) %}
+                        {% set pct = (count / max_solves * 100) | round | int if max_solves > 0 else 0 %}
+                        <div class="ui-bar-row">
+                            <div class="ui-bar-label" title="{{ ch.title }}">{{ ch.title }}</div>
+                            <div class="ui-bar-track" style="flex:1;">
+                                <div class="ui-bar-fill" style="width:{{ pct }}%;"></div>
+                            </div>
+                            <div class="ui-bar-count">{{ count }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard table -->
+        <div style="max-width:1200px;margin:0 auto;">
+            <div class="ax-card">
+                <div class="ax-card-header">
+                    <span class="ax-card-title">Full Rankings</span>
+                    <span class="ax-badge ax-badge-green">
+                        <span class="ax-badge-dot"></span>
+                        {{ leaderboard | length }} participants
+                    </span>
+                </div>
+                <div class="ax-table-wrap">
+                    <table class="ax-table" id="scoreboard-table">
+                        <thead>
+                            <tr>
+                                <th style="width:52px;">#</th>
+                                <th>Participant</th>
+                                <th>Score</th>
+                                <th>Solved</th>
+                                {% for ch_id, ch in challenges.items() %}
+                                    <th style="text-align:center;" title="{{ ch.title }}">{{ ch.title[:6] }}</th>
+                                {% endfor %}
+                                <th>Last Solve</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scoreboard-body">
+                            {% for entry in leaderboard %}
+                            <tr>
+                                <td>
+                                    {% if entry.rank == 1 %}
+                                        <span class="ax-rank ax-rank-1">#01</span>
+                                    {% elif entry.rank == 2 %}
+                                        <span class="ax-rank ax-rank-2">#02</span>
+                                    {% elif entry.rank == 3 %}
+                                        <span class="ax-rank ax-rank-3">#03</span>
+                                    {% else %}
+                                        <span class="ax-rank">#{{ '%02d' | format(entry.rank) }}</span>
+                                    {% endif %}
+                                </td>
+                                <td style="font-weight:500;">
+                                    {{ entry.name }}
+                                    {% if entry.name == username %}
+                                        <span class="ax-badge ax-badge-blue" style="margin-left:var(--ax-space-2);">You</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="ax-table-mono ax-text-blue">{{ entry.score }}</span>
+                                    <span class="ax-table-muted" style="font-size:var(--ax-text-xs);"> pts</span>
+                                </td>
+                                <td class="ax-table-muted ax-table-mono">{{ entry.solve_count }} / {{ challenges | length }}</td>
+                                {% for ch_id in challenges %}
+                                    <td style="text-align:center;">
+                                        {% if ch_id in entry.solved %}
+                                            <span class="ui-ch-badge done" title="{{ challenges[ch_id].title }} — solved">✓</span>
+                                        {% else %}
+                                            <span class="ui-ch-badge undone" title="{{ challenges[ch_id].title }} — unsolved">–</span>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                                <td class="ax-table-mono ax-table-muted" style="font-size:var(--ax-text-xs);">
+                                    {% if entry.last_solve and entry.solve_count > 0 %}
+                                        {{ entry.last_solve[:16] | replace('T', ' ') }}
+                                    {% else %}—{% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+
+        <!-- Empty state -->
+        <div style="max-width:1200px;margin:0 auto;">
+            <div class="ax-card">
+                <div class="ax-empty">
+                    <svg class="ax-empty-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12"/>
+                    </svg>
+                    <div class="ax-empty-title">No participants yet</div>
+                    <div class="ax-empty-desc">
+                        Rankings will appear here once participants register and begin solving challenges.
+                        {% if not username %}
+                            <br><br><a href="/register" class="ax-btn ax-btn-primary ax-btn-sm" style="margin-top:var(--ax-space-3);">Join the competition</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% endif %}
+
+    </main>
+
+    <!-- Footer -->
+    <footer style="border-top:1px solid var(--ax-border-subtle);padding:var(--ax-space-6);display:flex;align-items:center;justify-content:space-between;gap:var(--ax-space-4);flex-wrap:wrap;margin-top:var(--ax-space-8);">
+        <span style="font-size:var(--ax-text-xs);color:var(--ax-text-muted);">
+            <a href="https://ethicbids.vercel.app/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">EthicBids Technologies™</a>
+        </span>
+        <span style="font-size:var(--ax-text-xs);color:var(--ax-text-disabled);">© 2026 EthicBids Technologies™. All Rights Reserved.</span>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        (function () {
+            /* Bar chart */
+            function initCharts() {
+                if (typeof Chart === 'undefined') { setTimeout(initCharts, 50); return; }
+
+                var barCtx = document.getElementById('scoreBarChart');
+                if (!barCtx) return;
+
+                /* Apply AXIOM Chart defaults */
+                Chart.defaults.color = '#8FA8C2';
+                Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+                Chart.defaults.font.size = 11;
+                Chart.defaults.plugins.legend.display = false;
+                Chart.defaults.plugins.tooltip.backgroundColor = '#111622';
+                Chart.defaults.plugins.tooltip.borderColor = 'rgba(255,255,255,0.09)';
+                Chart.defaults.plugins.tooltip.borderWidth = 1;
+                Chart.defaults.plugins.tooltip.titleColor = '#E2EAF4';
+                Chart.defaults.plugins.tooltip.bodyColor = '#8FA8C2';
+                Chart.defaults.plugins.tooltip.padding = 10;
+                Chart.defaults.plugins.tooltip.cornerRadius = 6;
+                Chart.defaults.elements.bar.borderRadius = 3;
+                Chart.defaults.elements.bar.borderSkipped = false;
+
+                var labels = {{ leaderboard | map(attribute='name') | list | tojson }};
+                var scores = {{ leaderboard | map(attribute='score') | list | tojson }};
+                var maxScore = {{ stats.max_possible if stats is defined else 500 }};
+
+                var colors = scores.map(function (s, i) {
+                    if (i === 0) return 'rgba(200,150,10,0.8)';
+                    if (i === 1) return 'rgba(122,143,166,0.7)';
+                    if (i === 2) return 'rgba(123,94,66,0.7)';
+                    return 'rgba(59,125,216,0.6)';
+                });
+
+                new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: scores,
+                            backgroundColor: colors,
+                            borderWidth: 0,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: {
+                                ticks: { color: '#5A7490', font: { size: 10 } },
+                                grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                max: maxScore || 100,
+                                ticks: { color: '#5A7490', font: { family: "'JetBrains Mono',monospace", size: 10 } },
+                                grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false }
+                            }
+                        }
+                    }
+                });
             }
-            // First blood indicator
-            if (entry.first_blood_count > 0) {
-                nameHtml += ` <span title="${entry.first_blood_count} First Blood(s)" style="font-size:0.9rem;">🩸×${entry.first_blood_count}</span>`;
+            initCharts();
+
+            /* Auto-refresh every 5s */
+            function refreshScoreboard() {
+                fetch('/api/scoreboard')
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (!data || !data.leaderboard) return;
+                        var tbody = document.getElementById('scoreboard-body');
+                        if (!tbody) return;
+                        tbody.innerHTML = '';
+                        var chList = Object.keys(data.challenges || {});
+                        data.leaderboard.forEach(function (entry) {
+                            var rankNum = ('0' + entry.rank).slice(-2);
+                            var rankClass = entry.rank === 1 ? 'ax-rank-1' : entry.rank === 2 ? 'ax-rank-2' : entry.rank === 3 ? 'ax-rank-3' : '';
+                            var tr = document.createElement('tr');
+                            var badgesHtml = '';
+                            chList.forEach(function (id) {
+                                var ch = (data.challenges || {})[id] || {};
+                                var title = ch.title || id;
+                                if (id in entry.solved) {
+                                    badgesHtml += '<td style="text-align:center;"><span class="ui-ch-badge done" title="' + title + '">\u2713</span></td>';
+                                } else {
+                                    badgesHtml += '<td style="text-align:center;"><span class="ui-ch-badge undone" title="' + title + '">\u2013</span></td>';
+                                }
+                            });
+                            var lastSolve = (entry.last_solve && entry.solve_count > 0)
+                                ? entry.last_solve.substring(0,16).replace('T',' ') : '\u2014';
+                            tr.innerHTML =
+                                '<td><span class="ax-rank ' + rankClass + '">#' + rankNum + '</span></td>' +
+                                '<td style="font-weight:500;">' + entry.name + '</td>' +
+                                '<td><span class="ax-table-mono ax-text-blue">' + entry.score + '</span><span class="ax-table-muted" style="font-size:var(--ax-text-xs);"> pts</span></td>' +
+                                '<td class="ax-table-muted ax-table-mono">' + entry.solve_count + ' / ' + chList.length + '</td>' +
+                                badgesHtml +
+                                '<td class="ax-table-mono ax-table-muted" style="font-size:var(--ax-text-xs);">' + lastSolve + '</td>';
+                            tbody.appendChild(tr);
+                        });
+                    })
+                    .catch(function (e) { /* silent */ });
             }
-
-            let badgesHtml = '';
-            challengesList.forEach(ch_id => {
-                if (ch_id in entry.solved) {
-                    badgesHtml += `<td><span class="ch-badge done" title="${data.challenges[ch_id].title} — solved">✓</span></td>`;
-                } else {
-                    badgesHtml += `<td><span class="ch-badge undone" title="${data.challenges[ch_id].title} — unsolved">–</span></td>`;
-                }
-            });
-
-            const penalty = entry.penalty_time !== undefined ? `<br><small style="color:var(--muted);font-size:0.75rem;">⏱ ${entry.penalty_time}min</small>` : '';
-            const lastSolveTime = (entry.last_solve && entry.solve_count > 0) 
-                ? entry.last_solve.substring(0, 19).replace('T', ' ') 
-                : '—';
-            const regTime = entry.registered_at.substring(0, 19).replace('T', ' ');
-
-            tr.innerHTML = `
-                <td>${rankHtml}</td>
-                <td class="participant-name">${nameHtml}</td>
-                <td><span class="score-val">${entry.score}</span> pts${penalty}</td>
-                <td style="color:var(--muted);">${entry.solve_count} / ${challengesList.length}</td>
-                ${badgesHtml}
-                <td class="time-val">${lastSolveTime}</td>
-                <td class="time-val">${regTime}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-
-        document.getElementById('last-refresh-time').textContent = new Date().toLocaleTimeString();
-
-    } catch(e) { console.warn('Scoreboard update failed', e); }
-}
-</script>
+            setInterval(refreshScoreboard, 5000);
+        })();
+    </script>
 </body>
 </html>

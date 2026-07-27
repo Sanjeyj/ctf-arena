@@ -2,16 +2,16 @@
 {% block title %}Zero Trust Decision Ledger — Cyber Defense Platform{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
+<div class="ax-page-header">
   <div>
-    <h1 class="ui-page-title">Zero Trust Decision Ledger</h1>
-    <p class="ui-page-subtitle">Continuous evaluation log of Zero Trust access decisions — identity, device context, resources, and policy outcomes.</p>
+    <h1 class="ax-page-title">Zero Trust Decision Ledger</h1>
+    <p class="ax-page-subtitle">Continuous evaluation log of Zero Trust access decisions — identity, device context, resources, and policy outcomes.</p>
   </div>
-  <a class="ui-btn ui-btn-ghost" href="/admin/assurance">← Back to Assurance Fabric</a>
+  <a class="ax-btn ax-btn-ghost" href="/admin/assurance">← Back to Assurance Fabric</a>
 </div>
 
-<div class="ui-glass-card" style="overflow-x:auto;">
-  <table class="ui-table" aria-label="Zero Trust decision ledger">
+<div class="ax-card ui-glass-card" style="overflow-x:auto;">
+  <table class="ax-table" aria-label="Zero Trust decision ledger">
     <thead>
       <tr>
         <th scope="col">Decision ID</th>
@@ -36,15 +36,15 @@
         </td>
         <td>
           {% if d.decision == 'allow' %}
-            <span class="ui-badge ui-badge-success">ALLOW</span>
+            <span class="ax-badge ax-badge-green">ALLOW</span>
           {% elif d.decision == 'allow_with_monitoring' %}
-            <span class="ui-badge ui-badge-info">ALLOW + MONITOR</span>
+            <span class="ax-badge ax-badge-blue">ALLOW + MONITOR</span>
           {% elif d.decision == 'require_step_up' %}
-            <span class="ui-badge ui-badge-warning">STEP-UP REQUIRED</span>
+            <span class="ax-badge ax-badge-amber">STEP-UP REQUIRED</span>
           {% elif d.decision == 'deny_simulation' %}
-            <span class="ui-badge ui-badge-danger">DENY</span>
+            <span class="ax-badge ax-badge-red">DENY</span>
           {% else %}
-            <span class="ui-badge ui-badge-muted">{{ d.decision.upper() }}</span>
+            <span class="ax-badge ax-badge-zinc">{{ d.decision.upper() }}</span>
           {% endif %}
         </td>
       </tr>

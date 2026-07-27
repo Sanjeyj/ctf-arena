@@ -2,38 +2,38 @@
 {% block title %}GRC Compliance Status — SecOS Admin{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
-    <div class="ui-page-title">📊 GRC Compliance & <em>Frameworks Scoring</em></div>
-    <div class="ui-page-subtitle">Review active compliance scoring indices for ISO 27001, NIST CSF, and CIS Controls.</div>
+<div class="ax-page-header">
+    <div class="ax-page-title">📊 GRC Compliance & <em>Frameworks Scoring</em></div>
+    <div class="ax-page-subtitle">Review active compliance scoring indices for ISO 27001, NIST CSF, and CIS Controls.</div>
 </div>
 
-<div class="ui-bento">
-    <div class="ui-bento-3 ui-glass-card accent-success">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Overall GRC Score</div>
-            <div class="ui-metric-value success" id="grc-score">100.0%</div>
-            <div class="ui-metric-sub">Aggregated compliance index</div>
+<div class="ax-grid">
+    <div class="ax-grid-3 ax-card ui-glass-card accent-success">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Overall GRC Score</div>
+            <div class="ax-metric-value success" id="grc-score">100.0%</div>
+            <div class="ax-metric-sub">Aggregated compliance index</div>
         </div>
     </div>
-    <div class="ui-bento-3 ui-glass-card">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Total Controls Mapped</div>
-            <div class="ui-metric-value" id="total-controls">0</div>
-            <div class="ui-metric-sub">Across all framework standards</div>
+    <div class="ax-grid-3 ax-card ui-glass-card">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Total Controls Mapped</div>
+            <div class="ax-metric-value" id="total-controls">0</div>
+            <div class="ax-metric-sub">Across all framework standards</div>
         </div>
     </div>
-    <div class="ui-bento-3 ui-glass-card accent-success">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Passed Checks</div>
-            <div class="ui-metric-value success" id="passed-controls">0</div>
-            <div class="ui-metric-sub">Satisfied control requirements</div>
+    <div class="ax-grid-3 ax-card ui-glass-card accent-success">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Passed Checks</div>
+            <div class="ax-metric-value success" id="passed-controls">0</div>
+            <div class="ax-metric-sub">Satisfied control requirements</div>
         </div>
     </div>
-    <div class="ui-bento-3 ui-glass-card accent-danger">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Failed Checks</div>
-            <div class="ui-metric-value danger" id="failed-controls">0</div>
-            <div class="ui-metric-sub">Identified non-compliant gaps</div>
+    <div class="ax-grid-3 ax-card ui-glass-card accent-danger">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Failed Checks</div>
+            <div class="ax-metric-value danger" id="failed-controls">0</div>
+            <div class="ax-metric-sub">Identified non-compliant gaps</div>
         </div>
     </div>
 </div>

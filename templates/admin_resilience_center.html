@@ -2,16 +2,16 @@
 {% block title %}Executive Cyber Resilience Center — Admin{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
-    <div class="ui-page-title">🛡️ Executive Cyber <em>Resilience Center</em></div>
-    <div class="ui-page-subtitle">Assess real-time organizational safety postures, failover capabilities, and business process RTO/RPO objectives.</div>
+<div class="ax-page-header">
+    <div class="ax-page-title">🛡️ Executive Cyber <em>Resilience Center</em></div>
+    <div class="ax-page-subtitle">Assess real-time organizational safety postures, failover capabilities, and business process RTO/RPO objectives.</div>
 </div>
 
 <!-- Bento Grid -->
-<div class="ui-bento">
+<div class="ax-grid">
     <!-- Top Left: Resilience Score Card (Glass style) -->
-    <div class="ui-bento-6 ui-glass-card accent-success">
-        <div class="ui-card-title">
+    <div class="ax-grid-6 ax-card ui-glass-card accent-success">
+        <div class="ax-card-title">
             <span><span class="title-icon">📈</span> Resilience Score Index</span>
         </div>
         
@@ -52,10 +52,10 @@
     </div>
 
     <!-- Top Right: Failure Modes Forecast (Glass style) -->
-    <div class="ui-bento-6 ui-glass-card accent-danger">
-        <div class="ui-card-title" style="justify-content: space-between;">
+    <div class="ax-grid-6 ax-card ui-glass-card accent-danger">
+        <div class="ax-card-title" style="justify-content: space-between;">
             <span><span class="title-icon">🔮</span> Failure Modes Forecast</span>
-            <span class="ui-badge ui-badge-danger">CRITICAL RISK</span>
+            <span class="ax-badge ax-badge-red">CRITICAL RISK</span>
         </div>
         
         <div style="display: flex; gap: 1.5rem; margin-top: 1.25rem; margin-bottom: 1.25rem;">
@@ -76,14 +76,14 @@
     </div>
 
     <!-- Bottom Left: Dependency Health & Readiness Matrix -->
-    <div class="ui-bento-8 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-8 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span><span class="title-icon">🔌</span> Infrastructure Dependency & Failover Status</span>
         </div>
         <p class="muted" style="font-size: 0.85rem; margin-bottom: 1.25rem;">Real-time checks for redundant systems, backups, and target recovery objective boundaries.</p>
         
-        <div class="ui-table-wrap">
-            <table class="ui-table">
+        <div class="ax-table-wrap">
+            <table class="ax-table">
                 <thead>
                     <tr>
                         <th>Dependency Layer</th>
@@ -96,31 +96,31 @@
                 <tbody>
                     <tr>
                         <td style="font-weight: 600;">Active Directory & Identity</td>
-                        <td><span class="ui-badge ui-badge-violet">CRITICAL</span></td>
+                        <td><span class="ax-badge ax-badge-purple">CRITICAL</span></td>
                         <td class="mono">1.0 Hour</td>
                         <td class="mono cyan">15 Min</td>
-                        <td><span class="ui-badge ui-badge-success">OPERATIONAL</span></td>
+                        <td><span class="ax-badge ax-badge-green">OPERATIONAL</span></td>
                     </tr>
                     <tr>
                         <td style="font-weight: 600;">Core Database Replication</td>
-                        <td><span class="ui-badge ui-badge-violet">CRITICAL</span></td>
+                        <td><span class="ax-badge ax-badge-purple">CRITICAL</span></td>
                         <td class="mono">2.0 Hours</td>
                         <td class="mono cyan">45 Min</td>
-                        <td><span class="ui-badge ui-badge-success">OPERATIONAL</span></td>
+                        <td><span class="ax-badge ax-badge-green">OPERATIONAL</span></td>
                     </tr>
                     <tr>
                         <td style="font-weight: 600;">Public Web Gateways</td>
-                        <td><span class="ui-badge ui-badge-cyan">HIGH</span></td>
+                        <td><span class="ax-badge ax-badge-blue">HIGH</span></td>
                         <td class="mono">4.0 Hours</td>
                         <td class="mono warning">3.2 Hours</td>
-                        <td><span class="ui-badge ui-badge-warning">DEGRADED</span></td>
+                        <td><span class="ax-badge ax-badge-amber">DEGRADED</span></td>
                     </tr>
                     <tr>
                         <td style="font-weight: 600;">Third-Party API Integrations</td>
-                        <td><span class="ui-badge ui-badge-muted">MEDIUM</span></td>
+                        <td><span class="ax-badge ax-badge-zinc">MEDIUM</span></td>
                         <td class="mono">8.0 Hours</td>
                         <td class="mono danger">12.5 Hours</td>
-                        <td><span class="ui-badge ui-badge-danger">OUTAGE</span></td>
+                        <td><span class="ax-badge ax-badge-red">OUTAGE</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -128,8 +128,8 @@
     </div>
 
     <!-- Bottom Right: Quick Actions & Simulation Control -->
-    <div class="ui-bento-4 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-4 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">⚡</span> Resilience Operations
         </div>
         <p class="muted" style="font-size: 0.85rem; margin-bottom: 1.25rem;">Initiate failover drills, assess recovery playbooks, or configure insurance policies.</p>

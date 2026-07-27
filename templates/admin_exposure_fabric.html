@@ -2,34 +2,34 @@
 {% block title %}Exposure Fabric Control Panel — Cyber Defense Platform{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
+<div class="ax-page-header">
   <div>
-    <h1 class="ui-page-title">Security Architecture, Exposure &amp; Attack Surface Management Fabric</h1>
-    <p class="ui-page-subtitle">Manage security zones, boundary validations, exposed assets inventory, attack path graphs, and prioritized remediations.</p>
+    <h1 class="ax-page-title">Security Architecture, Exposure &amp; Attack Surface Management Fabric</h1>
+    <p class="ax-page-subtitle">Manage security zones, boundary validations, exposed assets inventory, attack path graphs, and prioritized remediations.</p>
   </div>
 </div>
 
 <!-- Sub-navigation -->
-<nav class="ui-glass-card" style="margin-bottom:1.5rem;padding:1rem 1.5rem;" aria-label="Exposure sub-navigation">
+<nav class="ax-card ui-glass-card" style="margin-bottom:1.5rem;padding:1rem 1.5rem;" aria-label="Exposure sub-navigation">
   <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;">
     <span style="color:var(--ui-muted);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Navigate:</span>
-    <a class="ui-btn ui-btn-ghost" href="/admin/exposure-fabric/zones">Architecture Zones</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/exposure-fabric/boundaries">Trust Boundaries</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/exposure-fabric/inventory">Asset Inventory</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/exposure-fabric/findings">Vulnerabilities &amp; Findings</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/exposure-fabric/paths">Attack Paths</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/exposure-fabric/remediation">Remediation Prioritization</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/exposure-fabric/zones">Architecture Zones</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/exposure-fabric/boundaries">Trust Boundaries</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/exposure-fabric/inventory">Asset Inventory</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/exposure-fabric/findings">Vulnerabilities &amp; Findings</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/exposure-fabric/paths">Attack Paths</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/exposure-fabric/remediation">Remediation Prioritization</a>
   </div>
 </nav>
 
 <!-- Architecture Zones -->
 <h2 class="ui-section-heading">Architecture Zones</h2>
-<div class="ui-bento">
+<div class="ax-grid">
   {% for z in zones %}
-  <div class="ui-glass-card ui-bento-card" tabindex="0">
+  <div class="ax-card ui-glass-card ax-grid-card" tabindex="0">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
       <h3 style="font-size:1rem;font-weight:600;color:var(--ui-text-primary);margin:0;">{{ z.name }}</h3>
-      <span class="ui-badge ui-badge-info">{{ z.zone_type.upper() }}</span>
+      <span class="ax-badge ax-badge-blue">{{ z.zone_type.upper() }}</span>
     </div>
     <div class="ui-stat-row">
       <span class="ui-stat-label">Status</span>
@@ -47,7 +47,7 @@
     </div>
   </div>
   {% else %}
-  <div class="ui-glass-card ui-bento-card ui-empty-state">
+  <div class="ax-card ui-glass-card ax-grid-card ui-empty-state">
     <div class="ui-empty-icon">🏗</div>
     <p class="ui-empty-text">No logical architecture zones mapped.</p>
   </div>
@@ -56,19 +56,19 @@
 
 <!-- Active Exposure Findings -->
 <h2 class="ui-section-heading" style="margin-top:2rem;">Active Exposure Findings</h2>
-<div class="ui-bento">
+<div class="ax-grid">
   {% for f in findings %}
-  <div class="ui-glass-card ui-bento-card" style="border-color:rgba(239,68,68,0.3);" tabindex="0">
+  <div class="ax-card ui-glass-card ax-grid-card" style="border-color:rgba(239,68,68,0.3);" tabindex="0">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
       <h3 style="font-size:1rem;font-weight:600;color:var(--ui-accent-danger);margin:0;">{{ f.title }}</h3>
       {% if f.severity == 'critical' %}
-        <span class="ui-badge ui-badge-danger">CRITICAL</span>
+        <span class="ax-badge ax-badge-red">CRITICAL</span>
       {% elif f.severity == 'high' %}
-        <span class="ui-badge ui-badge-warning">HIGH</span>
+        <span class="ax-badge ax-badge-amber">HIGH</span>
       {% elif f.severity == 'medium' %}
-        <span class="ui-badge ui-badge-info">MEDIUM</span>
+        <span class="ax-badge ax-badge-blue">MEDIUM</span>
       {% else %}
-        <span class="ui-badge ui-badge-muted">{{ f.severity.upper() }}</span>
+        <span class="ax-badge ax-badge-zinc">{{ f.severity.upper() }}</span>
       {% endif %}
     </div>
     <div class="ui-stat-row">
@@ -85,7 +85,7 @@
     </div>
   </div>
   {% else %}
-  <div class="ui-glass-card ui-bento-card" style="border-color:rgba(16,185,129,0.25);">
+  <div class="ax-card ui-glass-card ax-grid-card" style="border-color:rgba(16,185,129,0.25);">
     <div class="ui-empty-state">
       <div class="ui-empty-icon">✅</div>
       <p class="ui-empty-text" style="color:var(--ui-accent-success);">No active exposure findings recorded.</p>

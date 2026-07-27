@@ -3,64 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login to the Arena | CTF Arena | EthicBids Technologies™</title>
+    <title>Login to the Arena — Sign In | EthicBids Technologies™</title>
+    <meta name="description" content="Sign in to CTF Arena — EthicBids Technologies™">
     <meta name="author" content="EthicBids Technologies">
     <meta name="application-name" content="CTF Arena">
     <meta name="copyright" content="© 2026 EthicBids Technologies™">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/ui-modernization.css">
-    <style>
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/axiom.css">
 </head>
-<body class="ui-app-bg">
-    <div class="ui-auth-card">
-        <div class="ui-auth-logo">
-            <span class="icon">🔑</span>
-            <h1>Login <span>Arena<span class="ui-cursor">_</span></span></h1>
-            <p>Access your challenges and statistics</p>
+<body class="ax-auth-shell">
+    <div class="ax-auth-card">
+
+        <!-- Brand -->
+        <a href="/" class="ax-auth-brand" aria-label="CTF Arena home">
+            <div class="ax-auth-brand-mark" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18m0-9h18"/>
+                </svg>
+            </div>
+            <span class="ax-auth-brand-name">CTF Arena <span>· EthicBids Technologies™</span></span>
+        </a>
+
+        <!-- Header -->
+        <div class="ax-auth-header">
+            <h1 class="ax-auth-title">Sign in</h1>
+            <p class="ax-auth-subtitle">Enter your credentials to access your challenges and progress.</p>
         </div>
 
+        <!-- Error message -->
         {% if error %}
-            <div class="ui-error-msg" role="alert">⚠️ {{ error }}</div>
+        <div class="ax-alert ax-alert-error" role="alert" aria-live="polite">
+            <svg class="ax-alert-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+            </svg>
+            {{ error }}
+        </div>
         {% endif %}
 
-        <form method="POST" action="/login" id="login-form">
-            <!-- CSRF Token -->
+        <!-- Form -->
+        <form method="POST" action="/login" id="login-form" class="ax-auth-form" novalidate>
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            
-            <div class="ui-form-group">
-                <label for="login-username" class="ui-label">Username</label>
-                <input type="text" name="username" id="login-username" class="ui-input" placeholder="e.g. HackerAce42" required autocomplete="off" autofocus>
-            </div>
-            
-            <div class="ui-form-group">
-                <label for="login-password" class="ui-label">Password</label>
-                <input type="password" name="password" id="login-password" class="ui-input" placeholder="••••••••••" required>
+
+            <div class="ax-form-group">
+                <label for="login-username" class="ax-label">Username</label>
+                <div class="ax-input-group">
+                    <svg class="ax-input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+                    </svg>
+                    <input type="text"
+                           name="username"
+                           id="login-username"
+                           class="ax-input"
+                           placeholder="Your username"
+                           required
+                           autocomplete="username"
+                           autofocus
+                           spellcheck="false"
+                           aria-required="true">
+                </div>
             </div>
 
-            <div class="ui-form-group">
-                <label class="ui-checkbox-row" for="login-remember">
+            <div class="ax-form-group">
+                <label for="login-password" class="ax-label">Password</label>
+                <div class="ax-input-group">
+                    <svg class="ax-input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                    </svg>
+                    <input type="password"
+                           name="password"
+                           id="login-password"
+                           class="ax-input"
+                           placeholder="••••••••"
+                           required
+                           autocomplete="current-password"
+                           aria-required="true">
+                </div>
+            </div>
+
+            <div class="ax-form-group" style="flex-direction:row;align-items:center;gap:var(--ax-space-3);">
+                <label class="ax-checkbox-row" for="login-remember">
                     <input type="checkbox" name="remember" id="login-remember">
-                    Remember Me
+                    <span>Keep me signed in</span>
                 </label>
             </div>
 
-            <button type="submit" class="ui-submit-btn" id="btn-login-submit">Sign In →</button>
+            <button type="submit" class="ax-btn ax-btn-primary ax-btn-lg ax-auth-submit" id="btn-login-submit">
+                Sign in
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:16px;height:16px;" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                </svg>
+            </button>
         </form>
 
-        <div class="ui-auth-link">
-            New player? <a href="/register" id="link-register">Register Display Name →</a><br><br>
-            Organiser? <a href="/admin/login" id="link-admin-login">Admin Login →</a>
+        <!-- Footer links -->
+        <div class="ax-auth-divider"></div>
+        <div class="ax-auth-links">
+            <span>New to CTF Arena? <a href="/register" id="link-register">Create an account</a></span>
+            <span>Organiser? <a href="/admin/login" id="link-admin-login">Administrator sign in</a></span>
         </div>
+
+        <div class="ax-auth-footer">
+            <a href="https://ethicbids.vercel.app/" target="_blank" rel="noopener noreferrer">EthicBids Technologies™</a> · © 2026
+        </div>
+
     </div>
-    <p style="margin-top:1.5rem;font-size:0.72rem;color:rgba(255,255,255,0.35);text-align:center;letter-spacing:0.3px;">Powered by <a href="https://ethicbids.vercel.app/" target="_blank" rel="noopener" style="color:rgba(0,240,255,0.5);text-decoration:none;">EthicBids Technologies™</a></p>
 </body>
 </html>

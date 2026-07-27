@@ -2,16 +2,16 @@
 {% block title %}Distributed Tracing — Cyber Defense Platform{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
+<div class="ax-page-header">
   <div>
-    <h1 class="ui-page-title">Distributed Traces &amp; Spans Ledger</h1>
-    <p class="ui-page-subtitle">Transaction trace records showing span hierarchy, service names, operation durations, and request health states.</p>
+    <h1 class="ax-page-title">Distributed Traces &amp; Spans Ledger</h1>
+    <p class="ax-page-subtitle">Transaction trace records showing span hierarchy, service names, operation durations, and request health states.</p>
   </div>
-  <a class="ui-btn ui-btn-ghost" href="/admin/operations-fabric">← Back to Operations Fabric</a>
+  <a class="ax-btn ax-btn-ghost" href="/admin/operations-fabric">← Back to Operations Fabric</a>
 </div>
 
-<div class="ui-glass-card" style="overflow-x:auto;">
-  <table class="ui-table" aria-label="Distributed traces and spans">
+<div class="ax-card ui-glass-card" style="overflow-x:auto;">
+  <table class="ax-table" aria-label="Distributed traces and spans">
     <thead>
       <tr>
         <th scope="col">Trace ID</th>
@@ -39,11 +39,11 @@
         </td>
         <td>
           {% if s.status == 'success' %}
-            <span class="ui-badge ui-badge-success">SUCCESS</span>
+            <span class="ax-badge ax-badge-green">SUCCESS</span>
           {% elif s.status == 'error' %}
-            <span class="ui-badge ui-badge-danger">ERROR</span>
+            <span class="ax-badge ax-badge-red">ERROR</span>
           {% else %}
-            <span class="ui-badge ui-badge-muted">{{ s.status.upper() }}</span>
+            <span class="ax-badge ax-badge-zinc">{{ s.status.upper() }}</span>
           {% endif %}
         </td>
         <td style="color:var(--ui-muted);font-size:0.82rem;font-family:'Fira Code',monospace;">{{ s.started_at }}</td>

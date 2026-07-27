@@ -3,77 +3,77 @@
 {% block title %}SOC Operations Center — CTF Arena Admin{% endblock %}
 
 {% block content %}
-<div class="ui-page-header" style="display: flex; justify-content: space-between; align-items: center;">
+<div class="ax-page-header" style="display: flex; justify-content: space-between; align-items: center;">
     <div>
-        <div class="ui-page-title">🛡️ SOC Operations <em>Center</em></div>
-        <div class="ui-page-subtitle">Security Operations & Threat Intelligence command dashboard.</div>
+        <div class="ax-page-title">🛡️ SOC Operations <em>Center</em></div>
+        <div class="ax-page-subtitle">Security Operations & Threat Intelligence command dashboard.</div>
     </div>
-    <div class="ui-status-pill online" style="font-size: 0.75rem;">
-        <span class="ui-pulse-dot"></span> LIVE MONITORING
+    <div class="ax-status-dot online" style="font-size: 0.75rem;">
+        <span class="ax-status-dot-indicator"></span> LIVE MONITORING
     </div>
 </div>
 
 <!-- Bento Grid -->
-<div class="ui-bento">
+<div class="ax-grid">
     <!-- TOP ROW: KPI Metrics -->
-    <div class="ui-bento-4 ui-glass-card accent-danger">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Critical Alerts</div>
-            <div class="ui-metric-value" id="critical-count">{{ alert_counts.get('critical', 0) }}</div>
-            <div class="ui-metric-sub">Immediate action required</div>
+    <div class="ax-grid-4 ax-card ui-glass-card accent-danger">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Critical Alerts</div>
+            <div class="ax-metric-value" id="critical-count">{{ alert_counts.get('critical', 0) }}</div>
+            <div class="ax-metric-sub">Immediate action required</div>
         </div>
     </div>
     
-    <div class="ui-bento-4 ui-glass-card accent-warning">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">High Alerts</div>
-            <div class="ui-metric-value warning" id="high-count">{{ alert_counts.get('high', 0) }}</div>
-            <div class="ui-metric-sub">Elevated priority events</div>
+    <div class="ax-grid-4 ax-card ui-glass-card accent-warning">
+        <div class="ax-metric">
+            <div class="ax-metric-label">High Alerts</div>
+            <div class="ax-metric-value warning" id="high-count">{{ alert_counts.get('high', 0) }}</div>
+            <div class="ax-metric-sub">Elevated priority events</div>
         </div>
     </div>
 
-    <div class="ui-bento-4 ui-glass-card accent-violet">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Medium Alerts</div>
-            <div class="ui-metric-value violet" id="medium-count">{{ alert_counts.get('medium', 0) }}</div>
-            <div class="ui-metric-sub">Standard severity warnings</div>
+    <div class="ax-grid-4 ax-card ui-glass-card accent-violet">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Medium Alerts</div>
+            <div class="ax-metric-value violet" id="medium-count">{{ alert_counts.get('medium', 0) }}</div>
+            <div class="ax-metric-sub">Standard severity warnings</div>
         </div>
     </div>
 
-    <div class="ui-bento-4 ui-glass-card accent-cyan">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Open Cases</div>
-            <div class="ui-metric-value" id="open-cases">{{ open_cases }}</div>
-            <div class="ui-metric-sub">Active analyst investigations</div>
+    <div class="ax-grid-4 ax-card ui-glass-card accent-cyan">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Open Cases</div>
+            <div class="ax-metric-value" id="open-cases">{{ open_cases }}</div>
+            <div class="ax-metric-sub">Active analyst investigations</div>
         </div>
     </div>
 
-    <div class="ui-bento-4 ui-glass-card accent-success">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Active IOCs</div>
-            <div class="ui-metric-value success" id="active-iocs">{{ active_iocs }}</div>
-            <div class="ui-metric-sub">Tracked threat indicators</div>
+    <div class="ax-grid-4 ax-card ui-glass-card accent-success">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Active IOCs</div>
+            <div class="ax-metric-value success" id="active-iocs">{{ active_iocs }}</div>
+            <div class="ax-metric-sub">Tracked threat indicators</div>
         </div>
     </div>
 
-    <div class="ui-bento-4 ui-glass-card">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Active Hunts</div>
-            <div class="ui-metric-value" id="active-hunts">{{ active_hunts }}</div>
-            <div class="ui-metric-sub">Ongoing proactive search campaigns</div>
+    <div class="ax-grid-4 ax-card ui-glass-card">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Active Hunts</div>
+            <div class="ax-metric-value" id="active-hunts">{{ active_hunts }}</div>
+            <div class="ax-metric-sub">Ongoing proactive search campaigns</div>
         </div>
     </div>
 
     <!-- MIDDLE ROW: Recent Alerts & Operations Navigation -->
     <!-- Recent Alerts Feed -->
-    <div class="ui-bento-8 ui-glass-card">
-        <div class="ui-card-title" style="justify-content: space-between;">
+    <div class="ax-grid-8 ax-card ui-glass-card">
+        <div class="ax-card-title" style="justify-content: space-between;">
             <span><span class="title-icon">🚨</span> Recent Security Alerts</span>
             <a href="/admin/alerts" class="ui-action-link">View Queue →</a>
         </div>
         
-        <div class="ui-table-wrap">
-            <table class="ui-table">
+        <div class="ax-table-wrap">
+            <table class="ax-table">
                 <thead>
                     <tr>
                         <th>Severity</th>
@@ -88,24 +88,24 @@
                     <tr>
                         <td>
                             {% if alert.severity == 'critical' %}
-                                <span class="ui-badge ui-badge-danger">CRITICAL</span>
+                                <span class="ax-badge ax-badge-red">CRITICAL</span>
                             {% elif alert.severity == 'high' %}
-                                <span class="ui-badge ui-badge-warning">HIGH</span>
+                                <span class="ax-badge ax-badge-amber">HIGH</span>
                             {% elif alert.severity == 'medium' %}
-                                <span class="ui-badge ui-badge-violet">MEDIUM</span>
+                                <span class="ax-badge ax-badge-purple">MEDIUM</span>
                             {% else %}
-                                <span class="ui-badge ui-badge-cyan">{{ alert.severity|upper }}</span>
+                                <span class="ax-badge ax-badge-blue">{{ alert.severity|upper }}</span>
                             {% endif %}
                         </td>
                         <td style="font-weight: 600;">{{ alert.title }}</td>
                         <td class="mono muted">{{ alert.event_type }}</td>
                         <td>
                             {% if alert.status == 'new' %}
-                                <span class="ui-badge ui-badge-danger">NEW</span>
+                                <span class="ax-badge ax-badge-red">NEW</span>
                             {% elif alert.status == 'open' or alert.status == 'investigating' %}
-                                <span class="ui-badge ui-badge-warning">{{ alert.status|upper }}</span>
+                                <span class="ax-badge ax-badge-amber">{{ alert.status|upper }}</span>
                             {% else %}
-                                <span class="ui-badge ui-badge-muted">{{ alert.status|upper }}</span>
+                                <span class="ax-badge ax-badge-zinc">{{ alert.status|upper }}</span>
                             {% endif %}
                         </td>
                         <td class="mono muted">{{ alert.created_at.strftime('%H:%M:%S') if alert.created_at else '—' }}</td>
@@ -126,18 +126,18 @@
     </div>
 
     <!-- Quick Operations Links -->
-    <div class="ui-bento-4 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-4 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">⚡</span> Operations Console
         </div>
-        <p class="ui-metric-sub" style="margin-bottom: 1.25rem;">Navigate to operational centers:</p>
+        <p class="ax-metric-sub" style="margin-bottom: 1.25rem;">Navigate to operational centers:</p>
         
         <div style="display: flex; flex-direction: column; gap: 0.75rem;">
             <a href="/admin/alerts" class="ui-glass" style="display: flex; gap: 1rem; align-items: center; padding: 0.9rem; text-decoration: none; border-radius: var(--ui-radius-md);">
                 <span style="font-size: 1.5rem;">🚨</span>
                 <div>
                     <div style="font-weight: 600; color: var(--ui-text-primary); font-size: 0.9rem;">Alert Queue</div>
-                    <div class="ui-metric-sub">Triage and response console</div>
+                    <div class="ax-metric-sub">Triage and response console</div>
                 </div>
             </a>
             
@@ -145,7 +145,7 @@
                 <span style="font-size: 1.5rem;">📁</span>
                 <div>
                     <div style="font-weight: 600; color: var(--ui-text-primary); font-size: 0.9rem;">Case Management</div>
-                    <div class="ui-metric-sub">Track active incident responses</div>
+                    <div class="ax-metric-sub">Track active incident responses</div>
                 </div>
             </a>
             
@@ -153,7 +153,7 @@
                 <span style="font-size: 1.5rem;">🎯</span>
                 <div>
                     <div style="font-weight: 600; color: var(--ui-text-primary); font-size: 0.9rem;">Threat Hunting</div>
-                    <div class="ui-metric-sub">Analyze behavioral patterns</div>
+                    <div class="ax-metric-sub">Analyze behavioral patterns</div>
                 </div>
             </a>
             
@@ -161,7 +161,7 @@
                 <span style="font-size: 1.5rem;">🔬</span>
                 <div>
                     <div style="font-weight: 600; color: var(--ui-text-primary); font-size: 0.9rem;">Threat Intel</div>
-                    <div class="ui-metric-sub">Indicator feed aggregations</div>
+                    <div class="ax-metric-sub">Indicator feed aggregations</div>
                 </div>
             </a>
         </div>

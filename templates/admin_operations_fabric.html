@@ -2,39 +2,39 @@
 {% block title %}Operations Fabric Control Panel — Cyber Defense Platform{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
+<div class="ax-page-header">
   <div>
-    <h1 class="ui-page-title">Cyber Platform Observability, Reliability &amp; Operations Fabric</h1>
-    <p class="ui-page-subtitle">Operational control plane monitoring platform health, SLO error budgets, active telemetry sources, system traces, and chaos simulations.</p>
+    <h1 class="ax-page-title">Cyber Platform Observability, Reliability &amp; Operations Fabric</h1>
+    <p class="ax-page-subtitle">Operational control plane monitoring platform health, SLO error budgets, active telemetry sources, system traces, and chaos simulations.</p>
   </div>
 </div>
 
 <!-- Sub-navigation -->
-<nav class="ui-glass-card" style="margin-bottom:1.5rem;padding:1rem 1.5rem;" aria-label="Operations sub-navigation">
+<nav class="ax-card ui-glass-card" style="margin-bottom:1.5rem;padding:1rem 1.5rem;" aria-label="Operations sub-navigation">
   <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;">
     <span style="color:var(--ui-muted);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Navigate:</span>
-    <a class="ui-btn ui-btn-ghost" href="/admin/operations-fabric/telemetry">Telemetry Sources</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/operations-fabric/traces">System Tracing</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/operations-fabric/health">Service Health</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/operations-fabric/reliability">Reliability Engineering</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/operations-fabric/incidents">Operational Incidents</a>
-    <a class="ui-btn ui-btn-ghost" href="/admin/operations-fabric/chaos">Chaos Experiments</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/operations-fabric/telemetry">Telemetry Sources</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/operations-fabric/traces">System Tracing</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/operations-fabric/health">Service Health</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/operations-fabric/reliability">Reliability Engineering</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/operations-fabric/incidents">Operational Incidents</a>
+    <a class="ax-btn ax-btn-ghost" href="/admin/operations-fabric/chaos">Chaos Experiments</a>
   </div>
 </nav>
 
 <!-- Active Telemetry Sources -->
 <h2 class="ui-section-heading">Active Telemetry Sources</h2>
-<div class="ui-bento">
+<div class="ax-grid">
   {% for s in sources %}
-  <div class="ui-glass-card ui-bento-card" tabindex="0">
+  <div class="ax-card ui-glass-card ax-grid-card" tabindex="0">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
       <h3 style="font-size:1rem;font-weight:600;color:var(--ui-text-primary);margin:0;">{{ s.name }}</h3>
       {% if s.status == 'active' %}
-        <span class="ui-badge ui-badge-success">ACTIVE</span>
+        <span class="ax-badge ax-badge-green">ACTIVE</span>
       {% elif s.status == 'degraded' %}
-        <span class="ui-badge ui-badge-warning">DEGRADED</span>
+        <span class="ax-badge ax-badge-amber">DEGRADED</span>
       {% else %}
-        <span class="ui-badge ui-badge-muted">{{ s.status.upper() }}</span>
+        <span class="ax-badge ax-badge-zinc">{{ s.status.upper() }}</span>
       {% endif %}
     </div>
     <div class="ui-stat-row">
@@ -49,7 +49,7 @@
     </div>
   </div>
   {% else %}
-  <div class="ui-glass-card ui-bento-card ui-empty-state">
+  <div class="ax-card ui-glass-card ax-grid-card ui-empty-state">
     <div class="ui-empty-icon">📡</div>
     <p class="ui-empty-text">No active telemetry sources registered.</p>
   </div>
@@ -58,17 +58,17 @@
 
 <!-- Active Incidents -->
 <h2 class="ui-section-heading" style="margin-top:2rem;">Active Incidents</h2>
-<div class="ui-bento">
+<div class="ax-grid">
   {% for i in incidents %}
-  <div class="ui-glass-card ui-bento-card" style="border-color:rgba(239,68,68,0.35);" tabindex="0">
+  <div class="ax-card ui-glass-card ax-grid-card" style="border-color:rgba(239,68,68,0.35);" tabindex="0">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
       <h3 style="font-size:1rem;font-weight:600;color:var(--ui-accent-danger);margin:0;">{{ i.title }}</h3>
       {% if i.severity == 'critical' %}
-        <span class="ui-badge ui-badge-danger">CRITICAL</span>
+        <span class="ax-badge ax-badge-red">CRITICAL</span>
       {% elif i.severity == 'high' %}
-        <span class="ui-badge ui-badge-warning">HIGH</span>
+        <span class="ax-badge ax-badge-amber">HIGH</span>
       {% else %}
-        <span class="ui-badge ui-badge-muted">{{ i.severity.upper() }}</span>
+        <span class="ax-badge ax-badge-zinc">{{ i.severity.upper() }}</span>
       {% endif %}
     </div>
     <div class="ui-stat-row">
@@ -78,7 +78,7 @@
     <div style="font-size:0.8rem;color:var(--ui-muted);margin-top:0.5rem;line-height:1.5;">{{ i.root_cause_summary }}</div>
   </div>
   {% else %}
-  <div class="ui-glass-card ui-bento-card" style="border-color:rgba(16,185,129,0.25);">
+  <div class="ax-card ui-glass-card ax-grid-card" style="border-color:rgba(16,185,129,0.25);">
     <div class="ui-empty-state">
       <div class="ui-empty-icon">✅</div>
       <p class="ui-empty-text" style="color:var(--ui-accent-success);">System Status: All services operational. No active incidents.</p>

@@ -10,12 +10,21 @@ class Config:
     SCORES_FILE = os.environ.get("SCORES_FILE", "scores.json")
     
     # Database
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL",
+    _db_url = os.environ.get("DATABASE_URL")
+    if os.environ.get("VERCEL"):
+        if not _db_url or "db.example.com" in _db_url or "example.com" in _db_url:
+            _db_url = "sqlite:////tmp/ctf.db"
+    
+    SQLALCHEMY_DATABASE_URI = _db_url or (
         "sqlite:///" + os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "instance", "ctf.db"))
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+
+    _redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+    if os.environ.get("VERCEL"):
+        if _redis_url and ("redis.example.com" in _redis_url or "example.com" in _redis_url):
+            _redis_url = None
+    REDIS_URL = _redis_url
     MAX_CONTENT_LENGTH = int(os.environ.get("MAX_CONTENT_LENGTH", 16 * 1024 * 1024)) # 16MB default
 
     # Password Policy Configuration

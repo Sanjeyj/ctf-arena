@@ -3,19 +3,19 @@
 {% block title %}Incident Queue | CTF Arena Admin{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
-    <div class="ui-page-title">🚨 Incident <em>Queue</em></div>
-    <div class="ui-page-subtitle">Review active alerts, triage analysis progress, and lessons learned containment states.</div>
+<div class="ax-page-header">
+    <div class="ax-page-title">🚨 Incident <em>Queue</em></div>
+    <div class="ax-page-subtitle">Review active alerts, triage analysis progress, and lessons learned containment states.</div>
 </div>
 
 <!-- Bento Grid -->
-<div class="ui-bento">
+<div class="ax-grid">
     <!-- TOP ROW: Metrics -->
-    <div class="ui-bento-3 ui-glass-card accent-cyan">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Total Incidents</div>
-            <div class="ui-metric-value" style="font-size: 2rem;">{{ incidents|length }}</div>
-            <div class="ui-metric-sub">Logged in range queue</div>
+    <div class="ax-grid-3 ax-card ui-glass-card accent-cyan">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Total Incidents</div>
+            <div class="ax-metric-value" style="font-size: 2rem;">{{ incidents|length }}</div>
+            <div class="ax-metric-sub">Logged in range queue</div>
         </div>
     </div>
 
@@ -32,39 +32,39 @@
         {% endif %}
     {% endfor %}
 
-    <div class="ui-bento-3 ui-glass-card accent-danger">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Active / Open</div>
-            <div class="ui-metric-value success" style="font-size: 2rem; color: var(--ui-danger);">{{ ns.open + ns.investigating }}</div>
-            <div class="ui-metric-sub">Triage or investigation active</div>
+    <div class="ax-grid-3 ax-card ui-glass-card accent-danger">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Active / Open</div>
+            <div class="ax-metric-value success" style="font-size: 2rem; color: var(--ui-danger);">{{ ns.open + ns.investigating }}</div>
+            <div class="ax-metric-sub">Triage or investigation active</div>
         </div>
     </div>
 
-    <div class="ui-bento-3 ui-glass-card accent-warning">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Contained</div>
-            <div class="ui-metric-value warning" style="font-size: 2rem;">{{ ns.contained }}</div>
-            <div class="ui-metric-sub">Threat successfully isolated</div>
+    <div class="ax-grid-3 ax-card ui-glass-card accent-warning">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Contained</div>
+            <div class="ax-metric-value warning" style="font-size: 2rem;">{{ ns.contained }}</div>
+            <div class="ax-metric-sub">Threat successfully isolated</div>
         </div>
     </div>
 
-    <div class="ui-bento-3 ui-glass-card accent-success">
-        <div class="ui-metric-card">
-            <div class="ui-metric-label">Resolved</div>
-            <div class="ui-metric-value success" style="font-size: 2rem;">{{ ns.resolved }}</div>
-            <div class="ui-metric-sub">Closed with post-mortem documentation</div>
+    <div class="ax-grid-3 ax-card ui-glass-card accent-success">
+        <div class="ax-metric">
+            <div class="ax-metric-label">Resolved</div>
+            <div class="ax-metric-value success" style="font-size: 2rem;">{{ ns.resolved }}</div>
+            <div class="ax-metric-sub">Closed with post-mortem documentation</div>
         </div>
     </div>
 
     <!-- MIDDLE ROW: Security Incidents Table -->
-    <div class="ui-bento-12 ui-glass-card">
-        <div class="ui-card-title">
+    <div class="ax-grid-12 ax-card ui-glass-card">
+        <div class="ax-card-title">
             <span class="title-icon">🚨</span> Active Range Incidents
         </div>
         
-        <div class="ui-table-wrap">
+        <div class="ax-table-wrap">
             {% if incidents %}
-            <table class="ui-table">
+            <table class="ax-table">
                 <thead>
                     <tr>
                         <th>Incident Title</th>
@@ -80,19 +80,19 @@
                         <td style="font-weight: 600;">{{ inc.title }}</td>
                         <td>
                             {% if inc.status == 'open' %}
-                                <span class="ui-badge ui-badge-danger">OPEN</span>
+                                <span class="ax-badge ax-badge-red">OPEN</span>
                             {% elif inc.status == 'investigating' %}
-                                <span class="ui-badge ui-badge-warning">INVESTIGATING</span>
+                                <span class="ax-badge ax-badge-amber">INVESTIGATING</span>
                             {% elif inc.status == 'contained' %}
-                                <span class="ui-badge ui-badge-cyan">CONTAINED</span>
+                                <span class="ax-badge ax-badge-blue">CONTAINED</span>
                             {% elif inc.status == 'resolved' %}
-                                <span class="ui-badge ui-badge-success">RESOLVED</span>
+                                <span class="ax-badge ax-badge-green">RESOLVED</span>
                             {% else %}
-                                <span class="ui-badge ui-badge-muted">{{ inc.status|upper }}</span>
+                                <span class="ax-badge ax-badge-zinc">{{ inc.status|upper }}</span>
                             {% endif %}
                         </td>
                         <td>
-                            <span class="ui-badge ui-badge-violet">{{ inc.workflow_stage.replace('_', ' ')|upper }}</span>
+                            <span class="ax-badge ax-badge-purple">{{ inc.workflow_stage.replace('_', ' ')|upper }}</span>
                         </td>
                         <td>
                             <a href="/admin/cyberrange/simulation/{{ inc.simulation_id }}" class="ui-action-link mono">

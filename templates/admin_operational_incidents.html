@@ -2,27 +2,27 @@
 {% block title %}Operational Incidents — Cyber Defense Platform{% endblock %}
 
 {% block content %}
-<div class="ui-page-header">
+<div class="ax-page-header">
   <div>
-    <h1 class="ui-page-title">Operational Incidents &amp; Correlation Ledger</h1>
-    <p class="ui-page-subtitle">Incident tracking, severity classification, root cause correlation, and operational timeline signals.</p>
+    <h1 class="ax-page-title">Operational Incidents &amp; Correlation Ledger</h1>
+    <p class="ax-page-subtitle">Incident tracking, severity classification, root cause correlation, and operational timeline signals.</p>
   </div>
-  <a class="ui-btn ui-btn-ghost" href="/admin/operations-fabric">← Back to Operations Fabric</a>
+  <a class="ax-btn ax-btn-ghost" href="/admin/operations-fabric">← Back to Operations Fabric</a>
 </div>
 
 <!-- Incident Cards -->
 <h2 class="ui-section-heading">Active and Resolved Incidents</h2>
-<div class="ui-bento">
+<div class="ax-grid">
   {% for i in incidents %}
-  <div class="ui-glass-card ui-bento-card" style="border-color:{% if i.status == 'resolved' %}rgba(16,185,129,0.3){% else %}rgba(239,68,68,0.35){% endif %};" tabindex="0">
+  <div class="ax-card ui-glass-card ax-grid-card" style="border-color:{% if i.status == 'resolved' %}rgba(16,185,129,0.3){% else %}rgba(239,68,68,0.35){% endif %};" tabindex="0">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
       <h3 style="font-size:1rem;font-weight:600;color:{% if i.status == 'resolved' %}var(--ui-accent-success){% else %}var(--ui-accent-danger){% endif %};margin:0;">{{ i.title }}</h3>
       {% if i.status == 'resolved' %}
-        <span class="ui-badge ui-badge-success">RESOLVED</span>
+        <span class="ax-badge ax-badge-green">RESOLVED</span>
       {% elif i.severity == 'critical' %}
-        <span class="ui-badge ui-badge-danger">{{ i.severity.upper() }}</span>
+        <span class="ax-badge ax-badge-red">{{ i.severity.upper() }}</span>
       {% else %}
-        <span class="ui-badge ui-badge-warning">{{ i.severity.upper() }}</span>
+        <span class="ax-badge ax-badge-amber">{{ i.severity.upper() }}</span>
       {% endif %}
     </div>
     <div class="ui-stat-row">
@@ -35,7 +35,7 @@
     </div>
   </div>
   {% else %}
-  <div class="ui-glass-card ui-bento-card" style="border-color:rgba(16,185,129,0.25);">
+  <div class="ax-card ui-glass-card ax-grid-card" style="border-color:rgba(16,185,129,0.25);">
     <div class="ui-empty-state">
       <div class="ui-empty-icon">✅</div>
       <p class="ui-empty-text" style="color:var(--ui-accent-success);">All systems operational. No incidents logged.</p>
@@ -46,8 +46,8 @@
 
 <!-- Timeline of Operational Signals -->
 <h2 class="ui-section-heading" style="margin-top:2rem;">Timeline of Operational Signals</h2>
-<div class="ui-glass-card" style="overflow-x:auto;">
-  <table class="ui-table" aria-label="Operational signals timeline">
+<div class="ax-card ui-glass-card" style="overflow-x:auto;">
+  <table class="ax-table" aria-label="Operational signals timeline">
     <thead>
       <tr>
         <th scope="col">Event Type</th>
